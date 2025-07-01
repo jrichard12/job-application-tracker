@@ -16,8 +16,8 @@ function QuickLinks() {
                     </Typography>
                     <List>
                         {
-                            links.map((link: string) => {
-                                return (<ListItemButton component="a" href={link}>
+                            links.map((link: string, index: number) => {
+                                return (<ListItemButton key={index} component="a" href={link}>
                                     <ListItemText primary={link.split('.')[1]} />
                                 </ListItemButton>)
                             })
