@@ -1,0 +1,22 @@
+
+.user-home {
+    display: flex;
+    margin: 3%;
+    gap: 12vw;
+
+    .sidebar-div {
+        display: flex;
+        flex-direction: column;
+        width: 25vw;
+    }
+
+    .reminders-div {
+        width: 50vw;
+
+        .reminders-content {
+            height: 50vh;
+        }
+    }
+}
+
+

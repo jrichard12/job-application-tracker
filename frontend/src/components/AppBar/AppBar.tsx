@@ -1,5 +1,6 @@
 import * as React from 'react';
 import "./AppBar.scss"
+import { Link } from 'react-router-dom';
 import AppBar from '@mui/material/AppBar';
 import Box from '@mui/material/Box';
 import Toolbar from '@mui/material/Toolbar';
@@ -92,7 +93,12 @@ function CustomAppBar() {
             >
               {pages.map((page) => (
                 <MenuItem key={page} onClick={handleCloseNavMenu}>
-                  <Typography sx={{ textAlign: 'center' }}>{page}</Typography>
+                  <Typography
+                    component={Link}
+                    to={`/${page.toLowerCase()}`}
+                    sx={{ textAlign: 'center', textDecoration: 'none' }}>
+                    {page}
+                  </Typography>
                 </MenuItem>
               ))}
             </Menu>
@@ -102,7 +108,7 @@ function CustomAppBar() {
             variant="h5"
             noWrap
             component="a"
-            href="#app-bar-with-responsive-menu"
+            href="/"
             sx={{
               mr: 2,
               display: { xs: 'flex', md: 'none' },
@@ -121,6 +127,8 @@ function CustomAppBar() {
               <Button
                 key={page}
                 onClick={handleCloseNavMenu}
+                component={Link}
+                to={`/${page.toLowerCase()}`}
                 sx={{ my: 2, color: 'white', display: 'block' }}
               >
                 {page}
