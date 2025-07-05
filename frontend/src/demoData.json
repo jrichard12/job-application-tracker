@@ -1,0 +1,67 @@
+[
+  {
+    "id": "1",
+    "source": "https://www.indeed.com",
+    "company": "TechNova",
+    "jobTitle": "Frontend Developer",
+    "salary": "$70,000 - $85,000",
+    "location": "Toronto, ON",
+    "description": "Work on dynamic user interfaces using React and TypeScript.",
+    "dateApplied": "2025-06-20T00:00:00.000Z",
+    "deadline": "2025-07-15T00:00:00.000Z",
+    "statusUpdated": "2025-06-21T00:00:00.000Z",
+    "status": "Applied"
+  },
+  {
+    "id": "2",
+    "source": "https://www.glassdoor.com",
+    "company": "CloudCore",
+    "jobTitle": "Backend Engineer",
+    "salary": "$80,000 - $95,000",
+    "location": "Remote",
+    "description": "Develop and maintain scalable backend services in Node.js.",
+    "dateApplied": "2025-06-18T00:00:00.000Z",
+    "deadline": null,
+    "statusUpdated": "2025-06-25T00:00:00.000Z",
+    "status": "Interviewed"
+  },
+  {
+    "id": "3",
+    "source": "https://www.linkedin.com/jobs",
+    "company": "PixelWorks",
+    "jobTitle": "Full Stack Developer",
+    "salary": "$75,000 - $90,000",
+    "location": "Kitchener, ON",
+    "description": "Collaborate on full stack features using React and AWS Lambda.",
+    "dateApplied": "2025-06-10T00:00:00.000Z",
+    "deadline": "2025-06-30T00:00:00.000Z",
+    "statusUpdated": "2025-06-28T00:00:00.000Z",
+    "status": "Offered"
+  },
+  {
+    "id": "4",
+    "source": "https://www.indeed.com",
+    "company": "Finovate",
+    "jobTitle": "Software Engineer Intern",
+    "salary": "$25/hr",
+    "location": "Waterloo, ON",
+    "description": "Assist in designing internal tools with React and DynamoDB.",
+    "dateApplied": "2025-05-30T00:00:00.000Z",
+    "deadline": null,
+    "statusUpdated": "2025-06-15T00:00:00.000Z",
+    "status": "Rejected"
+  },
+  {
+    "id": "5",
+    "source": "https://www.linkedin.com/jobs",
+    "company": "HealthTech AI",
+    "jobTitle": "Junior Software Developer",
+    "salary": "$68,000 - $75,000",
+    "location": "Mississauga, ON",
+    "description": "Build front-end components for AI-powered health dashboards.",
+    "dateApplied": "2025-06-12T00:00:00.000Z",
+    "deadline": "2025-07-01T00:00:00.000Z",
+    "statusUpdated": "2025-06-26T00:00:00.000Z",
+    "status": "Accepted"
+  }
+]
