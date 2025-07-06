@@ -4,7 +4,11 @@ import jobData from "../../demoData.json";
 import type { JobApp } from "../../types/JobApp";
 import { useEffect, useState } from "react";
 
-function JobAppList() {
+type JobAppListProps = {
+    jobDetailsHandler: (job: JobApp) => void
+}
+
+function JobAppList( {jobDetailsHandler }: JobAppListProps) {
     const [jobs, setJobs] = useState<JobApp[]>([]);
 
     function parseJobApps(data: any[]): JobApp[] {
@@ -23,6 +27,7 @@ function JobAppList() {
 
     const showJobDetails = (job: JobApp) => {
         console.log(job.jobTitle);
+        jobDetailsHandler(job);
     };
 
     return (
@@ -30,12 +35,12 @@ function JobAppList() {
             {jobs &&
                 <List sx={{ width: "30vw" }}>
                     {
-                        jobs.map((job: JobApp) => {
+                        jobs.map((job: JobApp, index: number) => {
                             return (
-                                <ListItemButton onClick={() => showJobDetails(job)}>
+                                <ListItemButton key={index} onClick={() => showJobDetails(job)}>
                                     <Card sx={{ width: "30vw" }}>
                                         <CardContent>
-                                            <Typography>
+                                            <Typography variant="h6">
                                                 {job.jobTitle}
                                             </Typography>
                                             <Typography>

@@ -1,8 +1,16 @@
-
 .applications {
-    margin: 3%;
+  margin: 3%;
+
+  .job-apps {
+    display: flex;
+    flex-direction: row;
 
     .job-app-list {
-        width: 40vw;
+      width: 40vw;
     }
+
+    .job-app-details {
+        width: 60vw;
+    }
+  }
 }
