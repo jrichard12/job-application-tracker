@@ -14,11 +14,14 @@ import { jobAppStatusOptions } from "../../types/JobApp";
 import { useState, useEffect } from "react";
 
 type JobDetailsProps = {
-    job: JobApp | null
+    job: JobApp | null,
+    onArchive?: (jobId: string) => void,
+    onDelete?: (jobId: string) => void,
+    isArchived?: boolean,
 }
 
 
-function JobDetails({ job }: JobDetailsProps) {
+function JobDetails({ job, onArchive, onDelete, isArchived }: JobDetailsProps) {
     // Inline editing state for fields
     const [editingField, setEditingField] = useState<string | null>(null);
     const [tempFieldValue, setTempFieldValue] = useState<string>("");
@@ -84,7 +87,7 @@ function JobDetails({ job }: JobDetailsProps) {
                 justifyContent: 'flex-start',
             }}
         >
-            <CardContent>
+            <CardContent sx={{ position: 'relative', paddingBottom: '3.5rem' }}>
                 {currentJob &&
                     <div className="job-card">
                         <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: '1rem', flexDirection: 'column', marginBottom: '0.5rem' }}>
@@ -172,9 +175,9 @@ function JobDetails({ job }: JobDetailsProps) {
                             </div>
                         </div>
                         <Divider variant="middle" flexItem />
-                        <div className="job-details-row">
+                        <div className="job-details-row" style={{ display: 'flex', alignItems: 'center', textAlign: 'left' }}>
                             <span className="job-details-label">Company:</span>
-                            <span className="job-details-value" style={{ display: 'flex', alignItems: 'center' }}>
+                            <span className="job-details-value" style={{ display: 'flex', alignItems: 'center', flex: 1 }}>
                                 {editingField === 'company' ? (
                                     <>
                                         <input
@@ -205,16 +208,18 @@ function JobDetails({ job }: JobDetailsProps) {
                                 ) : (
                                     <>
                                         <span style={{ flex: 1 }}>{currentJob.company || 'No company provided'}</span>
-                                        <IconButton size="small" sx={{ ml: 1, color: '#1976d2' }} aria-label="Edit company" onClick={() => { setEditingField('company'); setTempFieldValue(currentJob.company || ""); }}>
-                                            <EditIcon fontSize="small" />
-                                        </IconButton>
+                                        <div style={{ marginLeft: 'auto' }}>
+                                            <IconButton size="small" sx={{ color: '#1976d2' }} aria-label="Edit company" onClick={() => { setEditingField('company'); setTempFieldValue(currentJob.company || ""); }}>
+                                                <EditIcon fontSize="small" />
+                                            </IconButton>
+                                        </div>
                                     </>
                                 )}
                             </span>
                         </div>
-                        <div className="job-details-row">
+                        <div className="job-details-row" style={{ display: 'flex', alignItems: 'center', textAlign: 'left' }}>
                             <span className="job-details-label">Source:</span>
-                            <span className="job-details-value" style={{ display: 'flex', alignItems: 'center' }}>
+                            <span className="job-details-value" style={{ display: 'flex', alignItems: 'center', flex: 1 }}>
                                 {editingField === 'source' ? (
                                     <>
                                         <input
@@ -245,16 +250,18 @@ function JobDetails({ job }: JobDetailsProps) {
                                 ) : (
                                     <>
                                         <span style={{ flex: 1 }}>{currentJob.source || 'No source provided'}</span>
-                                        <IconButton size="small" sx={{ ml: 1, color: '#1976d2' }} aria-label="Edit source" onClick={() => { setEditingField('source'); setTempFieldValue(currentJob.source || ""); }}>
-                                            <EditIcon fontSize="small" />
-                                        </IconButton>
+                                        <div style={{ marginLeft: 'auto' }}>
+                                            <IconButton size="small" sx={{ color: '#1976d2' }} aria-label="Edit source" onClick={() => { setEditingField('source'); setTempFieldValue(currentJob.source || ""); }}>
+                                                <EditIcon fontSize="small" />
+                                            </IconButton>
+                                        </div>
                                     </>
                                 )}
                             </span>
                         </div>
-                        <div className="job-details-row">
+                        <div className="job-details-row" style={{ display: 'flex', alignItems: 'center', textAlign: 'left' }}>
                             <span className="job-details-label">Location:</span>
-                            <span className="job-details-value" style={{ display: 'flex', alignItems: 'center' }}>
+                            <span className="job-details-value" style={{ display: 'flex', alignItems: 'center', flex: 1 }}>
                                 {editingField === 'location' ? (
                                     <>
                                         <input
@@ -285,16 +292,18 @@ function JobDetails({ job }: JobDetailsProps) {
                                 ) : (
                                     <>
                                         <span style={{ flex: 1 }}>{currentJob.location || 'No location provided'}</span>
-                                        <IconButton size="small" sx={{ ml: 1, color: '#1976d2' }} aria-label="Edit location" onClick={() => { setEditingField('location'); setTempFieldValue(currentJob.location || ""); }}>
-                                            <EditIcon fontSize="small" />
-                                        </IconButton>
+                                        <div style={{ marginLeft: 'auto' }}>
+                                            <IconButton size="small" sx={{ color: '#1976d2' }} aria-label="Edit location" onClick={() => { setEditingField('location'); setTempFieldValue(currentJob.location || ""); }}>
+                                                <EditIcon fontSize="small" />
+                                            </IconButton>
+                                        </div>
                                     </>
                                 )}
                             </span>
                         </div>
-                        <div className="job-details-row">
+                        <div className="job-details-row" style={{ display: 'flex', alignItems: 'center', textAlign: 'left' }}>
                             <span className="job-details-label">Salary:</span>
-                            <span className="job-details-value" style={{ display: 'flex', alignItems: 'center' }}>
+                            <span className="job-details-value" style={{ display: 'flex', alignItems: 'center', flex: 1 }}>
                                 {editingField === 'salary' ? (
                                     <>
                                         <input
@@ -325,23 +334,25 @@ function JobDetails({ job }: JobDetailsProps) {
                                 ) : (
                                     <>
                                         <span style={{ flex: 1 }}>{currentJob.salary || 'No salary provided'}</span>
-                                        <IconButton size="small" sx={{ ml: 1, color: '#1976d2' }} aria-label="Edit salary" onClick={() => { setEditingField('salary'); setTempFieldValue(currentJob.salary || ""); }}>
-                                            <EditIcon fontSize="small" />
-                                        </IconButton>
+                                        <div style={{ marginLeft: 'auto' }}>
+                                            <IconButton size="small" sx={{ color: '#1976d2' }} aria-label="Edit salary" onClick={() => { setEditingField('salary'); setTempFieldValue(currentJob.salary || ""); }}>
+                                                <EditIcon fontSize="small" />
+                                            </IconButton>
+                                        </div>
                                     </>
                                 )}
                             </span>
                         </div>
-                        <div className="job-details-row" style={{ alignItems: 'flex-start' }}>
-                            <span className="job-details-label" style={{ marginRight: '0.7rem', marginTop: editingSkills ? 0 : '0.2rem' }}>Skills:</span>
-                            <span className="job-details-value" style={{ flex: 1 }}>
+                        <div className="job-details-row" style={{ display: 'flex', alignItems: editingSkills ? 'flex-start' : 'center', textAlign: 'left', minHeight: '2.6rem' }}>
+                            <span className="job-details-label" style={{ marginRight: '0.7rem', marginTop: editingSkills ? 0 : '0.2rem', minWidth: 120, width: 120, display: 'inline-flex', alignItems: 'center' }}>Skills:</span>
+                            <span className="job-details-value" style={{ flex: 1, display: 'flex', flexDirection: editingSkills ? 'column' : 'row', alignItems: editingSkills ? 'flex-start' : 'center', width: 'auto' }}>
                                 {editingSkills ? (
-                                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem', width: '100%' }}>
+                                    <div style={{ display: 'flex', alignItems: 'center', width: '100%', marginBottom: '0.5rem' }}>
                                         <input
                                             type="text"
                                             value={newSkill}
                                             autoFocus
-                                            placeholder="Add a skill and press Enter"
+                                            placeholder="Add a skill"
                                             onChange={e => setNewSkill(e.target.value)}
                                             onKeyDown={e => {
                                                 if (e.key === 'Enter' && newSkill.trim()) {
@@ -383,85 +394,107 @@ function JobDetails({ job }: JobDetailsProps) {
                                             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="red" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" /></svg>
                                         </IconButton>
                                     </div>
-                                ) : (
-                                    <IconButton size="small" sx={{ color: '#1976d2', marginBottom: '0.5rem' }} aria-label="Edit skills" onClick={() => {
-                                        setEditingSkills(true);
-                                        setTempSkills(currentJob.skills || []);
-                                    }}>
-                                        <EditIcon fontSize="small" />
-                                    </IconButton>
-                                )}
-                                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem', marginTop: 0 }}>
+                                ) : null}
+                                <div style={{ display: 'flex', alignItems: 'center', flex: editingSkills ? 'none' : 1, width: '100%', marginLeft: 0 }}>
                                     {(!editingSkills && (!currentJob.skills || currentJob.skills.length === 0)) ? (
-                                        <span style={{ color: '#888' }}>No skills listed</span>
+                                        <span style={{ color: '#888', marginLeft: 0 }}>No skills listed</span>
                                     ) : (
                                         (editingSkills ? tempSkills : currentJob.skills)?.map((skill: string, idx: number) => (
                                             <Chip
                                                 key={idx}
                                                 label={skill}
                                                 size="small"
-                                                sx={{ fontWeight: 500, background: '#e0f7fa', color: '#1976d2' }}
+                                                sx={{ fontWeight: 500, background: '#e0f7fa', color: '#1976d2', marginRight: '0.5rem', marginLeft: 0 }}
                                                 onDelete={editingSkills ? () => {
                                                     setTempSkills(tempSkills.filter((s: string) => s !== skill));
                                                 } : undefined}
                                             />
                                         ))
                                     )}
+                                    {!editingSkills && (
+                                        <div style={{ marginLeft: 'auto' }}>
+                                            <IconButton size="small" sx={{ color: '#1976d2', marginBottom: '0.5rem' }} aria-label="Edit skills" onClick={() => {
+                                                setEditingSkills(true);
+                                                setTempSkills(currentJob.skills || []);
+                                            }}>
+                                                <EditIcon fontSize="small" />
+                                            </IconButton>
+                                        </div>
+                                    )}
                                 </div>
                             </span>
                         </div>
-                        <div className="job-details-row">
-                            <span className="job-details-label">Description:</span>
-                            <span className="job-details-value" style={{ width: '100%', position: 'relative', display: 'block' }}>
-                                {editingDescription ? (
-                                    <div className="job-details-description" style={{ position: 'relative', paddingBottom: '2.2rem', background: 'rgba(32, 165, 166, 0.03)', borderRadius: 8, padding: '0.7rem 1rem', color: '#222', fontSize: '1.08rem', lineHeight: 1.6, boxSizing: 'border-box', whiteSpace: 'pre-line' }}>
-                                        <textarea
-                                            value={tempDescription}
-                                            onChange={e => setTempDescription(e.target.value)}
-                                            style={{
-                                                width: '100%',
-                                                minHeight: '5rem',
-                                                maxHeight: '16rem',
-                                                fontSize: '1.08rem',
-                                                lineHeight: 1.6,
-                                                background: 'transparent',
-                                                borderRadius: 8,
-                                                padding: 0,
-                                                color: '#222',
-                                                border: 'none',
-                                                resize: 'vertical',
-                                                fontFamily: 'inherit',
-                                                boxSizing: 'border-box',
-                                                outline: 'none',
-                                                boxShadow: 'none',
-                                            }}
-                                        />
-                                        <button
-                                            type="button"
-                                            style={{ position: 'absolute', bottom: 10, right: 18, background: '#1976d2', color: '#fff', border: 'none', borderRadius: 6, padding: '4px 16px', fontSize: '0.98rem', fontWeight: 500, cursor: 'pointer', boxShadow: '0 1px 2px 0 rgba(32, 165, 166, 0.08)' }}
-                                            onClick={() => {
-                                                setCurrentJob({ ...currentJob, description: tempDescription });
-                                                setEditingDescription(false);
-                                            }}
-                                        >Save</button>
-                                    </div>
-                                ) : (
-                                    <div className="job-details-description" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                                        <span style={{ flex: 1 }}>{currentJob.description ? currentJob.description : <span style={{ color: '#888' }}>No description provided</span>}</span>
-                                        <IconButton
-                                            size="small"
-                                            sx={{ ml: 1, color: '#1976d2', verticalAlign: 'middle' }}
-                                            aria-label="Edit description"
-                                            onClick={() => {
-                                                setTempDescription(currentJob.description || "");
-                                                setEditingDescription(true);
-                                            }}
-                                        >
-                                            <EditIcon fontSize="small" />
-                                        </IconButton>
-                                    </div>
-                                )}
-                            </span>
+                        <div className="job-details-row" style={{ width: '100%', textAlign: 'left', marginTop: '1.2rem' }}>
+                            {editingDescription ? (
+                                <div className="job-details-description" style={{ position: 'relative', paddingBottom: '2.2rem', background: 'rgba(32, 165, 166, 0.03)', borderRadius: 8, padding: '0.7rem 1rem', color: '#222', fontSize: '1.08rem', lineHeight: 1.6, boxSizing: 'border-box', whiteSpace: 'pre-line' }}>
+                                    <textarea
+                                        value={tempDescription}
+                                        onChange={e => setTempDescription(e.target.value)}
+                                        style={{
+                                            width: '100%',
+                                            minHeight: '5rem',
+                                            maxHeight: '16rem',
+                                            fontSize: '1.08rem',
+                                            lineHeight: 1.6,
+                                            background: 'transparent',
+                                            borderRadius: 8,
+                                            padding: 0,
+                                            color: '#222',
+                                            border: 'none',
+                                            resize: 'vertical',
+                                            fontFamily: 'inherit',
+                                            boxSizing: 'border-box',
+                                            outline: 'none',
+                                            boxShadow: 'none',
+                                        }}
+                                    />
+                                    <button
+                                        type="button"
+                                        style={{ position: 'absolute', bottom: 10, right: 18, background: '#1976d2', color: '#fff', border: 'none', borderRadius: 6, padding: '4px 16px', fontSize: '0.98rem', fontWeight: 500, cursor: 'pointer', boxShadow: '0 1px 2px 0 rgba(32, 165, 166, 0.08)' }}
+                                        onClick={() => {
+                                            setCurrentJob({ ...currentJob, description: tempDescription });
+                                            setEditingDescription(false);
+                                        }}
+                                    >Save</button>
+                                </div>
+                            ) : (
+                                <div className="job-details-description" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%' }}>
+                                    <span style={{ flex: 1, textAlign: 'left' }}>{currentJob.description ? currentJob.description : <span style={{ color: '#888' }}>No description provided</span>}</span>
+                                    <IconButton
+                                        size="small"
+                                        sx={{ ml: 1, color: '#1976d2', verticalAlign: 'middle' }}
+                                        aria-label="Edit description"
+                                        onClick={() => {
+                                            setTempDescription(currentJob.description || "");
+                                            setEditingDescription(true);
+                                        }}
+                                    >
+                                        <EditIcon fontSize="small" />
+                                    </IconButton>
+                                </div>
+                            )}
+                        </div>
+                        {/* Archive and Delete Buttons */}
+                        <div style={{ position: 'absolute', right: 0, bottom: 0, display: 'flex', gap: '0.7rem', zIndex: 2 }}>
+                            <button
+                                type="button"
+                                style={{ background: '#e0e0e0', color: '#1976d2', border: 'none', borderRadius: 6, padding: '6px 18px', fontSize: '1rem', fontWeight: 500, cursor: 'pointer', boxShadow: '0 1px 2px 0 rgba(32, 165, 166, 0.08)' }}
+                                onClick={() => {
+                                    if (typeof job?.id === 'string' && typeof onArchive === 'function' && currentJob) {
+                                        onArchive(currentJob.id);
+                                    }
+                                }}
+                                disabled={isArchived}
+                            >Archive</button>
+                            <button
+                                type="button"
+                                style={{ background: '#ff5252', color: '#fff', border: 'none', borderRadius: 6, padding: '6px 18px', fontSize: '1rem', fontWeight: 500, cursor: 'pointer', boxShadow: '0 1px 2px 0 rgba(32, 165, 166, 0.08)' }}
+                                onClick={() => {
+                                    if (typeof job?.id === 'string' && typeof onDelete === 'function') {
+                                        onDelete(job.id);
+                                    }
+                                }}
+                            >Delete</button>
                         </div>
                     </div>
                 }
