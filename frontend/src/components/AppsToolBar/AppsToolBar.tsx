@@ -3,23 +3,26 @@ import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
 import "./AppsToolBar.scss";
 
 type AppsToolBarProps = {
-    handleAddApp: () => void
+    handleAddApp?: () => void,
+    headerTitle: string,
 }
 
-function AppsToolBar({ handleAddApp }: AppsToolBarProps) {
+function AppsToolBar({ handleAddApp, headerTitle }: AppsToolBarProps) {
     return (
         <div className="apps-tool-bar">
             <div className="page-title">
                 <Typography variant="h5">
-                    Current Job Applications
+                    {headerTitle}
                 </Typography>
             </div>
-            <div className="add-app-button">
-                <button className="modern-add-btn" onClick={handleAddApp}>
-                    <AddCircleOutlineIcon fontSize="medium" style={{ marginRight: 6 }} />
-                    <span>Add</span>
-                </button>
-            </div>
+            {handleAddApp &&
+                <div className="add-app-button">
+                    <button className="modern-add-btn" onClick={handleAddApp}>
+                        <AddCircleOutlineIcon fontSize="medium" style={{ marginRight: 6 }} />
+                        <span>Add</span>
+                    </button>
+                </div>
+            }
         </div>
     );
 }

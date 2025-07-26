@@ -64,7 +64,7 @@ function Applications() {
                 handleCreateApp={createApp}>
             </CreateAppModal>
             <div className="job-apps">
-                <AppsToolBar handleAddApp={() => setCreateModalOpen(true)}></AppsToolBar>
+                <AppsToolBar headerTitle={'Your Applications'} handleAddApp={() => setCreateModalOpen(true)}></AppsToolBar>
                 <div className="job-apps-content">
                     <JobAppList jobDetailsHandler={handleShowDetails} jobs={jobs} currentJob={currentJobDetails ?? null} />
                     <JobDetails job={currentJobDetails ?? null} onArchive={archiveApp} onDelete={deleteApp} />

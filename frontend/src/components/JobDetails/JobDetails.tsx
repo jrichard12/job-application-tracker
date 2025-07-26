@@ -98,7 +98,7 @@ function JobDetails({ job, onArchive, onDelete, isArchived }: JobDetailsProps) {
                             </div>
                             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%', marginTop: '0.1rem' }}>
                                 <span style={{ fontSize: '0.98rem', color: '#426e5d', fontWeight: 500, flex: 1, textAlign: 'left', cursor: 'pointer' }}
-                                    onClick={() => setEditingDateApplied(true)}
+                                    onClick={isArchived ? undefined : () => setEditingDateApplied(true)}
                                 >
                                     Date Applied: {editingDateApplied ? (
                                         <LocalizationProvider dateAdapter={AdapterDateFns}>
@@ -123,11 +123,13 @@ function JobDetails({ job, onArchive, onDelete, isArchived }: JobDetailsProps) {
                                             label={currentJob.status ? currentJob.status : "Draft"}
                                             size="small"
                                             sx={{ fontWeight: 500, background: '#e0f7fa', color: '#1976d2', height: 22, px: 1, fontSize: '0.80rem', letterSpacing: 0.1, boxShadow: '0 1px 2px 0 rgba(32, 165, 166, 0.08)', whiteSpace: 'nowrap', verticalAlign: 'middle', display: 'flex', alignItems: 'center', cursor: 'pointer', paddingRight: '22px' }}
-                                            onClick={(e) => setStatusMenuAnchor(e.currentTarget)}
+                                            onClick={isArchived ? undefined : (e) => setStatusMenuAnchor(e.currentTarget)}
                                         />
-                                        <ArrowDropDownIcon
-                                            sx={{ position: 'absolute', right: 6, top: '50%', transform: 'translateY(-50%)', fontSize: 18, color: '#1976d2', pointerEvents: 'none' }}
-                                        />
+                                        {!isArchived &&
+                                            <ArrowDropDownIcon
+                                                sx={{ position: 'absolute', right: 6, top: '50%', transform: 'translateY(-50%)', fontSize: 18, color: '#1976d2', pointerEvents: 'none' }}
+                                            />
+                                        }
                                     </div>
                                     <Menu
                                         anchorEl={statusMenuAnchor}
@@ -135,7 +137,7 @@ function JobDetails({ job, onArchive, onDelete, isArchived }: JobDetailsProps) {
                                         onClose={() => setStatusMenuAnchor(null)}
                                         anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
                                         transformOrigin={{ vertical: 'top', horizontal: 'center' }}
-                                        MenuListProps={{ sx: { minWidth: 120, padding: 0 } }}
+                                        slotProps={{ list: { sx: { minWidth: 120, padding: 0 } } }}
                                     >
                                         {jobAppStatusOptions.map((option) => (
                                             <MenuItem
@@ -153,7 +155,7 @@ function JobDetails({ job, onArchive, onDelete, isArchived }: JobDetailsProps) {
                                     </Menu>
                                 </span>
                                 <span style={{ fontSize: '0.98rem', color: '#426e5d', fontWeight: 500, flex: 1, textAlign: 'right', cursor: 'pointer' }}
-                                    onClick={() => setEditingLastUpdated(true)}
+                                    onClick={isArchived ? undefined : () => setEditingLastUpdated(true)}
                                 >
                                     Last Updated: {editingLastUpdated ? (
                                         <LocalizationProvider dateAdapter={AdapterDateFns}>
@@ -208,11 +210,13 @@ function JobDetails({ job, onArchive, onDelete, isArchived }: JobDetailsProps) {
                                 ) : (
                                     <>
                                         <span style={{ flex: 1 }}>{currentJob.company || 'No company provided'}</span>
-                                        <div style={{ marginLeft: 'auto' }}>
-                                            <IconButton size="small" sx={{ color: '#1976d2' }} aria-label="Edit company" onClick={() => { setEditingField('company'); setTempFieldValue(currentJob.company || ""); }}>
-                                                <EditIcon fontSize="small" />
-                                            </IconButton>
-                                        </div>
+                                        {!isArchived &&
+                                            <div style={{ marginLeft: 'auto' }}>
+                                                <IconButton size="small" sx={{ color: '#1976d2' }} aria-label="Edit company" onClick={() => { setEditingField('company'); setTempFieldValue(currentJob.company || ""); }}>
+                                                    <EditIcon fontSize="small" />
+                                                </IconButton>
+                                            </div>
+                                        }
                                     </>
                                 )}
                             </span>
@@ -250,11 +254,13 @@ function JobDetails({ job, onArchive, onDelete, isArchived }: JobDetailsProps) {
                                 ) : (
                                     <>
                                         <span style={{ flex: 1 }}>{currentJob.source || 'No source provided'}</span>
-                                        <div style={{ marginLeft: 'auto' }}>
-                                            <IconButton size="small" sx={{ color: '#1976d2' }} aria-label="Edit source" onClick={() => { setEditingField('source'); setTempFieldValue(currentJob.source || ""); }}>
-                                                <EditIcon fontSize="small" />
-                                            </IconButton>
-                                        </div>
+                                        {!isArchived &&
+                                            <div style={{ marginLeft: 'auto' }}>
+                                                <IconButton size="small" sx={{ color: '#1976d2' }} aria-label="Edit source" onClick={() => { setEditingField('source'); setTempFieldValue(currentJob.source || ""); }}>
+                                                    <EditIcon fontSize="small" />
+                                                </IconButton>
+                                            </div>
+                                        }
                                     </>
                                 )}
                             </span>
@@ -292,11 +298,13 @@ function JobDetails({ job, onArchive, onDelete, isArchived }: JobDetailsProps) {
                                 ) : (
                                     <>
                                         <span style={{ flex: 1 }}>{currentJob.location || 'No location provided'}</span>
-                                        <div style={{ marginLeft: 'auto' }}>
-                                            <IconButton size="small" sx={{ color: '#1976d2' }} aria-label="Edit location" onClick={() => { setEditingField('location'); setTempFieldValue(currentJob.location || ""); }}>
-                                                <EditIcon fontSize="small" />
-                                            </IconButton>
-                                        </div>
+                                        {!isArchived &&
+                                            <div style={{ marginLeft: 'auto' }}>
+                                                <IconButton size="small" sx={{ color: '#1976d2' }} aria-label="Edit location" onClick={() => { setEditingField('location'); setTempFieldValue(currentJob.location || ""); }}>
+                                                    <EditIcon fontSize="small" />
+                                                </IconButton>
+                                            </div>
+                                        }
                                     </>
                                 )}
                             </span>
@@ -334,11 +342,13 @@ function JobDetails({ job, onArchive, onDelete, isArchived }: JobDetailsProps) {
                                 ) : (
                                     <>
                                         <span style={{ flex: 1 }}>{currentJob.salary || 'No salary provided'}</span>
-                                        <div style={{ marginLeft: 'auto' }}>
-                                            <IconButton size="small" sx={{ color: '#1976d2' }} aria-label="Edit salary" onClick={() => { setEditingField('salary'); setTempFieldValue(currentJob.salary || ""); }}>
-                                                <EditIcon fontSize="small" />
-                                            </IconButton>
-                                        </div>
+                                        {!isArchived &&
+                                            <div style={{ marginLeft: 'auto' }}>
+                                                <IconButton size="small" sx={{ color: '#1976d2' }} aria-label="Edit salary" onClick={() => { setEditingField('salary'); setTempFieldValue(currentJob.salary || ""); }}>
+                                                    <EditIcon fontSize="small" />
+                                                </IconButton>
+                                            </div>
+                                        }
                                     </>
                                 )}
                             </span>
@@ -411,7 +421,7 @@ function JobDetails({ job, onArchive, onDelete, isArchived }: JobDetailsProps) {
                                             />
                                         ))
                                     )}
-                                    {!editingSkills && (
+                                    {!editingSkills && !isArchived && (
                                         <div style={{ marginLeft: 'auto' }}>
                                             <IconButton size="small" sx={{ color: '#1976d2', marginBottom: '0.5rem' }} aria-label="Edit skills" onClick={() => {
                                                 setEditingSkills(true);
@@ -460,32 +470,35 @@ function JobDetails({ job, onArchive, onDelete, isArchived }: JobDetailsProps) {
                             ) : (
                                 <div className="job-details-description" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%' }}>
                                     <span style={{ flex: 1, textAlign: 'left' }}>{currentJob.description ? currentJob.description : <span style={{ color: '#888' }}>No description provided</span>}</span>
-                                    <IconButton
-                                        size="small"
-                                        sx={{ ml: 1, color: '#1976d2', verticalAlign: 'middle' }}
-                                        aria-label="Edit description"
-                                        onClick={() => {
-                                            setTempDescription(currentJob.description || "");
-                                            setEditingDescription(true);
-                                        }}
-                                    >
-                                        <EditIcon fontSize="small" />
-                                    </IconButton>
+                                    {!isArchived &&
+                                        <IconButton
+                                            size="small"
+                                            sx={{ ml: 1, color: '#1976d2', verticalAlign: 'middle' }}
+                                            aria-label="Edit description"
+                                            onClick={() => {
+                                                setTempDescription(currentJob.description || "");
+                                                setEditingDescription(true);
+                                            }}
+                                        >
+                                            <EditIcon fontSize="small" />
+                                        </IconButton>
+                                    }
                                 </div>
                             )}
                         </div>
                         {/* Archive and Delete Buttons */}
                         <div style={{ position: 'absolute', right: 0, bottom: 0, display: 'flex', gap: '0.7rem', zIndex: 2 }}>
-                            <button
-                                type="button"
-                                style={{ background: '#e0e0e0', color: '#1976d2', border: 'none', borderRadius: 6, padding: '6px 18px', fontSize: '1rem', fontWeight: 500, cursor: 'pointer', boxShadow: '0 1px 2px 0 rgba(32, 165, 166, 0.08)' }}
-                                onClick={() => {
-                                    if (typeof job?.id === 'string' && typeof onArchive === 'function' && currentJob) {
-                                        onArchive(currentJob.id);
-                                    }
-                                }}
-                                disabled={isArchived}
-                            >Archive</button>
+                            {!isArchived &&
+                                <button
+                                    type="button"
+                                    style={{ background: '#e0e0e0', color: '#1976d2', border: 'none', borderRadius: 6, padding: '6px 18px', fontSize: '1rem', fontWeight: 500, cursor: 'pointer', boxShadow: '0 1px 2px 0 rgba(32, 165, 166, 0.08)' }}
+                                    onClick={() => {
+                                        if (typeof job?.id === 'string' && typeof onArchive === 'function' && currentJob) {
+                                            onArchive(currentJob.id);
+                                        }
+                                    }}
+                                >Archive</button>
+                            }
                             <button
                                 type="button"
                                 style={{ background: '#ff5252', color: '#fff', border: 'none', borderRadius: 6, padding: '6px 18px', fontSize: '1rem', fontWeight: 500, cursor: 'pointer', boxShadow: '0 1px 2px 0 rgba(32, 165, 166, 0.08)' }}

@@ -2,6 +2,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Main from "./pages/Main/Main"
 import Applications from "./pages/Applications/Applications";
 import CustomAppBar from "./components/AppBar/AppBar";
+import Archives from "./pages/Archives/Archives";
 
 function App() {
   return (
@@ -11,7 +12,7 @@ function App() {
         <Route path="/" element={<Main />} />
         <Route path="/home" element={<Main />} />
         <Route path="/applications" element={<Applications />} />
-        <Route path="/archives" element={<Main />} />
+        <Route path="/archives" element={<Archives />} />
         <Route path="/dashboard" element={<Main />} />
       </Routes>
     </BrowserRouter>
