@@ -1,0 +1,25 @@
+@import "../../_variables.scss";
+
+.job-app-list-item-content {
+  position: relative;
+  display: flex;
+  align-items: stretch;
+  background: transparent !important;
+}
+
+.job-app-active-indicator {
+  position: absolute;
+  left: 0;
+  top: 0;
+  height: 100%;
+  width: 6px;
+  border-radius: 6px 0 0 6px;
+  background: $color-primary;
+  //box-shadow: 0 0 6px 0 rgba(32, 165, 166, 0.18);
+  z-index: 2;
+}
+.job-app-active-indicator.left {
+  left: 0;
+  right: auto;
+  border-radius: 6px 0 0 6px;
+}

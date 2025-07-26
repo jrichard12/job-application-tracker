@@ -1,16 +1,135 @@
+@import "../../_variables.scss";
+
+
 .applications {
-  margin: 3%;
+  margin: 2.5vw auto;
+  background: $color-background;
+  border-radius: 0;
+  box-shadow: none;
+  max-width: 1200px;
+  min-height: 80vh;
+  padding: 2vw 2vw 2vw 2vw;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 0;
+
+  .apps-tool-bar {
+    margin: 0;
+    border-radius: 18px 18px 0 0;
+    width: 100%;
+    box-shadow: 0 2px 12px 0 rgba($color-primary, 0.18);
+    background: linear-gradient(90deg, $color-primary 60%, $color-secondary 100%);
+    color: $color-background;
+    padding: 1.2rem 2.5rem 1.2rem 2.5rem;
+    font-size: 1.25rem;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    letter-spacing: 0.2px;
+  }
 
   .job-apps {
+    background: #fff;
+    border-radius: 18px;
+    box-shadow: 0 2px 16px 0 rgba(32, 165, 166, 0.08);
+    box-sizing: border-box;
+    min-height: 60vh;
+    width: 100%;
     display: flex;
-    flex-direction: row;
+    flex-direction: column;
+    padding: 0;
 
-    .job-app-list {
-      width: 40vw;
+    .apps-tool-bar {
+      border-radius: 18px 18px 0 0;
+      width: 100%;
+      box-shadow: 0 2px 12px 0 rgba($color-primary, 0.18);
+      background: linear-gradient(90deg, $color-primary 60%, $color-secondary 100%);
+      color: $color-background;
+      padding: 1.2rem 2.5rem 1.2rem 2.5rem;
+      font-size: 1.2rem;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
     }
 
-    .job-app-details {
-        width: 60vw;
+    .job-apps-content {
+      display: flex;
+      flex-direction: row;
+      gap: 2vw;
+      width: 100%;
+      padding: 2vw;
+      box-sizing: border-box;
+
+      .job-app-list {
+        width: 36vw;
+        background: transparent;
+        border-radius: 0;
+        box-shadow: none;
+        padding: 0;
+        min-height: 56vh;
+        max-height: none;
+        display: flex;
+        flex-direction: column;
+        justify-content: flex-start;
+        overflow-y: auto;
+        scrollbar-width: thin;
+        scrollbar-color: $color-primary $color-background;
+
+        // Empty state
+        .empty-list-message {
+          color: $color-tertiary;
+          font-size: 1.1rem;
+          text-align: center;
+          margin-top: 2vw;
+          opacity: 0.7;
+        }
+
+        // Hover and active states
+        .MuiListItemButton-root {
+          transition: background 0.15s, box-shadow 0.15s;
+          min-height: 64px;
+          box-sizing: border-box;
+          border-radius: 8px;
+          margin-bottom: 0.4rem;
+          position: relative;
+        overflow: visible;
+        // Ensure no accent stripe or right-side highlight
+        &::after {
+          display: none !important;
+        }
+
+          &:hover {
+            background: transparent !important;
+            box-shadow: 0 1px 4px 0 rgba(32, 165, 166, 0.07);
+          }
+          &.active-job-app {
+            box-shadow: 0 4px 16px 0 rgba(32, 165, 166, 0.13);
+            font-weight: 600;
+            background: transparent !important;
+          }
+        }
+        .MuiTypography-h6 {
+          font-size: 1.18rem;
+          font-weight: 600;
+        }
+      }
+
+      .job-app-details {
+        width: 54vw;
+        background: transparent;
+        border-radius: 0;
+        box-shadow: none;
+        padding: 0;
+        min-height: 56vh;
+        display: flex;
+        flex-direction: column;
+        justify-content: flex-start;
+        border-left: 1.5px solid rgba($color-tertiary, 0.13);
+        padding-left: 2vw;
+      }
     }
   }
 }

@@ -1,0 +1,102 @@
+@import "../../_variables.scss";
+
+.MuiDialog-paper {
+  border-radius: 18px;
+  box-shadow: 0 4px 32px 0 rgba($color-primary, 0.13);
+  background: $color-background;
+}
+.MuiDialogTitle-root {
+  font-weight: 700;
+  color: $color-primary;
+  letter-spacing: 0.5px;
+  padding-bottom: 0.2em;
+  text-align: center;
+}
+.MuiDialogContent-root {
+  padding-top: 0.5em;
+  padding-bottom: 1.5em;
+}
+.MuiStepper-root {
+  background: transparent;
+  padding: 0;
+}
+.MuiStepLabel-label {
+  font-weight: 600;
+  color: $color-tertiary;
+  font-size: 1.1rem;
+}
+.MuiStepContent-root {
+  margin-left: 1.2em;
+  padding-left: 0.5em;
+  border-left: 2px solid rgba($color-primary, 0.13);
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 0;
+}
+.MuiStepContent-root > *:not(:last-child) {
+  margin-bottom: 0;
+}
+.MuiStepContent-root > *:nth-last-child(2) {
+  margin-bottom: 1.1em;
+}
+.MuiFormControl-root {
+  margin-bottom: 1.1em;
+  max-width: 380px;
+  width: 100%;
+  .MuiInputLabel-root {
+    color: $color-tertiary;
+    font-weight: 500;
+  }
+  .MuiInputBase-root {
+    background: #fff;
+    border-radius: 6px;
+    padding-left: 0.5em;
+  }
+}
+.MuiTextField-root {
+  margin-bottom: 1.1em;
+  max-width: 380px;
+  width: 100%;
+  .MuiInputBase-root {
+    background: #fff;
+    border-radius: 6px;
+    padding-left: 0.5em;
+  }
+}
+.skills-chips-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5em;
+  align-items: center;
+  margin-top: 0.5em;
+  margin-bottom: 0.5em;
+}
+.MuiChip-root {
+  font-weight: 500;
+  background: $color-primary;
+  color: $color-background;
+  border-radius: 6px;
+  .MuiChip-deleteIcon {
+    color: $color-background;
+    opacity: 0.7;
+    &:hover {
+      opacity: 1;
+    }
+  }
+}
+.MuiButton-contained {
+  background: $color-primary;
+  color: $color-background;
+  font-weight: 600;
+  border-radius: 6px;
+  box-shadow: 0 2px 8px 0 rgba($color-primary, 0.10);
+  &:hover, &:focus {
+    background: darken($color-primary, 8%);
+    box-shadow: 0 4px 16px 0 rgba($color-primary, 0.18);
+  }
+}
+.MuiButton-root {
+  text-transform: none;
+  font-size: 1rem;
+  letter-spacing: 0.2px;
+}

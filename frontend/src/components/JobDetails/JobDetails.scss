@@ -1,0 +1,57 @@
+@import "../../_variables.scss";
+
+.job-card {
+  display: flex;
+  flex-direction: column;
+  gap: 1.2rem;
+  padding: 0.1rem 0 0 0;
+}
+
+.job-card .MuiTypography-h4 {
+  font-weight: 700;
+  margin-bottom: 0.1rem;
+  margin-top: 0;
+  color: $color-primary;
+}
+
+.job-card .MuiDivider-root {
+  margin: 0.5rem 0 0.8rem 0;
+}
+
+.job-card .job-details-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2.5rem;
+  margin-bottom: 0.7rem;
+  align-items: center;
+}
+
+.job-card .job-details-label {
+  font-weight: 600;
+  color: $color-tertiary;
+  min-width: 120px;
+  margin-right: 0.5rem;
+}
+
+.job-card .job-details-value {
+  color: $color-text;
+  font-weight: 400;
+}
+
+.job-card .MuiChip-root {
+  align-self: flex-start;
+  font-weight: 600;
+  background: $color-primary;
+  color: $color-background;
+}
+
+.job-card .job-details-description {
+  margin-top: 0.5rem;
+  color: $color-text;
+  font-size: 1.08rem;
+  line-height: 1.6;
+  background: rgba($color-primary, 0.03);
+  border-radius: 8px;
+  padding: 0.7rem 1rem;
+  white-space: pre-line;
+}
