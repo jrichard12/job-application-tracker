@@ -1,0 +1,103 @@
+
+@import "../../_variables.scss";
+
+.login {
+  width: 36vw;
+  max-width: 340px;
+  min-width: 260px;
+  margin: 12vh auto;
+  box-shadow: 0 4px 24px rgba(0,0,0,0.08);
+  background: #fff;
+  border-radius: 18px;
+  display: flex;
+  flex-direction: column;
+  justify-content: stretch;
+  padding: 1.2rem 1.2rem 1.2rem 1.2rem;
+  min-height: 320px;
+  height: 320px;
+}
+
+.login .MuiCardContent-root {
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+
+.login .MuiTypography-root {
+  text-align: center;
+  font-weight: 600;
+  font-size: 1.7rem;
+  color: #222;
+  margin-bottom: 1.2rem;
+  letter-spacing: 0.5px;
+}
+
+.login form {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  justify-content: center;
+}
+
+.login .MuiTextField-root + .MuiTextField-root {
+  margin-top: 0.7rem;
+}
+
+.login .MuiTextField-root:last-of-type {
+  margin-bottom: 1.2rem;
+}
+
+.login .MuiTextField-root {
+  background: #f7f8fa;
+  border-radius: 8px;
+}
+
+.login .MuiInputBase-input {
+  font-size: 1.1rem;
+  padding: 0.9rem 1.1rem;
+}
+
+.login .MuiButton-root {
+  font-size: 1.1rem;
+  font-weight: 500;
+  padding: 0.9rem 0;
+  border-radius: 8px;
+  background: $color-primary;
+  color: #fff;
+  box-shadow: 0 2px 8px rgba(32,165,166,0.08);
+  transition: background 0.2s;
+  margin-top: auto;
+  align-self: flex-end;
+}
+.login .MuiButton-root:hover {
+  background: darken($color-primary, 8%);
+}
+
+
+@media (max-width: 600px) {
+  .login {
+    width: 92vw;
+    min-width: unset;
+    max-width: unset;
+    margin: 5vh auto;
+  }
+}
+
+
+// Style the card
+.login .MuiCard-root {
+  width: 50vw;
+  max-width: 400px;
+  min-width: 300px;
+  box-shadow: 0 4px 24px rgba(0,0,0,0.08);
+}
+
+// Responsive adjustments
+@media (max-width: 600px) {
+  .login .MuiCard-root {
+    width: 90vw;
+    min-width: unset;
+    max-width: unset;
+  }
+}

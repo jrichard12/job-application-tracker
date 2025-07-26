@@ -16,7 +16,7 @@ import MenuItem from '@mui/material/MenuItem';
 import WorkIcon from '@mui/icons-material/Work';
 
 const pages = ['Home', 'Applications', 'Archives'];
-const settings = ['Profile', 'Account', 'Dashboard', 'Logout'];
+const settings = ['Profile', 'Logout'];
 
 function CustomAppBar() {
   const [anchorElNav, setAnchorElNav] = React.useState<null | HTMLElement>(null);
