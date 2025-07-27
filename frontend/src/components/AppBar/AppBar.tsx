@@ -14,6 +14,9 @@ import Button from '@mui/material/Button';
 import Tooltip from '@mui/material/Tooltip';
 import MenuItem from '@mui/material/MenuItem';
 import WorkIcon from '@mui/icons-material/Work';
+import { useNavigate } from 'react-router-dom';
+import { logoutUser, useAuth } from '../../services/authService';
+
 
 const pages = ['Home', 'Applications', 'Archives'];
 const settings = ['Profile', 'Logout'];
@@ -21,6 +24,8 @@ const settings = ['Profile', 'Logout'];
 function CustomAppBar() {
   const [anchorElNav, setAnchorElNav] = React.useState<null | HTMLElement>(null);
   const [anchorElUser, setAnchorElUser] = React.useState<null | HTMLElement>(null);
+  const navigate = useNavigate();
+  const { setUser } = useAuth();
 
   const handleOpenNavMenu = (event: React.MouseEvent<HTMLElement>) => {
     setAnchorElNav(event.currentTarget);
@@ -40,6 +45,12 @@ function CustomAppBar() {
   const appBarStyling = {
     backgroundColor: 'var(--color-primary)'
   }
+
+  const handleLogout = () => {
+    logoutUser();
+    setUser(null);
+    navigate("/login");
+  };
 
   return (
     <AppBar sx={appBarStyling} position="static">
@@ -159,7 +170,9 @@ function CustomAppBar() {
             >
               {settings.map((setting) => (
                 <MenuItem key={setting} onClick={handleCloseUserMenu}>
-                  <Typography sx={{ textAlign: 'center' }}>{setting}</Typography>
+                  <Typography
+                    sx={{ textAlign: 'center' }}
+                    onClick={setting === 'Logout' ? handleLogout : undefined}>{setting}</Typography>
                 </MenuItem>
               ))}
             </Menu>
