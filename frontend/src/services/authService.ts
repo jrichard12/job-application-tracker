@@ -29,7 +29,7 @@ export const useAuth = () => {
   return context;
 };
 
-export function loginUser(username: string, password: string): Promise<string> {
+export function loginUser(username: string, password: string, handleNewPasswordRequired: (user: CognitoUser) => void): Promise<string> {
   const user = new CognitoUser({
     Username: username,
     Pool: userPool,
@@ -49,6 +49,10 @@ export function loginUser(username: string, password: string): Promise<string> {
       onFailure: (err) => {
         reject(err);
       },
+      newPasswordRequired: (userAttributes, requiredAttributes) => {
+        console.log("New password required:", userAttributes, requiredAttributes);
+        handleNewPasswordRequired(user);
+      },
     });
   });
 }
@@ -63,6 +67,4 @@ export function logoutUser() {
   if (user) {
     user.signOut();
   }
-
-  localStorage.removeItem("authToken");
 }

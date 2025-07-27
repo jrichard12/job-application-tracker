@@ -1,6 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { useState, useEffect, type ReactNode } from 'react';
-import { Navigate } from 'react-router-dom';
 import { userPool, AuthContext } from './services/authService';
 import { type User } from './types/User';
 
@@ -10,11 +9,16 @@ interface AuthProviderProps {
 
 export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     const [user, setUser] = useState<User | null>(null);
+    const [checkingSession, setCheckingSession] = useState(true);
 
     useEffect(() => {
         const currentUser = userPool.getCurrentUser();
-
-        currentUser?.getSession((err: any, session: any) => {
+        if (!currentUser) {
+            setUser(null);
+            setCheckingSession(false);
+            return;
+        }
+        currentUser.getSession((err: any, session: any) => {
             if (session?.isValid()) {
                 setUser({
                     username: currentUser.getUsername(),
@@ -22,12 +26,12 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
                 });
             } else {
                 setUser(null);
-                if (window.location.pathname !== '/login') {
-                    <Navigate to="/login" replace />
-                }
             }
+            setCheckingSession(false);
         });
     }, []);
+
+    if (checkingSession) return null;
 
     return (
         <AuthContext.Provider value={{ user, setUser }}>

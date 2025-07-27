@@ -1,17 +1,15 @@
 import type { ReactNode } from 'react';
 import { Navigate } from 'react-router-dom';
+import { useAuth } from '../services/authService';
 
 interface ProtectedRouteProps {
   children: ReactNode;
 }
 
-const isAuthenticated = (): boolean => {
-  const token = localStorage.getItem('authToken');
-  return !!token;
-};
-
 const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
-  if (!isAuthenticated()) {
+  const { user } = useAuth();
+
+  if (!user) {
     return <Navigate to="/login" replace />;
   }
 

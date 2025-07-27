@@ -14,7 +14,6 @@ import Button from '@mui/material/Button';
 import Tooltip from '@mui/material/Tooltip';
 import MenuItem from '@mui/material/MenuItem';
 import WorkIcon from '@mui/icons-material/Work';
-import { useNavigate } from 'react-router-dom';
 import { logoutUser, useAuth } from '../../services/authService';
 
 
@@ -24,7 +23,6 @@ const settings = ['Profile', 'Logout'];
 function CustomAppBar() {
   const [anchorElNav, setAnchorElNav] = React.useState<null | HTMLElement>(null);
   const [anchorElUser, setAnchorElUser] = React.useState<null | HTMLElement>(null);
-  const navigate = useNavigate();
   const { setUser } = useAuth();
 
   const handleOpenNavMenu = (event: React.MouseEvent<HTMLElement>) => {
@@ -49,7 +47,6 @@ function CustomAppBar() {
   const handleLogout = () => {
     logoutUser();
     setUser(null);
-    navigate("/login");
   };
 
   return (
