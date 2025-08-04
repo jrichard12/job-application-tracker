@@ -11,7 +11,7 @@ function AppsToolBar({ handleAddApp, headerTitle }: AppsToolBarProps) {
     return (
         <div className="apps-tool-bar">
             <div className="page-title">
-                <Typography variant="h5">
+                <Typography variant="h5" fontFamily={"var(--font-family)"} fontWeight="bold" color="var(--color-text)">
                     {headerTitle}
                 </Typography>
             </div>

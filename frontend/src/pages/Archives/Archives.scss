@@ -1,5 +1,5 @@
-@import "../../_variables.scss";
-
+@use "sass:color";
+@use '../../variables' as *;
 
 .archives {
   margin: 2.5vw auto;

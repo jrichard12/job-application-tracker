@@ -1,29 +1,29 @@
-import * as React from 'react';
-import "./AppBar.scss"
-import { Link } from 'react-router-dom';
+import { Settings } from '@mui/icons-material';
+import MenuIcon from '@mui/icons-material/Menu';
+import WorkIcon from '@mui/icons-material/Work';
 import AppBar from '@mui/material/AppBar';
 import Box from '@mui/material/Box';
-import Toolbar from '@mui/material/Toolbar';
-import IconButton from '@mui/material/IconButton';
-import Typography from '@mui/material/Typography';
-import Menu from '@mui/material/Menu';
-import MenuIcon from '@mui/icons-material/Menu';
-import Container from '@mui/material/Container';
-import Avatar from '@mui/material/Avatar';
 import Button from '@mui/material/Button';
-import Tooltip from '@mui/material/Tooltip';
+import Container from '@mui/material/Container';
+import IconButton from '@mui/material/IconButton';
+import Menu from '@mui/material/Menu';
 import MenuItem from '@mui/material/MenuItem';
-import WorkIcon from '@mui/icons-material/Work';
+import Toolbar from '@mui/material/Toolbar';
+import Tooltip from '@mui/material/Tooltip';
+import Typography from '@mui/material/Typography';
+import * as React from 'react';
+import { Link } from 'react-router-dom';
 import { logoutUser, useAuth } from '../../services/authService';
+import "./AppBar.scss";
 
-
-const pages = ['Home', 'Applications', 'Archives'];
-const settings = ['Profile', 'Logout'];
 
 function CustomAppBar() {
   const [anchorElNav, setAnchorElNav] = React.useState<null | HTMLElement>(null);
   const [anchorElUser, setAnchorElUser] = React.useState<null | HTMLElement>(null);
-  const { setUser } = useAuth();
+  const { user, setUser } = useAuth();
+
+  const pages = ['Home', 'Applications', 'Archives'];
+  const settings = user ? ['Profile', 'Logout'] : ['Login'];
 
   const handleOpenNavMenu = (event: React.MouseEvent<HTMLElement>) => {
     setAnchorElNav(event.currentTarget);
@@ -56,6 +56,7 @@ function CustomAppBar() {
           <WorkIcon sx={{ display: { xs: 'none', md: 'flex' }, mr: 1 }} />
           <Typography
             variant="h6"
+            fontFamily={"var(--font-family)"}
             noWrap
             component="a"
             href="#app-bar-with-responsive-menu"
@@ -69,7 +70,7 @@ function CustomAppBar() {
               textDecoration: 'none',
             }}
           >
-            Application Tracker
+            App Tracker
           </Typography>
 
           <Box sx={{ flexGrow: 1, display: { xs: 'flex', md: 'none' } }}>
@@ -103,7 +104,7 @@ function CustomAppBar() {
                 <MenuItem key={page} onClick={handleCloseNavMenu}>
                   <Typography
                     component={Link}
-                    to={`/${page.toLowerCase()}`}
+                    to={page === 'Home' ? `/` : `/${page.toLowerCase()}`}
                     sx={{ textAlign: 'center', textDecoration: 'none' }}>
                     {page}
                   </Typography>
@@ -114,6 +115,7 @@ function CustomAppBar() {
           <WorkIcon sx={{ display: { xs: 'flex', md: 'none' }, mr: 1 }} />
           <Typography
             variant="h5"
+            fontFamily={"var(--font-family)"}
             noWrap
             component="a"
             href="/"
@@ -123,12 +125,12 @@ function CustomAppBar() {
               flexGrow: 1,
               fontFamily: 'monospace',
               fontWeight: 700,
-              letterSpacing: '.3rem',
+              letterSpacing: '.2rem',
               color: 'inherit',
               textDecoration: 'none',
             }}
           >
-            Application Tracker
+            App Tracker
           </Typography>
           <Box sx={{ flexGrow: 1, display: { xs: 'none', md: 'flex' } }}>
             {pages.map((page) => (
@@ -136,7 +138,7 @@ function CustomAppBar() {
                 key={page}
                 onClick={handleCloseNavMenu}
                 component={Link}
-                to={`/${page.toLowerCase()}`}
+                to={page === 'Home' ? '/' : `/${page.toLowerCase()}`}
                 sx={{ my: 2, color: 'white', display: 'block' }}
               >
                 {page}
@@ -146,7 +148,7 @@ function CustomAppBar() {
           <Box sx={{ flexGrow: 0 }}>
             <Tooltip title="Open settings">
               <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
-                <Avatar alt="Remy Sharp" src="/static/images/avatar/2.jpg" />
+                <Settings />
               </IconButton>
             </Tooltip>
             <Menu
@@ -167,9 +169,16 @@ function CustomAppBar() {
             >
               {settings.map((setting) => (
                 <MenuItem key={setting} onClick={handleCloseUserMenu}>
-                  <Typography
-                    sx={{ textAlign: 'center' }}
-                    onClick={setting === 'Logout' ? handleLogout : undefined}>{setting}</Typography>
+                  { setting === 'Logout' ?
+                    <Typography
+                      sx={{ textAlign: 'center' }}
+                      onClick={handleLogout}>{setting}</Typography>
+                    :
+                    <Typography
+                      component={Link}
+                      to={setting === 'Profile' ? '/profile' : '/login'}
+                      sx={{ textAlign: 'center', textDecoration: 'none' }}>{setting}</Typography>
+                  }
                 </MenuItem>
               ))}
             </Menu>

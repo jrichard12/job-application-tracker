@@ -13,11 +13,13 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
     useEffect(() => {
         const currentUser = userPool.getCurrentUser();
+        
         if (!currentUser) {
             setUser(null);
             setCheckingSession(false);
             return;
         }
+
         currentUser.getSession((err: any, session: any) => {
             if (session?.isValid()) {
                 setUser({

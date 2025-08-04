@@ -1,5 +1,5 @@
-
-@import "../../_variables.scss";
+@use "sass:color";
+@use '../../variables' as *;
 
 .login {
   width: 36vw;
@@ -74,7 +74,7 @@
   align-self: flex-end;
 }
 .login .MuiButton-root:hover {
-  background: darken($color-primary, 8%);
+  background: color.scale($color-primary, $lightness: -8%)
 }
 
 

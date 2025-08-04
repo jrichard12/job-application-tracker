@@ -7,6 +7,7 @@ import JobDetails from "../../components/JobDetails/JobDetails";
 import AppsToolBar from "../../components/AppsToolBar/AppsToolBar";
 import jobData from "../../demoData.json";
 import CreateAppModal from "../../components/CreateAppModal/CreateAppModal";
+import { Paper } from "@mui/material";
 
 
 function Applications() {
@@ -63,13 +64,13 @@ function Applications() {
                 handleClose={() => setCreateModalOpen(false)}
                 handleCreateApp={createApp}>
             </CreateAppModal>
-            <div className="job-apps">
+            <Paper className="job-apps" elevation={24}>
                 <AppsToolBar headerTitle={'Your Applications'} handleAddApp={() => setCreateModalOpen(true)}></AppsToolBar>
                 <div className="job-apps-content">
                     <JobAppList jobDetailsHandler={handleShowDetails} jobs={jobs} currentJob={currentJobDetails ?? null} />
                     <JobDetails job={currentJobDetails ?? null} onArchive={archiveApp} onDelete={deleteApp} />
                 </div>
-            </div>
+            </Paper>
         </div>
     );
 }

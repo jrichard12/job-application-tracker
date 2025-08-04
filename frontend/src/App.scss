@@ -1,7 +1,7 @@
-@import './variables';
+@use './variables' as *;
 
 :root {
-  font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
+  font-family: $font-family;
   line-height: 1.5;
   font-weight: 400;
 
@@ -10,6 +10,7 @@
   --color-tertiary: #{$color-tertiary};
   --color-background: #{$color-background};
   --color-text: #{$color-text};
+  --font-family: #{$font-family};
 
   color-scheme: light;
   color: var(--color-text);
@@ -29,4 +30,5 @@
 
 body {
   margin: 0;
+  font-family: $font-family;
 }

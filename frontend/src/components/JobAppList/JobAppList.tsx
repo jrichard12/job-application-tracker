@@ -44,7 +44,7 @@ function JobAppList({ jobDetailsHandler, jobs, currentJob }: JobAppListProps) {
                                         {isActive && <div className="job-app-active-indicator left" style={{ position: 'absolute', left: 0, top: 0, height: '100%', zIndex: 2 }} />}
                                         <Card sx={{ width: '100%', boxShadow: 'none', position: 'relative' }}>
                                             <CardContent>
-                                                <Typography variant="h6">
+                                                <Typography variant="h6" fontFamily={"var(--font-family)"}>
                                                     {job.jobTitle}
                                                 </Typography>
                                                 <Typography>

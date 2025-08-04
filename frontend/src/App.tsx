@@ -13,7 +13,7 @@ function App() {
       <BrowserRouter>
         <CustomAppBar></CustomAppBar>
         <Routes>
-          <Route path="/home" element={<Main />} />
+          <Route path="/" element={<Main />} />
           <Route path="/login" element={<Login />} />
           <Route path="/applications" element={<ProtectedRoute><Applications /></ProtectedRoute>} />
           <Route path="/archives" element={<ProtectedRoute><Archives /></ProtectedRoute>} />
