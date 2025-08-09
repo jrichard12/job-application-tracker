@@ -24,7 +24,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
             if (session?.isValid()) {
                 setUser({
                     username: currentUser.getUsername(),
-                    authToken: session.getIdToken().getJwtToken()
+                    authToken: session.getIdToken().getJwtToken(),
+                    id: session.getIdToken().payload.sub
                 });
             } else {
                 setUser(null);

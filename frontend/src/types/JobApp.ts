@@ -11,6 +11,7 @@ export interface JobApp {
     deadline?: Date | null,
     statusUpdated?: Date | null,
     status: JobAppStatus,
+    isArchived: boolean,
 };
 
 type JobAppStatus = "Interested" | "Applied" | "Interviewed" | "Offered" | "Accepted" | "Rejected";

@@ -29,7 +29,11 @@ export const useAuth = () => {
   return context;
 };
 
-export function loginUser(username: string, password: string, handleNewPasswordRequired: (user: CognitoUser) => void): Promise<string> {
+export function loginUser(
+  username: string,
+  password: string,
+  handleNewPasswordRequired: (user: CognitoUser) => void
+): Promise<{ authToken: string; userId: string }> {
   const user = new CognitoUser({
     Username: username,
     Pool: userPool,
@@ -43,14 +47,19 @@ export function loginUser(username: string, password: string, handleNewPasswordR
   return new Promise((resolve, reject) => {
     user.authenticateUser(authDetails, {
       onSuccess: (result) => {
-        const idToken = result.getIdToken().getJwtToken();
-        resolve(idToken);
+        const authToken = result.getIdToken().getJwtToken();
+        const userId = result.getIdToken().payload.sub;
+        resolve({ authToken, userId });
       },
       onFailure: (err) => {
         reject(err);
       },
       newPasswordRequired: (userAttributes, requiredAttributes) => {
-        console.log("New password required:", userAttributes, requiredAttributes);
+        console.log(
+          "New password required:",
+          userAttributes,
+          requiredAttributes
+        );
         handleNewPasswordRequired(user);
       },
     });

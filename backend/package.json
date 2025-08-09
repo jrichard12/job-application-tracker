@@ -1,0 +1,14 @@
+{
+  "dependencies": {
+    "@aws-sdk/client-dynamodb": "^3.859.0",
+    "@aws-sdk/lib-dynamodb": "^3.859.0"
+  },
+  "devDependencies": {
+    "@types/aws-lambda": "^8.10.152",
+    "@types/node": "^24.2.0",
+    "typescript": "^5.9.2"
+  },
+  "scripts": {
+    "build": "rmdir /s /q dist && npx tsc"
+  }
+}

@@ -46,6 +46,7 @@ function CustomAppBar() {
 
   const handleLogout = () => {
     logoutUser();
+    localStorage.removeItem("userInfo");
     setUser(null);
   };
 

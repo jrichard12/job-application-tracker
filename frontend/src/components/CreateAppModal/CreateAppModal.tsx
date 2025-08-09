@@ -17,15 +17,9 @@ function CreateAppModal({ isOpen, handleClose, handleCreateApp }: CreateAppModal
         source: '',
         company: '',
         jobTitle: '',
-        salary: '',
-        location: '',
-        description: '',
-        skills: [],
-        dateApplied: null,
-        deadline: null,
-        statusUpdated: null,
-        status: 'Interested'
-    });
+        status: 'Interested',
+        isArchived: false
+    } as JobApp);
     const [activeStep, setActiveStep] = useState(0);
     const [skillInput, setSkillInput] = useState('');
 
@@ -37,33 +31,23 @@ function CreateAppModal({ isOpen, handleClose, handleCreateApp }: CreateAppModal
         );
     };
 
+    const handleSaveJob = () => {
+        const jobToSave: JobApp = {
+            ...newJobApp,
+            id: uuidv4(),
+            statusUpdated: new Date()
+        };
+        handleCreateApp(jobToSave);
+        resetModal();
+    };
+
     const handleNext = () => {
         if (activeStep === 3) {
             if (!isFormValid()) {
                 alert('Please fill out all required fields: Source, Company, and Job Title.');
                 return;
             }
-            const jobToSave: JobApp = {
-                ...newJobApp,
-                id: uuidv4(),
-                statusUpdated: new Date()
-            };
-            handleCreateApp(jobToSave);
-            handleClose();
-            setNewJobApp({
-                id: '',
-                source: '',
-                company: '',
-                jobTitle: '',
-                salary: '',
-                location: '',
-                description: '',
-                skills: [],
-                dateApplied: null,
-                deadline: null,
-                statusUpdated: null,
-                status: 'Interested'
-            });
+            handleSaveJob();
         } else {
             setActiveStep((prevActiveStep) => prevActiveStep + 1);
         }
@@ -105,15 +89,9 @@ function CreateAppModal({ isOpen, handleClose, handleCreateApp }: CreateAppModal
             source: '',
             company: '',
             jobTitle: '',
-            salary: '',
-            location: '',
-            description: '',
-            skills: [],
-            dateApplied: null,
-            deadline: null,
-            statusUpdated: null,
-            status: 'Interested'
-        });
+            status: 'Interested',
+            isArchived: false
+        } as JobApp);
     };
 
     const buttonBox = () => {
@@ -160,11 +138,11 @@ function CreateAppModal({ isOpen, handleClose, handleCreateApp }: CreateAppModal
                         </FormControl>
                         <FormControl sx={{ maxWidth: 350 }}>
                             <InputLabel>Location</InputLabel>
-                            <Input name="location" value={newJobApp.location} onChange={handleInputChange} />
+                            <Input name="location" value={newJobApp.location ?? ''} onChange={handleInputChange} />
                         </FormControl>
                         <FormControl sx={{ maxWidth: 350 }}>
                             <InputLabel>Salary</InputLabel>
-                            <Input name="salary" value={newJobApp.salary} onChange={handleInputChange} />
+                            <Input name="salary" value={newJobApp.salary ?? ''} onChange={handleInputChange} />
                         </FormControl>
                     </Box>
                     {showError && (
