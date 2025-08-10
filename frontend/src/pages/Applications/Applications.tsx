@@ -1,15 +1,15 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import JobAppList from "../../components/JobAppList/JobAppList";
-import "./Applications.scss";
-import type { JobApp } from "../../types/JobApp";
-import { useState, useEffect } from "react";
-import JobDetails from "../../components/JobDetails/JobDetails";
+import { useEffect, useState } from "react";
 import AppsToolBar from "../../components/AppsToolBar/AppsToolBar";
+import JobAppList from "../../components/JobAppList/JobAppList";
+import JobDetails from "../../components/JobDetails/JobDetails";
+import type { JobApp } from "../../types/JobApp";
+import "./Applications.scss";
 //import jobData from "../../demoData.json";
-import CreateAppModal from "../../components/CreateAppModal/CreateAppModal";
 import { Paper } from "@mui/material";
-import { type UserInfo } from "../../types/UserInfo";
+import CreateAppModal from "../../components/CreateAppModal/CreateAppModal";
 import { useAuth } from "../../services/authService";
+import { type UserInfo } from "../../types/UserInfo";
 
 interface ApplicationsProps {
     userInfo: UserInfo | null;
@@ -44,7 +44,6 @@ function Applications({ userInfo, updateUser }: ApplicationsProps) {
         setCurrentJobDetails(job);
     };
 
-    // TODO: call lambda to save/del/update the new job app
     const createApp = async (jobApp: JobApp | null) => {
         console.log(jobApp);
         if (!jobApp) {

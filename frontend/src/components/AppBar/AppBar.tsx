@@ -20,7 +20,7 @@ import "./AppBar.scss";
 function CustomAppBar() {
   const [anchorElNav, setAnchorElNav] = React.useState<null | HTMLElement>(null);
   const [anchorElUser, setAnchorElUser] = React.useState<null | HTMLElement>(null);
-  const { user, setUser } = useAuth();
+  const { user, setUser, demoMode, setDemoMode } = useAuth();
 
   const pages = ['Home', 'Applications', 'Archives'];
   const settings = user ? ['Profile', 'Logout'] : ['Login'];
@@ -45,7 +45,12 @@ function CustomAppBar() {
   }
 
   const handleLogout = () => {
-    logoutUser();
+    if (demoMode) {
+      setDemoMode(false);
+    }
+    else {
+      logoutUser();
+    }
     localStorage.removeItem("userInfo");
     setUser(null);
   };
@@ -170,7 +175,7 @@ function CustomAppBar() {
             >
               {settings.map((setting) => (
                 <MenuItem key={setting} onClick={handleCloseUserMenu}>
-                  { setting === 'Logout' ?
+                  {setting === 'Logout' ?
                     <Typography
                       sx={{ textAlign: 'center' }}
                       onClick={handleLogout}>{setting}</Typography>

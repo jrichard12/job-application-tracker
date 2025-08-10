@@ -10,6 +10,8 @@ import { type User } from "../types/User";
 interface AuthContextType {
   user: User | null;
   setUser: React.Dispatch<React.SetStateAction<User | null>>;
+  demoMode: boolean;
+  setDemoMode: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
 const poolData = {
@@ -32,8 +34,17 @@ export const useAuth = () => {
 export function loginUser(
   username: string,
   password: string,
-  handleNewPasswordRequired: (user: CognitoUser) => void
+  handleNewPasswordRequired: (user: CognitoUser) => void,
+  demoMode?: boolean
 ): Promise<{ authToken: string; userId: string }> {
+  if (demoMode) {
+    // Return demo user and token
+    return Promise.resolve({
+      authToken: "demo-token-123",
+      userId: "demo-user-id"
+    });
+  }
+
   const user = new CognitoUser({
     Username: username,
     Pool: userPool,
@@ -71,9 +82,9 @@ export function logoutUser() {
     UserPoolId: COGNITO_CONFIG.UserPoolId,
     ClientId: COGNITO_CONFIG.ClientId,
   });
-
   const user = userPool.getCurrentUser();
   if (user) {
     user.signOut();
   }
 }
+

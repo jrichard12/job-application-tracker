@@ -12,6 +12,7 @@ import { useState, useEffect } from "react";
 
 function App() {
   const [userInfo, setUserInfo] = useState<UserInfo | null>(null);
+  const [isDemo, setIsDemo] = useState<boolean>(false);
 
   // Load userInfo from localStorage on mount
   useEffect(() => {
@@ -41,8 +42,8 @@ function App() {
       <Routes>
         <Route path="/" element={<Main />} />
         <Route path="/login" element={<Login userInfo={userInfo} updateUser={handleUpdateUserInfo} />} />
-        <Route path="/applications" element={<ProtectedRoute><Applications userInfo={userInfo} updateUser={handleUpdateUserInfo}/></ProtectedRoute>} />
-        <Route path="/archives" element={<ProtectedRoute><Archives userInfo={userInfo} updateUser={handleUpdateUserInfo} /></ProtectedRoute>} />
+        <Route path="/applications" element={<ProtectedRoute><Applications userInfo={userInfo} updateUser={handleUpdateUserInfo} /></ProtectedRoute>} />
+        <Route path="/archives" element={<ProtectedRoute><Archives userInfo={userInfo} updateUser={handleUpdateUserInfo}  /></ProtectedRoute>} />
         <Route path="/dashboard" element={<ProtectedRoute><Main /></ProtectedRoute>} />
       </Routes>
     </BrowserRouter>

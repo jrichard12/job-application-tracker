@@ -12,16 +12,27 @@ interface LoginProps {
     updateUser: (newInfo: UserInfo | null) => void;
 }
 
+
 function Login({ userInfo, updateUser }: LoginProps) {
     const [username, setUsername] = useState("");
     const [password, setPassword] = useState("");
+    const handleDemoLogin = async () => {
+        setDemoMode(true);
+        const result = await loginUser(username, password, handleNewPasswordRequired, true);
+        console.log("Login successful:", result);
+        const authToken = result.authToken;
+        const id = result.userId;
+        setUser({ username, authToken, id });
+        console.log("Demo user login activated");
+        navigate("/applications");
+    };
     const [newPasswordRequired, setNewPasswordRequired] = useState(false);
     const [newPassword, setNewPassword] = useState("");
     const [confirmPassword, setConfirmPassword] = useState("");
     const [cognitoUser, setCognitoUser] = useState<CognitoUser | null>(null);
     const [error, setError] = useState("");
     const navigate = useNavigate();
-    const { user, setUser } = useAuth();
+    const { user, setUser, setDemoMode } = useAuth();
     const userInfoHandlerUrl = import.meta.env.VITE_USER_INFO_URL;
 
     const handleNewPasswordRequired = (user: CognitoUser) => {
@@ -92,82 +103,93 @@ function Login({ userInfo, updateUser }: LoginProps) {
                 body: JSON.stringify({
                     userId: id,
                     email: username
-                } as any)             
-        });
+                } as any)
+            });
 
-        if (response.status !== 200) {
-            throw new Error("Failed to fetch user info");
+            if (response.status !== 200) {
+                throw new Error("Failed to fetch user info");
+            }
+
+            const data = await response.json();
+            updateUser({
+                id: data.id,
+                email: data.email,
+                jobApps: data.jobApps
+            } as UserInfo);
+            console.log("User jobs fetched successfully:", data.jobApps);
+        } catch (error) {
+            console.error("Error fetching user info:", error);
         }
+    };
 
-        const data = await response.json();
-        updateUser({
-            id: data.id,
-            email: data.email,
-            jobApps: data.jobApps
-        } as UserInfo);
-        console.log("User jobs fetched successfully:", data.jobApps);
-    } catch (error) {
-        console.error("Error fetching user info:", error);
-    }
-};
-
-return (
-    <Card className="login">
-        <CardContent>
-            <Typography variant="h5" component="div">
-                Login
-            </Typography>
-            <form onSubmit={newPasswordRequired ? handleSubmitNewPassword : handleSubmit}>
-                <TextField
-                    label="Email"
-                    variant="outlined"
-                    fullWidth
-                    margin="normal"
-                    required
-                    onChange={(e) => setUsername(e.target.value)}
-                    disabled={newPasswordRequired}
-                    value={username}
-                />
-                <TextField
-                    label={newPasswordRequired ? "New Password" : "Password"}
-                    type="password"
-                    variant="outlined"
-                    fullWidth
-                    margin="normal"
-                    required
-                    onChange={newPasswordRequired ? (e) => setNewPassword(e.target.value) : (e) => setPassword(e.target.value)}
-                    value={newPasswordRequired ? newPassword : password}
-                />
-                {newPasswordRequired && (
-                    <TextField
-                        label="Confirm New Password"
-                        type="password"
-                        variant="outlined"
-                        fullWidth
-                        margin="normal"
-                        required
-                        onChange={(e) => setConfirmPassword(e.target.value)}
-                        value={confirmPassword}
-                    />
-                )}
-                <Button
-                    variant="contained"
-                    color="primary"
-                    fullWidth
-                    type="submit"
-                    style={{ marginTop: '18px' }}
+    return (
+        <>
+            <Card className="login">
+                <CardContent>
+                    <Typography variant="h5" component="div">
+                        Login
+                    </Typography>
+                    <form onSubmit={newPasswordRequired ? handleSubmitNewPassword : handleSubmit}>
+                        <TextField
+                            label="Email"
+                            variant="outlined"
+                            fullWidth
+                            margin="normal"
+                            required
+                            onChange={(e) => setUsername(e.target.value)}
+                            disabled={newPasswordRequired}
+                            value={username}
+                        />
+                        <TextField
+                            label={newPasswordRequired ? "New Password" : "Password"}
+                            type="password"
+                            variant="outlined"
+                            fullWidth
+                            margin="normal"
+                            required
+                            onChange={newPasswordRequired ? (e) => setNewPassword(e.target.value) : (e) => setPassword(e.target.value)}
+                            value={newPasswordRequired ? newPassword : password}
+                        />
+                        {newPasswordRequired && (
+                            <TextField
+                                label="Confirm New Password"
+                                type="password"
+                                variant="outlined"
+                                fullWidth
+                                margin="normal"
+                                required
+                                onChange={(e) => setConfirmPassword(e.target.value)}
+                                value={confirmPassword}
+                            />
+                        )}
+                        <Button
+                            variant="contained"
+                            color="primary"
+                            fullWidth
+                            type="submit"
+                            style={{ marginTop: '18px' }}
+                        >
+                            {newPasswordRequired ? "Set New Password" : "Login"}
+                        </Button>
+                        {error && (
+                            <div style={{ color: '#d32f2f', fontSize: '0.95rem', marginTop: '12px', textAlign: 'center', fontWeight: 500 }}>
+                                {error}
+                            </div>
+                        )}
+                    </form>
+                </CardContent>
+            </Card>
+            <div style={{ textAlign: 'center', marginTop: '16px' }}>
+                <a
+                    href="#"
+                    style={{ color: '#1976d2', textDecoration: 'underline', cursor: 'pointer', fontWeight: 500 }}
+                    onClick={(e) => { e.preventDefault(); handleDemoLogin(); }}
                 >
-                    {newPasswordRequired ? "Set New Password" : "Login"}
-                </Button>
-                {error && (
-                    <div style={{ color: '#d32f2f', fontSize: '0.95rem', marginTop: '12px', textAlign: 'center', fontWeight: 500 }}>
-                        {error}
-                    </div>
-                )}
-            </form>
-        </CardContent>
-    </Card>
-);
+                    Login as demo user
+                </a>
+            </div>
+        </>
+    );
 }
 
 export default Login;

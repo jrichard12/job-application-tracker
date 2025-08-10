@@ -9,17 +9,25 @@ interface AuthProviderProps {
 
 export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     const [user, setUser] = useState<User | null>(null);
+    const [demoMode, setDemoMode] = useState(false);
     const [checkingSession, setCheckingSession] = useState(true);
 
     useEffect(() => {
+        if (demoMode) {
+            setUser({
+                username: "demo@demo.com",
+                authToken: "demo-token-123",
+                id: "demo-user-id"
+            });
+            setCheckingSession(false);
+            return;
+        }
         const currentUser = userPool.getCurrentUser();
-        
         if (!currentUser) {
             setUser(null);
             setCheckingSession(false);
             return;
         }
-
         currentUser.getSession((err: any, session: any) => {
             if (session?.isValid()) {
                 setUser({
@@ -32,12 +40,12 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
             }
             setCheckingSession(false);
         });
-    }, []);
+    }, [demoMode]);
 
     if (checkingSession) return null;
 
     return (
-        <AuthContext.Provider value={{ user, setUser }}>
+        <AuthContext.Provider value={{ user, setUser, demoMode, setDemoMode }}>
             {children}
         </AuthContext.Provider>
     );
