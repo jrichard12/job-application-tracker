@@ -12,23 +12,27 @@ import "./JobDetails.scss";
 import type { JobApp } from "../../types/JobApp";
 import { jobAppStatusOptions } from "../../types/JobApp";
 import { useState, useEffect } from "react";
+import type { UserInfo } from "../../types/UserInfo";
 
 type JobDetailsProps = {
     job: JobApp | null,
-    onArchive?: (jobId: string) => void,
-    onDelete?: (jobId: string) => void,
-    isArchived?: boolean,
+    userInfo: UserInfo | null;
+    updateUser: (newInfo: UserInfo | null) => void;
 }
 
 
-function JobDetails({ job, onArchive, onDelete, isArchived }: JobDetailsProps) {
+function JobDetails({ job, updateUser, userInfo }: JobDetailsProps) {
     // Inline editing state for fields
+    useEffect(() => {
+        console.log('JobDetails initial job prop:', job);
+    }, [job]);
     const [editingField, setEditingField] = useState<string | null>(null);
     const [tempFieldValue, setTempFieldValue] = useState<string>("");
     // Skills editing state
     const [editingSkills, setEditingSkills] = useState(false);
     const [newSkill, setNewSkill] = useState("");
     const [tempSkills, setTempSkills] = useState<string[]>([]);
+    const jobHandlerUrl = import.meta.env.VITE_JOB_HANDLER_URL;
     // Click outside to cancel editing
     useEffect(() => {
         if (!editingField) return;
@@ -49,7 +53,7 @@ function JobDetails({ job, onArchive, onDelete, isArchived }: JobDetailsProps) {
     const [currentJob, setCurrentJob] = useState<JobApp | null>(job ? {
         ...job,
         dateApplied: job?.dateApplied ? new Date(job.dateApplied) : null,
-        statusUpdated: job?.statusUpdated ? new Date(job.statusUpdated) : null,
+        lastUpdated: job?.lastUpdated ? new Date(job.lastUpdated) : null,
     } : null);
     const [editingDateApplied, setEditingDateApplied] = useState(false);
     const [editingLastUpdated, setEditingLastUpdated] = useState(false);
@@ -60,7 +64,7 @@ function JobDetails({ job, onArchive, onDelete, isArchived }: JobDetailsProps) {
         setCurrentJob(job ? {
             ...job,
             dateApplied: job?.dateApplied ? new Date(job.dateApplied) : null,
-            statusUpdated: job?.statusUpdated ? new Date(job.statusUpdated) : null,
+            lastUpdated: job?.lastUpdated ? new Date(job.lastUpdated) : null,
         } : null);
         setEditingDateApplied(false);
         setEditingLastUpdated(false);
@@ -71,7 +75,73 @@ function JobDetails({ job, onArchive, onDelete, isArchived }: JobDetailsProps) {
         if (!editingDescription && tempDescription !== "" && currentJob && tempDescription !== currentJob.description) {
             setTempDescription("");
         }
-    }, [editingDescription, currentJob]);
+    }, [editingDescription, currentJob, tempDescription]);
+
+
+    const handleSave = async (jobToSave?: JobApp | null) => {
+        const job = jobToSave ?? currentJob;
+        if (!job || !job?.PK || !job?.SK) return;
+        console.log("Saving job:", job);
+
+        try {
+            const response = await fetch(jobHandlerUrl, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(job),
+            });
+            const result = await response.json();
+            console.log('Update result:', result);
+            if (updateUser && userInfo) {
+                updateUser({ ...userInfo, jobApps: userInfo.jobApps?.map(app => app.id === job.id ? { ...job } : app) });
+            }
+        } catch (error) {
+            console.error('Error updating job:', error);
+        }
+    };
+
+    const handleArchive = async () => {
+        if (!currentJob) return;
+        console.log("currentJob before archiving:", currentJob);
+        const updatedJob = { ...currentJob, isArchived: true };
+        console.log("Archiving job:", updatedJob);
+        if (!updatedJob.PK || !updatedJob.SK) return;
+        await handleSave(updatedJob);
+        setCurrentJob(null);
+    }
+
+    const handleDelete = async () => {
+        if (!currentJob) return;
+        console.log("Attempting to delete job with PK:", currentJob.PK, "and SK:", currentJob.SK);
+        if (!currentJob.PK || !currentJob.SK) {
+            console.error("Cannot delete job: Missing PK or SK.");
+            return;
+        }
+
+        try {
+            // Send PK and SK as query parameters for DELETE
+            const url = `${jobHandlerUrl}?PK=${encodeURIComponent(currentJob.PK)}&SK=${encodeURIComponent(currentJob.SK)}`;
+            const response = await fetch(url, {
+                method: 'DELETE',
+                headers: {
+                    'Content-Type': 'application/json',
+                }
+            });
+            const result = await response.json();
+            console.log('Delete result:', result);
+            if (updateUser && userInfo) {
+                updateUser({
+                    ...userInfo,
+                    jobApps: userInfo.jobApps?.filter(app => app.id !== currentJob.id) ?? []
+                });
+            }
+            setCurrentJob(null);
+        } catch (error) {
+            console.error('Error deleting job:', error);
+        }
+
+    }
 
     return (
         <Card
@@ -98,7 +168,7 @@ function JobDetails({ job, onArchive, onDelete, isArchived }: JobDetailsProps) {
                             </div>
                             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%', marginTop: '0.1rem' }}>
                                 <span style={{ fontSize: '0.98rem', color: '#426e5d', fontWeight: 500, flex: 1, textAlign: 'left', cursor: 'pointer' }}
-                                    onClick={isArchived ? undefined : () => setEditingDateApplied(true)}
+                                    onClick={currentJob.isArchived ? undefined : () => setEditingDateApplied(true)}
                                 >
                                     Date Applied: {editingDateApplied ? (
                                         <LocalizationProvider dateAdapter={AdapterDateFns}>
@@ -120,12 +190,12 @@ function JobDetails({ job, onArchive, onDelete, isArchived }: JobDetailsProps) {
                                 <span style={{ fontSize: '0.98rem', flex: 1, textAlign: 'center', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                                     <div style={{ position: 'relative', display: 'inline-flex', alignItems: 'center' }}>
                                         <Chip
-                                            label={currentJob.status ? currentJob.status : "Draft"}
+                                            label={currentJob.jobStatus ? currentJob.jobStatus : "Draft"}
                                             size="small"
                                             sx={{ fontWeight: 500, background: '#e0f7fa', color: '#1976d2', height: 22, px: 1, fontSize: '0.80rem', letterSpacing: 0.1, boxShadow: '0 1px 2px 0 rgba(32, 165, 166, 0.08)', whiteSpace: 'nowrap', verticalAlign: 'middle', display: 'flex', alignItems: 'center', cursor: 'pointer', paddingRight: '22px' }}
-                                            onClick={isArchived ? undefined : (e) => setStatusMenuAnchor(e.currentTarget)}
+                                            onClick={currentJob.isArchived ? undefined : (e) => setStatusMenuAnchor(e.currentTarget)}
                                         />
-                                        {!isArchived &&
+                                        {!currentJob.isArchived &&
                                             <ArrowDropDownIcon
                                                 sx={{ position: 'absolute', right: 6, top: '50%', transform: 'translateY(-50%)', fontSize: 18, color: '#1976d2', pointerEvents: 'none' }}
                                             />
@@ -142,9 +212,9 @@ function JobDetails({ job, onArchive, onDelete, isArchived }: JobDetailsProps) {
                                         {jobAppStatusOptions.map((option) => (
                                             <MenuItem
                                                 key={option}
-                                                selected={option === currentJob.status}
+                                                selected={option === currentJob.jobStatus}
                                                 onClick={() => {
-                                                    setCurrentJob({ ...currentJob, status: option });
+                                                    setCurrentJob({ ...currentJob, jobStatus: option });
                                                     setStatusMenuAnchor(null);
                                                 }}
                                                 sx={{ fontSize: '0.95rem', minHeight: 32, padding: '4px 16px' }}
@@ -155,14 +225,14 @@ function JobDetails({ job, onArchive, onDelete, isArchived }: JobDetailsProps) {
                                     </Menu>
                                 </span>
                                 <span style={{ fontSize: '0.98rem', color: '#426e5d', fontWeight: 500, flex: 1, textAlign: 'right', cursor: 'pointer' }}
-                                    onClick={isArchived ? undefined : () => setEditingLastUpdated(true)}
+                                    onClick={currentJob.isArchived ? undefined : () => setEditingLastUpdated(true)}
                                 >
                                     Last Updated: {editingLastUpdated ? (
                                         <LocalizationProvider dateAdapter={AdapterDateFns}>
                                             <DatePicker
-                                                value={currentJob.statusUpdated || null}
+                                                value={currentJob.lastUpdated || null}
                                                 onChange={(newValue: Date | null) => {
-                                                    setCurrentJob({ ...currentJob, statusUpdated: newValue });
+                                                    setCurrentJob({ ...currentJob, lastUpdated: newValue });
                                                     setEditingLastUpdated(false);
                                                 }}
                                                 onClose={() => setEditingLastUpdated(false)}
@@ -171,7 +241,7 @@ function JobDetails({ job, onArchive, onDelete, isArchived }: JobDetailsProps) {
                                             />
                                         </LocalizationProvider>
                                     ) : (
-                                        currentJob.statusUpdated ? currentJob.statusUpdated.toLocaleDateString() : 'No date provided'
+                                        currentJob.lastUpdated ? currentJob.lastUpdated.toLocaleDateString() : 'No date provided'
                                     )}
                                 </span>
                             </div>
@@ -210,7 +280,7 @@ function JobDetails({ job, onArchive, onDelete, isArchived }: JobDetailsProps) {
                                 ) : (
                                     <>
                                         <span style={{ flex: 1 }}>{currentJob.company || 'No company provided'}</span>
-                                        {!isArchived &&
+                                        {!currentJob.isArchived &&
                                             <div style={{ marginLeft: 'auto' }}>
                                                 <IconButton size="small" sx={{ color: '#1976d2' }} aria-label="Edit company" onClick={() => { setEditingField('company'); setTempFieldValue(currentJob.company || ""); }}>
                                                     <EditIcon fontSize="small" />
@@ -254,7 +324,7 @@ function JobDetails({ job, onArchive, onDelete, isArchived }: JobDetailsProps) {
                                 ) : (
                                     <>
                                         <span style={{ flex: 1 }}>{currentJob.source || 'No source provided'}</span>
-                                        {!isArchived &&
+                                        {!currentJob.isArchived &&
                                             <div style={{ marginLeft: 'auto' }}>
                                                 <IconButton size="small" sx={{ color: '#1976d2' }} aria-label="Edit source" onClick={() => { setEditingField('source'); setTempFieldValue(currentJob.source || ""); }}>
                                                     <EditIcon fontSize="small" />
@@ -298,7 +368,7 @@ function JobDetails({ job, onArchive, onDelete, isArchived }: JobDetailsProps) {
                                 ) : (
                                     <>
                                         <span style={{ flex: 1 }}>{currentJob.location || 'No location provided'}</span>
-                                        {!isArchived &&
+                                        {!currentJob.isArchived &&
                                             <div style={{ marginLeft: 'auto' }}>
                                                 <IconButton size="small" sx={{ color: '#1976d2' }} aria-label="Edit location" onClick={() => { setEditingField('location'); setTempFieldValue(currentJob.location || ""); }}>
                                                     <EditIcon fontSize="small" />
@@ -342,7 +412,7 @@ function JobDetails({ job, onArchive, onDelete, isArchived }: JobDetailsProps) {
                                 ) : (
                                     <>
                                         <span style={{ flex: 1 }}>{currentJob.salary || 'No salary provided'}</span>
-                                        {!isArchived &&
+                                        {!currentJob.isArchived &&
                                             <div style={{ marginLeft: 'auto' }}>
                                                 <IconButton size="small" sx={{ color: '#1976d2' }} aria-label="Edit salary" onClick={() => { setEditingField('salary'); setTempFieldValue(currentJob.salary || ""); }}>
                                                     <EditIcon fontSize="small" />
@@ -421,7 +491,7 @@ function JobDetails({ job, onArchive, onDelete, isArchived }: JobDetailsProps) {
                                             />
                                         ))
                                     )}
-                                    {!editingSkills && !isArchived && (
+                                    {!editingSkills && !currentJob.isArchived && (
                                         <div style={{ marginLeft: 'auto' }}>
                                             <IconButton size="small" sx={{ color: '#1976d2', marginBottom: '0.5rem' }} aria-label="Edit skills" onClick={() => {
                                                 setEditingSkills(true);
@@ -470,7 +540,7 @@ function JobDetails({ job, onArchive, onDelete, isArchived }: JobDetailsProps) {
                             ) : (
                                 <div className="job-details-description" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%' }}>
                                     <span style={{ flex: 1, textAlign: 'left' }}>{currentJob.description ? currentJob.description : <span style={{ color: '#888' }}>No description provided</span>}</span>
-                                    {!isArchived &&
+                                    {!currentJob.isArchived &&
                                         <IconButton
                                             size="small"
                                             sx={{ ml: 1, color: '#1976d2', verticalAlign: 'middle' }}
@@ -486,28 +556,29 @@ function JobDetails({ job, onArchive, onDelete, isArchived }: JobDetailsProps) {
                                 </div>
                             )}
                         </div>
-                        {/* Archive and Delete Buttons */}
+                        {/* Archive, Save, and Delete Buttons */}
                         <div style={{ position: 'absolute', right: 0, bottom: 0, display: 'flex', gap: '0.7rem', zIndex: 2 }}>
-                            {!isArchived &&
+                            {!currentJob.isArchived && (
+                                <>
+                                    <button
+                                        type="button"
+                                        style={{ background: '#e0e0e0', color: '#1976d2', border: 'none', borderRadius: 6, padding: '6px 18px', fontSize: '1rem', fontWeight: 500, cursor: 'pointer', boxShadow: '0 1px 2px 0 rgba(32, 165, 166, 0.08)' }}
+                                        onClick={handleArchive}
+                                    >Archive</button>
+                                    <button
+                                        type="button"
+                                        style={{ background: '#1976d2', color: '#fff', border: 'none', borderRadius: 6, padding: '6px 18px', fontSize: '1rem', fontWeight: 500, cursor: 'pointer', boxShadow: '0 1px 2px 0 rgba(32, 165, 166, 0.08)' }}
+                                        onClick={() => handleSave()}
+                                    >Save</button>
+                                </>
+                            )}
+                            {currentJob.isArchived && (
                                 <button
                                     type="button"
-                                    style={{ background: '#e0e0e0', color: '#1976d2', border: 'none', borderRadius: 6, padding: '6px 18px', fontSize: '1rem', fontWeight: 500, cursor: 'pointer', boxShadow: '0 1px 2px 0 rgba(32, 165, 166, 0.08)' }}
-                                    onClick={() => {
-                                        if (typeof job?.id === 'string' && typeof onArchive === 'function' && currentJob) {
-                                            onArchive(currentJob.id);
-                                        }
-                                    }}
-                                >Archive</button>
-                            }
-                            <button
-                                type="button"
-                                style={{ background: '#ff5252', color: '#fff', border: 'none', borderRadius: 6, padding: '6px 18px', fontSize: '1rem', fontWeight: 500, cursor: 'pointer', boxShadow: '0 1px 2px 0 rgba(32, 165, 166, 0.08)' }}
-                                onClick={() => {
-                                    if (typeof job?.id === 'string' && typeof onDelete === 'function') {
-                                        onDelete(job.id);
-                                    }
-                                }}
-                            >Delete</button>
+                                    style={{ background: '#ff5252', color: '#fff', border: 'none', borderRadius: 6, padding: '6px 18px', fontSize: '1rem', fontWeight: 500, cursor: 'pointer', boxShadow: '0 1px 2px 0 rgba(32, 165, 166, 0.08)' }}
+                                    onClick={handleDelete}
+                                >Delete</button>
+                            )}
                         </div>
                     </div>
                 }

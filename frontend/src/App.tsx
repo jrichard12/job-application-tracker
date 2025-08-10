@@ -23,6 +23,7 @@ function App() {
 
   // Save userInfo to localStorage whenever it changes
   useEffect(() => {
+    console.log("Saving userInfo to localStorage:", userInfo);
     if (userInfo) {
       localStorage.setItem("userInfo", JSON.stringify(userInfo));
     } else {

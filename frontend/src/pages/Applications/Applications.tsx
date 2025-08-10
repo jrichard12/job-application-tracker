@@ -69,31 +69,16 @@ function Applications({ userInfo, updateUser }: ApplicationsProps) {
 
             const data = await response.json();
             console.log("Job application created:", data);
+            //const newJob = JSON.parse(data);
             updateUser({
-                ...userInfo, jobApps: [...userInfo?.jobApps || [], JSON.parse(data)]
+                ...userInfo, jobApps: [...userInfo?.jobApps || [], data]
             } as UserInfo);
-            setCurrentJobDetails(jobApp);
+            setCurrentJobDetails(data);
             setCreateModalOpen(false);
         } catch (error) {
             console.error("Error creating job application:", error);
             setCreateModalOpen(false);
         }
-    };
-
-    const deleteApp = (jobId: string) => {
-        setJobs((prevJobs) => prevJobs.filter((job) => job.id !== jobId));
-        setCurrentJobDetails(undefined);
-    };
-
-    // we're just going to set the isArchived to true and have it update itself. 
-    const archiveApp = (jobId: string) => {
-        // setJobs((prevJobs) => prevJobs.filter((job) => job.id !== jobId));
-        // const archivedJob = jobs.find((job) => job.id === jobId);
-        // if (archivedJob) {
-        //     setArchivedJobs((prevArchived) => [...prevArchived, archivedJob]);
-        // }
-        // setCurrentJobDetails(undefined);
-        console.log("Archiving job with ID:", jobId);
     };
 
     return (
@@ -107,7 +92,7 @@ function Applications({ userInfo, updateUser }: ApplicationsProps) {
                 <AppsToolBar headerTitle={'Your Applications'} handleAddApp={() => setCreateModalOpen(true)}></AppsToolBar>
                 <div className="job-apps-content">
                     <JobAppList jobDetailsHandler={handleShowDetails} jobs={jobs} currentJob={currentJobDetails ?? null} />
-                    <JobDetails job={currentJobDetails ?? null} onArchive={archiveApp} onDelete={deleteApp} />
+                    <JobDetails job={currentJobDetails ?? null}     userInfo={userInfo ?? null} updateUser={updateUser ?? null} />;
                 </div>
             </Paper>
         </div>

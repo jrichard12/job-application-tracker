@@ -53,14 +53,14 @@ function JobAppList({ jobDetailsHandler, jobs, currentJob }: JobAppListProps) {
                                                 <Typography>
                                                     {job.salary}
                                                 </Typography>
-                                                {job.status && (
+                                                {job.jobStatus && (
                                                     <div style={{ display: 'flex', justifyContent: 'flex-end', width: '100%' }}>
                                                         <Chip
-                                                            label={job.status}
+                                                            label={job.jobStatus}
                                                             size="small"
                                                             sx={{
                                                                 fontWeight: 500,
-                                                                background: statusColors[job.status] || '#bdbdbd',
+                                                                background: statusColors[job.jobStatus] || '#bdbdbd',
                                                                 color: '#fff',
                                                                 minWidth: 56,
                                                                 height: 22,

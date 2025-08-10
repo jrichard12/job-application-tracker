@@ -35,12 +35,7 @@ function Archives({ userInfo, updateUser }: ArchivesProps) {
 
     const handleShowDetails = (job: JobApp) => {
         setCurrentJobDetails(job);
-    };
-
-    // TODO: call lambda instead
-    const deleteApp = (jobId: string) => {
-        setArchivedJobs((prevJobs) => prevJobs.filter((job) => job.id !== jobId));
-        setCurrentJobDetails(undefined);
+        console.log("Showing details for job:", job);
     };
 
     return (
@@ -49,7 +44,7 @@ function Archives({ userInfo, updateUser }: ArchivesProps) {
                 <AppsToolBar headerTitle={'Archived Applications'}></AppsToolBar>
                 <div className="job-apps-content">
                     <JobAppList jobDetailsHandler={handleShowDetails} jobs={archivedJobs} currentJob={currentJobDetails ?? null} />
-                    <JobDetails job={currentJobDetails ?? null} onDelete={deleteApp} isArchived={true} />
+                    <JobDetails job={currentJobDetails ?? null} userInfo={userInfo ?? null} updateUser={updateUser ?? null} />
                 </div>
             </div>
         </div>

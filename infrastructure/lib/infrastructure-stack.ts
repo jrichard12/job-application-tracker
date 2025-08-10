@@ -98,7 +98,7 @@ export class InfrastructureStack extends cdk.Stack {
       authType: lambdaUrl.FunctionUrlAuthType.NONE, // No auth for now
       cors: {
         allowedOrigins: ["http://localhost:5173"],
-        allowedMethods: [lambda.HttpMethod.POST, lambda.HttpMethod.GET],
+        allowedMethods: [lambda.HttpMethod.POST, lambda.HttpMethod.PUT, lambda.HttpMethod.GET, lambda.HttpMethod.DELETE],
         allowedHeaders: ["Content-Type", "Authorization"],
       },
     });

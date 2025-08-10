@@ -17,7 +17,7 @@ function CreateAppModal({ isOpen, handleClose, handleCreateApp }: CreateAppModal
         source: '',
         company: '',
         jobTitle: '',
-        status: 'Interested',
+        jobStatus: 'Interested',
         isArchived: false
     } as JobApp);
     const [activeStep, setActiveStep] = useState(0);
@@ -35,7 +35,7 @@ function CreateAppModal({ isOpen, handleClose, handleCreateApp }: CreateAppModal
         const jobToSave: JobApp = {
             ...newJobApp,
             id: uuidv4(),
-            statusUpdated: new Date()
+            lastUpdated: new Date()
         };
         handleCreateApp(jobToSave);
         resetModal();
@@ -89,7 +89,7 @@ function CreateAppModal({ isOpen, handleClose, handleCreateApp }: CreateAppModal
             source: '',
             company: '',
             jobTitle: '',
-            status: 'Interested',
+            jobStatus: 'Interested',
             isArchived: false
         } as JobApp);
     };
@@ -266,9 +266,9 @@ function CreateAppModal({ isOpen, handleClose, handleCreateApp }: CreateAppModal
                                     <Select
                                         labelId="status-label"
                                         id="status-select"
-                                        value={newJobApp.status}
+                                        value={newJobApp.jobStatus}
                                         label="Status"
-                                        onChange={e => setNewJobApp(prev => ({ ...prev, status: e.target.value as JobApp["status"] }))}
+                                        onChange={e => setNewJobApp(prev => ({ ...prev, jobStatus: e.target.value as JobApp["jobStatus"] }))}
                                     >
                                         {jobAppStatusOptions.map(option => (
                                             <MenuItem key={option} value={option}>{option}</MenuItem>

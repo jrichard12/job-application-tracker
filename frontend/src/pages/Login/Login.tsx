@@ -105,6 +105,7 @@ function Login({ userInfo, updateUser }: LoginProps) {
             email: data.email,
             jobApps: data.jobApps
         } as UserInfo);
+        console.log("User jobs fetched successfully:", data.jobApps);
     } catch (error) {
         console.error("Error fetching user info:", error);
     }

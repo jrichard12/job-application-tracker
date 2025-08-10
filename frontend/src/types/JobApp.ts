@@ -1,20 +1,29 @@
 export interface JobApp {
-    id: string,
-    source: string,
-    company: string,
-    jobTitle: string,
-    salary?: string,
-    location?: string,
-    description?: string,
-    skills?: string[],
-    dateApplied?: Date | null,
-    deadline?: Date | null,
-    statusUpdated?: Date | null,
-    status: JobAppStatus,
-    isArchived: boolean,
-};
+  PK?: string;
+  SK?: string;
+  createdAt?: Date;
+  id: string;
+  source: string;
+  company: string;
+  jobTitle: string;
+  salary?: string;
+  location?: string;
+  description?: string;
+  skills?: string[];
+  dateApplied?: Date | null;
+  deadline?: Date | null;
+  lastUpdated?: Date | null;
+  jobStatus: JobAppStatus;
+  isArchived: boolean;
+}
 
-type JobAppStatus = "Interested" | "Applied" | "Interviewed" | "Offered" | "Accepted" | "Rejected";
+type JobAppStatus =
+  | "Interested"
+  | "Applied"
+  | "Interviewed"
+  | "Offered"
+  | "Accepted"
+  | "Rejected";
 
 export const jobAppStatusOptions = [
   "Interested",
@@ -22,5 +31,5 @@ export const jobAppStatusOptions = [
   "Interviewed",
   "Offered",
   "Accepted",
-  "Rejected"
+  "Rejected",
 ] as JobAppStatus[];
