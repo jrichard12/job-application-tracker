@@ -36,6 +36,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
                     id: session.getIdToken().payload.sub
                 });
             } else {
+                console.error("Session is not valid:", err);
                 setUser(null);
             }
             setCheckingSession(false);

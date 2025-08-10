@@ -2,17 +2,16 @@ import { loginUser } from "../../services/authService";
 import "./Main.scss";
 import { getDemoUserJobs } from "../../services/demoUserService";
 import { useAuth } from "../../services/authService";
-import { useNavigate } from "react-router-dom";
 import { Button } from "@mui/material";
 import type { UserInfo } from "../../types/UserInfo";
 
 interface MainProps {
+    userInfo: UserInfo | null;
     updateUser: (newInfo: UserInfo | null) => void;
 }
 
-function Main({ updateUser }: MainProps) {
+function Main({ userInfo, updateUser }: MainProps) {
     const { setUser, setDemoMode, demoMode } = useAuth();
-    const navigate = useNavigate();
 
     const handleDemoLogin = async () => {
         setDemoMode(true);
@@ -30,6 +29,14 @@ function Main({ updateUser }: MainProps) {
         console.log("Demo user login activated");
     };
 
+    const handleResetData = () => {
+        const loadedJobApps = getDemoUserJobs();
+        updateUser({
+            ...userInfo,
+            jobApps: loadedJobApps
+        } as UserInfo);
+    }
+
     return (
         <>
             {
@@ -37,9 +44,10 @@ function Main({ updateUser }: MainProps) {
                     <div className="main-container">
                         <h1>Demo Mode Active</h1>
                         <p>You are currently logged in as a demo user.</p>
-                        <p>Explore the application features without affecting real data.</p>
-                        <Button variant="contained" color="primary" onClick={() => navigate("/applications")}>
-                            Go to Applications
+                        <p>Explore the application features, but beware any changes you make will not persist on logout.</p>
+                        <p>Click the button below to reset the demo data.</p>
+                        <Button variant="contained" color="primary" onClick={handleResetData}>
+                            Reset Demo Data
                         </Button>
                     </div>
                 ) : (

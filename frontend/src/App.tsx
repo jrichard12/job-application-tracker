@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import ProtectedRoute from "./components/ProtectedRoute";
 import Main from "./pages/Main/Main"
@@ -39,11 +38,11 @@ function App() {
     <BrowserRouter>
       <CustomAppBar />
       <Routes>
-        <Route path="/" element={<Main updateUser={handleUpdateUserInfo} />} />
+        <Route path="/" element={<Main userInfo={userInfo} updateUser={handleUpdateUserInfo} />} />
         <Route path="/login" element={<Login userInfo={userInfo} updateUser={handleUpdateUserInfo} />} />
         <Route path="/applications" element={<ProtectedRoute><Applications userInfo={userInfo} updateUser={handleUpdateUserInfo} /></ProtectedRoute>} />
         <Route path="/archives" element={<ProtectedRoute><Archives userInfo={userInfo} updateUser={handleUpdateUserInfo}  /></ProtectedRoute>} />
-        <Route path="/dashboard" element={<ProtectedRoute><Main updateUser={handleUpdateUserInfo} /></ProtectedRoute>} />
+        <Route path="/dashboard" element={<ProtectedRoute><Main userInfo={userInfo} updateUser={handleUpdateUserInfo} /></ProtectedRoute>} />
       </Routes>
     </BrowserRouter>
   );

@@ -58,7 +58,6 @@ function JobDetails({ job, updateUser, userInfo }: JobDetailsProps) {
         lastUpdated: job?.lastUpdated ? new Date(job.lastUpdated) : null,
     } : null);
     const [editingDateApplied, setEditingDateApplied] = useState(false);
-    const [editingLastUpdated, setEditingLastUpdated] = useState(false);
 
     useEffect(() => {
         setEditingDescription(false);
@@ -69,7 +68,6 @@ function JobDetails({ job, updateUser, userInfo }: JobDetailsProps) {
             lastUpdated: job?.lastUpdated ? new Date(job.lastUpdated) : null,
         } : null);
         setEditingDateApplied(false);
-        setEditingLastUpdated(false);
     }, [job])
 
     // Revert description if not saved
@@ -249,25 +247,8 @@ function JobDetails({ job, updateUser, userInfo }: JobDetailsProps) {
                                         ))}
                                     </Menu>
                                 </span>
-                                <span style={{ fontSize: '0.98rem', color: '#426e5d', fontWeight: 500, flex: 1, textAlign: 'right', cursor: 'pointer' }}
-                                    onClick={currentJob.isArchived ? undefined : () => setEditingLastUpdated(true)}
-                                >
-                                    Last Updated: {editingLastUpdated ? (
-                                        <LocalizationProvider dateAdapter={AdapterDateFns}>
-                                            <DatePicker
-                                                value={currentJob.lastUpdated || null}
-                                                onChange={(newValue: Date | null) => {
-                                                    setCurrentJob({ ...currentJob, lastUpdated: newValue });
-                                                    setEditingLastUpdated(false);
-                                                }}
-                                                onClose={() => setEditingLastUpdated(false)}
-                                                slotProps={{ textField: { size: 'small', sx: { fontSize: '0.98rem', width: '140px' } } }}
-                                                open
-                                            />
-                                        </LocalizationProvider>
-                                    ) : (
-                                        currentJob.lastUpdated ? currentJob.lastUpdated.toLocaleDateString() : 'No date provided'
-                                    )}
+                                <span style={{ fontSize: '0.98rem', color: '#426e5d', fontWeight: 500, flex: 1, textAlign: 'right' }}>
+                                    Last Updated: {currentJob.lastUpdated ? currentJob.lastUpdated.toLocaleDateString() : 'No date provided'}
                                 </span>
                             </div>
                         </div>
