@@ -17,7 +17,7 @@ export interface JobApp {
   isArchived: boolean;
 }
 
-type JobAppStatus =
+export type JobAppStatus =
   | "Interested"
   | "Applied"
   | "Interviewed"

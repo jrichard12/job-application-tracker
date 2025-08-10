@@ -1,10 +1,16 @@
 import { loginUser } from "../../services/authService";
 import "./Main.scss";
+import { getDemoUserJobs } from "../../services/demoUserService";
 import { useAuth } from "../../services/authService";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@mui/material";
+import type { UserInfo } from "../../types/UserInfo";
 
-function Main() {
+interface MainProps {
+    updateUser: (newInfo: UserInfo | null) => void;
+}
+
+function Main({ updateUser }: MainProps) {
     const { setUser, setDemoMode, demoMode } = useAuth();
     const navigate = useNavigate();
 
@@ -15,6 +21,12 @@ function Main() {
         const authToken = result.authToken;
         const id = result.userId;
         setUser({ username: 'DemoUser', authToken, id });
+        const loadedJobApps = getDemoUserJobs();
+        updateUser({
+            id: id,
+            email: 'DemoUser',
+            jobApps: loadedJobApps
+        } as UserInfo);
         console.log("Demo user login activated");
     };
 

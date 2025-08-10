@@ -5,11 +5,11 @@ import JobAppList from "../../components/JobAppList/JobAppList";
 import JobDetails from "../../components/JobDetails/JobDetails";
 import type { JobApp } from "../../types/JobApp";
 import "./Applications.scss";
-//import jobData from "../../demoData.json";
 import { Paper } from "@mui/material";
 import CreateAppModal from "../../components/CreateAppModal/CreateAppModal";
 import { useAuth } from "../../services/authService";
 import { type UserInfo } from "../../types/UserInfo";
+
 
 interface ApplicationsProps {
     userInfo: UserInfo | null;
@@ -21,24 +21,13 @@ function Applications({ userInfo, updateUser }: ApplicationsProps) {
     const [currentJobDetails, setCurrentJobDetails] = useState<JobApp>();
     const [createModalOpen, setCreateModalOpen] = useState<boolean>(false);
     const [jobs, setJobs] = useState<JobApp[]>([]);
-    const { user } = useAuth();
-    const jobHandlerUrl = import.meta.env.VITE_JOB_HANDLER_URL;
-
-    // function parseJobApps(data: any[]): JobApp[] {
-    //     return data.map((item) => ({
-    //         ...item,
-    //         dateApplied: item.dateApplied ? new Date(item.dateApplied) : null,
-    //         deadline: item.deadline ? new Date(item.deadline) : null,
-    //         statusUpdated: item.statusUpdated ? new Date(item.statusUpdated) : null,
-    //     }));
-    // }
+    const { user, demoMode } = useAuth();
+    const jobHandlerUrl = demoMode ? "demoUrl" : import.meta.env.VITE_JOB_HANDLER_URL;
 
     useEffect(() => {
-        //const loadedJobs: JobApp[] = parseJobApps(jobData);
         const activeJobs: JobApp[] = userInfo?.jobApps?.filter(job => !job.isArchived) || [];
         setJobs([...activeJobs]);
     }, [userInfo]);
-
 
     const handleShowDetails = (job: JobApp) => {
         setCurrentJobDetails(job);
@@ -48,6 +37,14 @@ function Applications({ userInfo, updateUser }: ApplicationsProps) {
         console.log(jobApp);
         if (!jobApp) {
             console.error("No job app defined.");
+            return;
+        }
+        if (demoMode) {
+            updateUser({
+                ...userInfo, jobApps: [...userInfo?.jobApps || [], jobApp]
+            } as UserInfo);
+            setCurrentJobDetails(jobApp);
+            setCreateModalOpen(false);
             return;
         }
         try {

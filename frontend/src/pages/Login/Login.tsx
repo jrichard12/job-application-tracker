@@ -7,6 +7,9 @@ import { useAuth } from "../../services/authService";
 import "./Login.scss";
 import type { CognitoUser } from "amazon-cognito-identity-js";
 import { type UserInfo } from "../../types/UserInfo";
+import type { JobApp } from "../../types/JobApp";
+import { getDemoUserJobs } from "../../services/demoUserService";
+
 interface LoginProps {
     userInfo: UserInfo | null;
     updateUser: (newInfo: UserInfo | null) => void;
@@ -22,7 +25,13 @@ function Login({ userInfo, updateUser }: LoginProps) {
         console.log("Login successful:", result);
         const authToken = result.authToken;
         const id = result.userId;
+        const loadedJobApps: JobApp[] = getDemoUserJobs();
         setUser({ username, authToken, id });
+        updateUser({
+            id: id,
+            email: username,
+            jobApps: loadedJobApps
+        } as UserInfo);
         console.log("Demo user login activated");
         navigate("/applications");
     };

@@ -191,6 +191,21 @@ function CustomAppBar() {
           </Box>
         </Toolbar>
       </Container>
+      {demoMode && (
+        <Box sx={{
+          width: '100%',
+          backgroundColor: 'var(--color-demo-banner, #FFA726)',
+          color: 'black',
+          textAlign: 'center',
+          py: 1,
+          borderRadius: 1,
+          boxShadow: 1,
+          fontWeight: 600,
+          letterSpacing: '.1rem',
+        }}>
+          Demo Mode Active
+        </Box>
+      )}
     </AppBar>
   );
 }

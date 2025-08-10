@@ -13,6 +13,7 @@ import type { JobApp } from "../../types/JobApp";
 import { jobAppStatusOptions } from "../../types/JobApp";
 import { useState, useEffect } from "react";
 import type { UserInfo } from "../../types/UserInfo";
+import { useAuth } from "../../services/authService";
 
 type JobDetailsProps = {
     job: JobApp | null,
@@ -32,6 +33,7 @@ function JobDetails({ job, updateUser, userInfo }: JobDetailsProps) {
     const [editingSkills, setEditingSkills] = useState(false);
     const [newSkill, setNewSkill] = useState("");
     const [tempSkills, setTempSkills] = useState<string[]>([]);
+    const { demoMode } = useAuth();
     const jobHandlerUrl = import.meta.env.VITE_JOB_HANDLER_URL;
     // Click outside to cancel editing
     useEffect(() => {
@@ -80,6 +82,14 @@ function JobDetails({ job, updateUser, userInfo }: JobDetailsProps) {
 
     const handleSave = async (jobToSave?: JobApp | null) => {
         const job = jobToSave ?? currentJob;
+        if (demoMode) {
+            const updatedJob = { ...currentJob, isArchived: true };
+            updateUser({
+                ...userInfo, jobApps: [...userInfo?.jobApps?.map(app => app.id === updatedJob.id ? updatedJob : app) || []]
+            } as UserInfo);
+            setCurrentJob(null);
+            return;
+        }
         if (!job || !job?.PK || !job?.SK) return;
         console.log("Saving job:", job);
 
@@ -103,6 +113,14 @@ function JobDetails({ job, updateUser, userInfo }: JobDetailsProps) {
 
     const handleArchive = async () => {
         if (!currentJob) return;
+        if (demoMode) {
+            const updatedJob = { ...currentJob, isArchived: true };
+            updateUser({
+                ...userInfo, jobApps: [...userInfo?.jobApps?.map(app => app.id === updatedJob.id ? updatedJob : app) || []]
+            } as UserInfo);
+            setCurrentJob(null);
+            return;
+        }
         console.log("currentJob before archiving:", currentJob);
         const updatedJob = { ...currentJob, isArchived: true };
         console.log("Archiving job:", updatedJob);
@@ -113,6 +131,13 @@ function JobDetails({ job, updateUser, userInfo }: JobDetailsProps) {
 
     const handleDelete = async () => {
         if (!currentJob) return;
+        if (demoMode) {
+            updateUser({
+                ...userInfo, jobApps: [...userInfo?.jobApps?.filter(app => app.id !== currentJob.id) || []]
+            } as UserInfo);
+            setCurrentJob(null);
+            return;
+        }
         console.log("Attempting to delete job with PK:", currentJob.PK, "and SK:", currentJob.SK);
         if (!currentJob.PK || !currentJob.SK) {
             console.error("Cannot delete job: Missing PK or SK.");
