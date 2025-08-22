@@ -8,7 +8,7 @@ import MenuItem from '@mui/material/MenuItem';
 import "./JobDetails.scss";
 import type { JobApp } from "../../types/JobApp";
 import { jobAppStatusOptions, jobStatusColors } from "../../types/JobApp";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import type { UserInfo } from "../../types/UserInfo";
 import { useAuth } from "../../services/authService";
 
@@ -51,20 +51,20 @@ function JobDetails({ job, updateUser, userInfo }: JobDetailsProps) {
     // Store dates as Date objects in state for compatibility with MUI DatePicker
     const [currentJob, setCurrentJob] = useState<JobApp | null>(job ? {
         ...job,
-        dateApplied: job?.dateApplied ? new Date(job.dateApplied) : null,
+        deadline: job?.deadline ? new Date(job.deadline) : null,
         lastUpdated: job?.lastUpdated ? new Date(job.lastUpdated) : null,
     } : null);
-    const [editingDateApplied, setEditingDateApplied] = useState(false);
+    const [editingDeadline, setEditingDeadline] = useState(false);
 
     useEffect(() => {
         setEditingDescription(false);
         setTempDescription("");
         setCurrentJob(job ? {
             ...job,
-            dateApplied: job?.dateApplied ? new Date(job.dateApplied) : null,
+            deadline: job?.deadline ? new Date(job.deadline) : null,
             lastUpdated: job?.lastUpdated ? new Date(job.lastUpdated) : null,
         } : null);
-        setEditingDateApplied(false);
+        setEditingDeadline(false);
     }, [job])
 
     // Revert description if not saved
@@ -74,18 +74,19 @@ function JobDetails({ job, updateUser, userInfo }: JobDetailsProps) {
         }
     }, [editingDescription, currentJob, tempDescription]);
 
-
-    const handleSave = async (jobToSave?: JobApp | null) => {
+    const handleSave = useCallback(async (jobToSave?: JobApp | null) => {
         const job = jobToSave ?? currentJob;
+        if (!job) return;
+        
         if (demoMode) {
-            const updatedJob = { ...currentJob, isArchived: true };
-            updateUser({
-                ...userInfo, jobApps: [...userInfo?.jobApps?.map(app => app.id === updatedJob.id ? updatedJob : app) || []]
-            } as UserInfo);
-            setCurrentJob(null);
+            // For demo mode, just update the local state
+            if (updateUser && userInfo) {
+                updateUser({ ...userInfo, jobApps: userInfo.jobApps?.map(app => app.id === job.id ? { ...job } : app) });
+            }
             return;
         }
-        if (!job || !job?.PK || !job?.SK) return;
+        
+        if (!job.PK || !job.SK) return;
         console.log("Saving job:", job);
 
         try {
@@ -104,7 +105,7 @@ function JobDetails({ job, updateUser, userInfo }: JobDetailsProps) {
         } catch (error) {
             console.error('Error updating job:', error);
         }
-    };
+    }, [currentJob, demoMode, updateUser, userInfo, jobHandlerUrl]);
 
     const handleArchive = async () => {
         if (!currentJob) return;
@@ -177,18 +178,18 @@ function JobDetails({ job, updateUser, userInfo }: JobDetailsProps) {
                             </div>
                             <div className="job-details-info-row">
                                 <span className="job-details-date-applied"
-                                    onClick={currentJob.isArchived ? undefined : () => setEditingDateApplied(true)}
+                                    onClick={currentJob.isArchived ? undefined : () => setEditingDeadline(true)}
                                 >
-                                    Date Applied: {editingDateApplied ? (
+                                    Deadline: {editingDeadline ? (
                                         <input
                                             type="date"
-                                            value={currentJob.dateApplied ? new Date(currentJob.dateApplied).toISOString().split('T')[0] : ''}
+                                            value={currentJob.deadline ? new Date(currentJob.deadline).toISOString().split('T')[0] : ''}
                                             onChange={(e) => {
                                                 const newValue = e.target.value ? new Date(e.target.value) : null;
-                                                setCurrentJob({ ...currentJob, dateApplied: newValue });
-                                                setEditingDateApplied(false);
+                                                setCurrentJob({ ...currentJob, deadline: newValue });
+                                                setEditingDeadline(false);
                                             }}
-                                            onBlur={() => setEditingDateApplied(false)}
+                                            onBlur={() => setEditingDeadline(false)}
                                             autoFocus
                                             style={{
                                                 fontSize: '0.98rem',
@@ -200,7 +201,7 @@ function JobDetails({ job, updateUser, userInfo }: JobDetailsProps) {
                                             }}
                                         />
                                     ) : (
-                                        currentJob.dateApplied ? currentJob.dateApplied.toLocaleDateString() : 'No date provided'
+                                        currentJob.deadline ? currentJob.deadline.toLocaleDateString() : 'No deadline set'
                                     )}
                                 </span>
                                 <span className="job-details-status-container">

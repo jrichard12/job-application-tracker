@@ -128,7 +128,11 @@ function Applications({ userInfo, updateUser }: ApplicationsProps) {
                     ) : (
                         <>
                             <JobAppList jobDetailsHandler={handleShowDetails} jobs={jobs} currentJob={currentJobDetails ?? null} />
-                            <JobDetails job={currentJobDetails ?? null} userInfo={userInfo ?? null} updateUser={updateUser ?? null} />
+                            <JobDetails 
+                                job={currentJobDetails ?? null} 
+                                userInfo={userInfo ?? null} 
+                                updateUser={updateUser ?? null}
+                            />
                         </>
                     )}
                 </div>

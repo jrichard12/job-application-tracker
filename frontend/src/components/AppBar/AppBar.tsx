@@ -22,6 +22,7 @@ function CustomAppBar() {
       logoutUser();
     }
     localStorage.removeItem("userInfo");
+    localStorage.removeItem("demoMode");
     setUser(null);
   };
 

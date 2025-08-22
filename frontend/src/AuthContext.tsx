@@ -9,8 +9,20 @@ interface AuthProviderProps {
 
 export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     const [user, setUser] = useState<User | null>(null);
-    const [demoMode, setDemoMode] = useState(false);
+    const [demoMode, setDemoMode] = useState(() => {
+        // Check localStorage for demo mode state on initialization
+        return localStorage.getItem('demoMode') === 'true';
+    });
     const [checkingSession, setCheckingSession] = useState(true);
+
+    // Persist demo mode state to localStorage
+    useEffect(() => {
+        if (demoMode) {
+            localStorage.setItem('demoMode', 'true');
+        } else {
+            localStorage.removeItem('demoMode');
+        }
+    }, [demoMode]);
 
     useEffect(() => {
         if (demoMode) {
