@@ -1,11 +1,11 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { useEffect, useState } from "react";
-import AppsToolBar from "../../components/AppsToolBar/AppsToolBar";
 import JobAppList from "../../components/JobAppList/JobAppList";
 import JobDetails from "../../components/JobDetails/JobDetails";
 import type { JobApp } from "../../types/JobApp";
 import "./Applications.scss";
-import { Paper } from "@mui/material";
+import { Paper, Typography } from "@mui/material";
+import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
 import CreateAppModal from "../../components/CreateAppModal/CreateAppModal";
 import { useAuth } from "../../services/authService";
 import { type UserInfo } from "../../types/UserInfo";
@@ -65,7 +65,6 @@ function Applications({ userInfo, updateUser }: ApplicationsProps) {
 
             const data = await response.json();
             console.log("Job application created:", data);
-            //const newJob = JSON.parse(data);
             updateUser({
                 ...userInfo, jobApps: [...userInfo?.jobApps || [], data]
             } as UserInfo);
@@ -85,10 +84,22 @@ function Applications({ userInfo, updateUser }: ApplicationsProps) {
                 handleCreateApp={createApp}>
             </CreateAppModal>
             <Paper className="job-apps" elevation={24}>
-                <AppsToolBar headerTitle={'Your Applications'} handleAddApp={() => setCreateModalOpen(true)}></AppsToolBar>
+                <div className="apps-tool-bar">
+                    <div className="page-title">
+                        <Typography variant="h5" fontFamily={"var(--font-family)"} fontWeight="bold">
+                            Your Applications
+                        </Typography>
+                    </div>
+                    <div className="add-app-button">
+                        <button className="modern-add-btn" onClick={() => setCreateModalOpen(true)}>
+                            <AddCircleOutlineIcon fontSize="medium" style={{ marginRight: 6 }} />
+                            <span>Add</span>
+                        </button>
+                    </div>
+                </div>
                 <div className="job-apps-content">
                     <JobAppList jobDetailsHandler={handleShowDetails} jobs={jobs} currentJob={currentJobDetails ?? null} />
-                    <JobDetails job={currentJobDetails ?? null}     userInfo={userInfo ?? null} updateUser={updateUser ?? null} />;
+                    <JobDetails job={currentJobDetails ?? null} userInfo={userInfo ?? null} updateUser={updateUser ?? null} />
                 </div>
             </Paper>
         </div>

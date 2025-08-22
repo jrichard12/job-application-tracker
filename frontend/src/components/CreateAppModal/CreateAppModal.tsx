@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { Box, Button, Chip, Dialog, DialogContent, DialogTitle, FormControl, Input, InputLabel, MenuItem, Select, Step, StepContent, StepLabel, Stepper, TextField, Typography } from "@mui/material";
+import { Box, Button, Chip, Dialog, DialogActions, DialogContent, DialogTitle, FormControl, InputLabel, MenuItem, Select, TextField } from "@mui/material";
 import { useState } from "react";
 import { v4 as uuidv4 } from 'uuid';
 import { jobAppStatusOptions, type JobApp } from "../../types/JobApp";
@@ -20,7 +20,6 @@ function CreateAppModal({ isOpen, handleClose, handleCreateApp }: CreateAppModal
         jobStatus: 'Interested',
         isArchived: false
     } as JobApp);
-    const [activeStep, setActiveStep] = useState(0);
     const [skillInput, setSkillInput] = useState('');
 
     const isFormValid = () => {
@@ -31,47 +30,35 @@ function CreateAppModal({ isOpen, handleClose, handleCreateApp }: CreateAppModal
         );
     };
 
-    const handleSaveJob = () => {
+    const handleSave = (event: React.FormEvent) => {
+        event.preventDefault();
+        if (!isFormValid()) {
+            alert('Please fill out all required fields: Source, Company, and Job Title.');
+            return;
+        }
+        
         const jobToSave: JobApp = {
             ...newJobApp,
             id: uuidv4(),
-            lastUpdated: new Date()
+            lastUpdated: new Date(),
+            skills: skillInput.trim() ? skillInput.split(',').map(skill => skill.trim()).filter(skill => skill !== '') : newJobApp.skills
         };
         handleCreateApp(jobToSave);
         resetModal();
     };
 
-    const handleNext = () => {
-        if (activeStep === 3) {
-            if (!isFormValid()) {
-                alert('Please fill out all required fields: Source, Company, and Job Title.');
-                return;
-            }
-            handleSaveJob();
-        } else {
-            setActiveStep((prevActiveStep) => prevActiveStep + 1);
-        }
-    };
-
-    const handleBack = () => {
-        setActiveStep((prevActiveStep) => prevActiveStep - 1);
-    };
-
     const handleInputChange = (event: any) => {
         const prop = event.target.name;
         const value = event.target.value;
-        setNewJobApp(prev => ({ ...prev, [prop]: value }));
-    };
-
-    const handleAddSkill = () => {
-        const trimmed = skillInput.trim();
-        if (!trimmed) return;
-        if (newJobApp.skills && newJobApp.skills.includes(trimmed)) return;
-        setNewJobApp({
-            ...newJobApp,
-            skills: [...(newJobApp.skills || []), trimmed]
-        });
-        setSkillInput('');
+        
+        if (prop === 'deadline' || prop === 'dateApplied') {
+            setNewJobApp(prev => ({ 
+                ...prev, 
+                [prop]: value ? new Date(value) : null 
+            }));
+        } else {
+            setNewJobApp(prev => ({ ...prev, [prop]: value }));
+        }
     };
 
     const handleDeleteSkill = (index: number) => {
@@ -82,7 +69,6 @@ function CreateAppModal({ isOpen, handleClose, handleCreateApp }: CreateAppModal
     };
 
     const resetModal = () => {
-        setActiveStep(0);
         handleClose();
         setNewJobApp({
             id: '',
@@ -92,196 +78,134 @@ function CreateAppModal({ isOpen, handleClose, handleCreateApp }: CreateAppModal
             jobStatus: 'Interested',
             isArchived: false
         } as JobApp);
-    };
-
-    const buttonBox = () => {
-        return (
-            <Box sx={{ mt: 3, mb: 1, display: 'flex', gap: 2 }}>
-                <Button
-                    variant="contained"
-                    onClick={handleNext}
-                    sx={{ minWidth: 120 }}
-                >
-                    {activeStep === 3 ? 'Save' : 'Continue'}
-                </Button>
-                <Button
-                    disabled={activeStep === 0}
-                    onClick={handleBack}
-                    sx={{ minWidth: 100 }}
-                >
-                    Back
-                </Button>
-            </Box>
-        );
-    }
-
-    const step1 = () => {
-        const showError = (!isFormValid() && (activeStep !== 0));
-        return (
-            <Step>
-                <StepLabel error={showError}>
-                    Important Details
-                </StepLabel>
-                <StepContent>
-                    <Box sx={{ display: "flex", flexDirection: "column", gap: 3, mb: 2, mt: 1 }}>
-                        <FormControl sx={{ maxWidth: 350 }} error={newJobApp.jobTitle.trim() === ""}>
-                            <InputLabel>Job Title*</InputLabel>
-                            <Input name="jobTitle" value={newJobApp.jobTitle} onChange={handleInputChange} required />
-                        </FormControl>
-                        <FormControl sx={{ maxWidth: 350 }} error={newJobApp.company.trim() === ""}>
-                            <InputLabel>Company*</InputLabel>
-                            <Input name="company" value={newJobApp.company} onChange={handleInputChange} required />
-                        </FormControl>
-                        <FormControl sx={{ maxWidth: 350 }} error={newJobApp.source.trim() === ""}>
-                            <InputLabel>Source*</InputLabel>
-                            <Input name="source" value={newJobApp.source} onChange={handleInputChange} required />
-                        </FormControl>
-                        <FormControl sx={{ maxWidth: 350 }}>
-                            <InputLabel>Location</InputLabel>
-                            <Input name="location" value={newJobApp.location ?? ''} onChange={handleInputChange} />
-                        </FormControl>
-                        <FormControl sx={{ maxWidth: 350 }}>
-                            <InputLabel>Salary</InputLabel>
-                            <Input name="salary" value={newJobApp.salary ?? ''} onChange={handleInputChange} />
-                        </FormControl>
-                    </Box>
-                    {showError && (
-                        <Typography color="error" variant="caption" sx={{ mt: 1 }}>
-                            Please fill out all required fields: Source, Company, and Job Title.
-                        </Typography>
-                    )}
-                    {buttonBox()}
-                </StepContent>
-            </Step>
-        );
-    };
-
-    // Step 2: Skills
-    const step2 = () => {
-        return (
-            <Step>
-                <StepLabel>
-                    Skills & Tech
-                </StepLabel>
-                <StepContent>
-                    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, mb: 2, mt: 1, maxWidth: 500 }}>
-                        <TextField
-                            variant="standard"
-                            placeholder="Add skill"
-                            value={skillInput}
-                            onChange={e => setSkillInput(e.target.value)}
-                            onKeyDown={e => {
-                                if (e.key === 'Enter') {
-                                    handleAddSkill();
-                                    e.preventDefault();
-                                }
-                            }}
-                            sx={{ minWidth: 120, maxWidth: 300 }}
-                        />
-                        <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1.5, alignItems: 'center', mt: 1 }}>
-                            {newJobApp.skills && newJobApp.skills.map((skill: string, index: number) => (
-                                <Chip
-                                    key={index}
-                                    label={skill}
-                                    variant="outlined"
-                                    onDelete={() => handleDeleteSkill(index)}
-                                    sx={{ mb: 0.5 }}
-                                />
-                            ))}
-                        </Box>
-                    </Box>
-                    {buttonBox()}
-                </StepContent>
-            </Step>
-        );
-    };
-
-    // Step 3: Description/Notes
-    const step3 = () => {
-        return (
-            <Step>
-                <StepLabel>
-                    Description / Notes
-                </StepLabel>
-                <StepContent>
-                    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3, mb: 2, mt: 1, maxWidth: 500 }}>
-                        <TextField
-                            id="outlined-multiline-flexible"
-                            name="description"
-                            onChange={(e: any) => handleInputChange(e)}
-                            multiline
-                            minRows={3}
-                            maxRows={6}
-                            sx={{ width: '100%' }}
-                        />
-                    </Box>
-                    {buttonBox()}
-                </StepContent>
-            </Step>
-        );
+        setSkillInput('');
     };
 
     return (
-        <div className="create-app-modal">
-            <Dialog open={isOpen} onClose={resetModal} maxWidth="sm" fullWidth>
-                <DialogTitle sx={{ textAlign: "center", position: 'relative', p: 2 }}>
-                    Create a Job Application
-                    <Button
-                        aria-label="close"
-                        onClick={resetModal}
-                        sx={{
-                            position: 'absolute',
-                            right: 8,
-                            top: 8,
-                            minWidth: 0,
-                            width: 36,
-                            height: 36,
-                            borderRadius: '50%',
-                            color: 'grey.500',
-                            fontSize: 22,
-                            p: 0,
-                        }}
-                    >
-                        ×
-                    </Button>
-                </DialogTitle>
-                <DialogContent sx={{
-                    overflowX: 'hidden',
-                    p: { xs: 1, sm: 3 },
-                    boxSizing: 'border-box',
-                    maxWidth: '100vw',
-                }}>
-                    <Stepper activeStep={activeStep} orientation="vertical">
-                        {step1()}
-                        {step2()}
-                        {step3()}
-                        <Step>
-                            <StepLabel>
-                                Save
-                            </StepLabel>
-                            <StepContent>
-                                <Typography sx={{ mb: 2 }}>{'Select a status and save your application.'}</Typography>
-                                <FormControl sx={{ minWidth: 200, mb: 2 }}>
-                                    <InputLabel id="status-label">Status</InputLabel>
-                                    <Select
-                                        labelId="status-label"
-                                        id="status-select"
-                                        value={newJobApp.jobStatus}
-                                        label="Status"
-                                        onChange={e => setNewJobApp(prev => ({ ...prev, jobStatus: e.target.value as JobApp["jobStatus"] }))}
-                                    >
-                                        {jobAppStatusOptions.map(option => (
-                                            <MenuItem key={option} value={option}>{option}</MenuItem>
-                                        ))}
-                                    </Select>
-                                </FormControl>
-                                {buttonBox()}
-                            </StepContent>
-                        </Step>
-                    </Stepper>
-                </DialogContent>
-            </Dialog>
-        </div>
+        <Dialog open={isOpen} onClose={resetModal} maxWidth="md" fullWidth>
+            <DialogTitle>Create New Application</DialogTitle>
+            <DialogContent>
+                <Box component="form" onSubmit={handleSave} sx={{ mt: 2 }}>
+                    <Box sx={{ display: 'grid', gap: 2, gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr' } }}>
+                        <Box sx={{ gridColumn: '1 / -1' }}>
+                            <TextField
+                                fullWidth
+                                label="Job Title"
+                                name="jobTitle"
+                                value={newJobApp.jobTitle}
+                                onChange={handleInputChange}
+                                required
+                            />
+                        </Box>
+                        <Box sx={{ gridColumn: '1 / -1' }}>
+                            <TextField
+                                fullWidth
+                                label="Company"
+                                name="company"
+                                value={newJobApp.company}
+                                onChange={handleInputChange}
+                                required
+                            />
+                        </Box>
+                        <TextField
+                            fullWidth
+                            label="Location"
+                            name="location"
+                            value={newJobApp.location ?? ''}
+                            onChange={handleInputChange}
+                        />
+                        <TextField
+                            fullWidth
+                            label="Salary"
+                            name="salary"
+                            value={newJobApp.salary ?? ''}
+                            onChange={handleInputChange}
+                        />
+                        <Box sx={{ gridColumn: '1 / -1' }}>
+                            <TextField
+                                fullWidth
+                                label="Source URL"
+                                name="source"
+                                value={newJobApp.source}
+                                onChange={handleInputChange}
+                                required
+                            />
+                        </Box>
+                        <Box sx={{ gridColumn: '1 / -1' }}>
+                            <TextField
+                                fullWidth
+                                label="Description"
+                                name="description"
+                                multiline
+                                rows={4}
+                                value={newJobApp.description ?? ''}
+                                onChange={handleInputChange}
+                            />
+                        </Box>
+                        <Box sx={{ gridColumn: '1 / -1' }}>
+                            <TextField
+                                fullWidth
+                                label="Skills (comma separated)"
+                                value={skillInput}
+                                onChange={(e) => setSkillInput(e.target.value)}
+                                placeholder="Enter skills separated by commas"
+                            />
+                            {newJobApp.skills && newJobApp.skills.length > 0 && (
+                                <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1, mt: 1 }}>
+                                    {newJobApp.skills.map((skill: string, index: number) => (
+                                        <Chip
+                                            key={index}
+                                            label={skill}
+                                            variant="outlined"
+                                            onDelete={() => handleDeleteSkill(index)}
+                                            size="small"
+                                        />
+                                    ))}
+                                </Box>
+                            )}
+                        </Box>
+                        <TextField
+                            fullWidth
+                            label="Application Deadline"
+                            name="deadline"
+                            type="date"
+                            value={newJobApp.deadline ? new Date(newJobApp.deadline).toISOString().split('T')[0] : ''}
+                            onChange={handleInputChange}
+                            InputLabelProps={{ shrink: true }}
+                        />
+                        <TextField
+                            fullWidth
+                            label="Date Applied"
+                            name="dateApplied"
+                            type="date"
+                            value={newJobApp.dateApplied ? new Date(newJobApp.dateApplied).toISOString().split('T')[0] : ''}
+                            onChange={handleInputChange}
+                            InputLabelProps={{ shrink: true }}
+                        />
+                        <Box sx={{ gridColumn: '1 / -1' }}>
+                            <FormControl fullWidth>
+                                <InputLabel>Status</InputLabel>
+                                <Select
+                                    value={newJobApp.jobStatus}
+                                    label="Status"
+                                    onChange={(e) => setNewJobApp(prev => ({ ...prev, jobStatus: e.target.value as JobApp["jobStatus"] }))}
+                                >
+                                    {jobAppStatusOptions.map(option => (
+                                        <MenuItem key={option} value={option}>{option}</MenuItem>
+                                    ))}
+                                </Select>
+                            </FormControl>
+                        </Box>
+                    </Box>
+                </Box>
+            </DialogContent>
+            <DialogActions>
+                <Button onClick={resetModal}>Cancel</Button>
+                <Button onClick={handleSave} variant="contained">
+                    Save
+                </Button>
+            </DialogActions>
+        </Dialog>
     );
 }
 export default CreateAppModal;

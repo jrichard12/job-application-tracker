@@ -1,5 +1,6 @@
-import { Card, CardContent, List, ListItemButton, Typography } from "@mui/material";
+import { Card, CardContent, List, ListItemButton, Typography, Chip } from "@mui/material";
 import type { JobApp } from "../../types/JobApp";
+import { jobStatusColors } from "../../types/JobApp";
 import "./JobAppList.scss";
 
 
@@ -17,7 +18,7 @@ function JobAppList({ jobDetailsHandler, jobs, currentJob }: JobAppListProps) {
     return (
         <div className={'job-app-list'}>
             {jobs &&
-                <List sx={{ paddingTop: 0, width: '100%', alignItems: 'flex-start' }}>
+                <List>
                     {
                         jobs.map((job: JobApp, index: number) => {
                             const isActive = job === (typeof currentJob === 'object' && currentJob ? currentJob : undefined);
@@ -26,25 +27,13 @@ function JobAppList({ jobDetailsHandler, jobs, currentJob }: JobAppListProps) {
                                     key={index}
                                     onClick={() => showJobDetails(job)}
                                     disableGutters
-                                    sx={{
-                                        margin: '0 0 0.4rem 0',
-                                        padding: 0,
-                                        '&:last-child': { marginBottom: 0 },
-                                        position: 'relative',
-                                        background: isActive ? 'rgba(32, 165, 166, 0.07)' : 'none',
-                                        minHeight: 0,
-                                        paddingTop: 0,
-                                        paddingBottom: 0,
-                                        width: 'auto',
-                                        display: 'block',
-                                    }}
-                                    className={isActive ? 'active-job-app' : ''}
+                                    className={`job-app-list-item ${isActive ? 'active-job-app' : ''}`}
                                 >
-                                    <div className="job-app-list-item-content" style={{ position: 'relative', width: '100%' }}>
-                                        {isActive && <div className="job-app-active-indicator left" style={{ position: 'absolute', left: 0, top: 0, height: '100%', zIndex: 2 }} />}
-                                        <Card sx={{ width: '100%', boxShadow: 'none', position: 'relative' }}>
+                                    <div className="job-app-list-item-content">
+                                        {isActive && <div className="job-app-active-indicator left" />}
+                                        <Card>
                                             <CardContent>
-                                                <Typography variant="h6" fontFamily={"var(--font-family)"}>
+                                                <Typography variant="h6" className="job-title">
                                                     {job.jobTitle}
                                                 </Typography>
                                                 <Typography>
@@ -54,21 +43,13 @@ function JobAppList({ jobDetailsHandler, jobs, currentJob }: JobAppListProps) {
                                                     {job.salary}
                                                 </Typography>
                                                 {job.jobStatus && (
-                                                    <div style={{ display: 'flex', justifyContent: 'flex-end', width: '100%' }}>
+                                                    <div className="job-status-container">
                                                         <Chip
                                                             label={job.jobStatus}
                                                             size="small"
+                                                            className="job-status-chip"
                                                             sx={{
-                                                                fontWeight: 500,
-                                                                background: statusColors[job.jobStatus] || '#bdbdbd',
-                                                                color: '#fff',
-                                                                minWidth: 56,
-                                                                height: 22,
-                                                                px: 1,
-                                                                fontSize: '0.80rem',
-                                                                letterSpacing: 0.1,
-                                                                boxShadow: '0 1px 2px 0 rgba(32, 165, 166, 0.08)',
-                                                                whiteSpace: 'nowrap',
+                                                                background: jobStatusColors[job.jobStatus] || '#bdbdbd',
                                                             }}
                                                         />
                                                     </div>
@@ -85,16 +66,5 @@ function JobAppList({ jobDetailsHandler, jobs, currentJob }: JobAppListProps) {
         </div>
     );
 }
-
-
-import { Chip } from "@mui/material";
-const statusColors: Record<string, string> = {
-    Interested: '#bdbdbd',
-    Applied: '#20a5a6',
-    Interviewed: '#1976d2',
-    Offered: '#ff9800',
-    Accepted: '#388e3c',
-    Rejected: '#d32f2f',
-};
 
 export default JobAppList;

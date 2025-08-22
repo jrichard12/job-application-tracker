@@ -1,11 +1,182 @@
 @use "sass:color";
 @use '../../variables' as *;
 
+.job-details-card {
+  width: 100%;
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 1px 6px 0 rgba(32, 165, 166, 0.07);
+  padding: 0 0.8rem;
+  min-height: 50vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+}
+
+.job-details-card-content {
+  position: relative;
+  padding: 1rem 0.5rem;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  flex: 1;
+}
+
+.job-details-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-direction: column;
+  margin-bottom: 0.5rem;
+}
+
+.job-details-title-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+}
+
+.job-details-title {
+  flex: 1;
+  min-width: 0;
+  word-break: break-word;
+}
+
+.job-details-info-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  margin-top: 0.1rem;
+}
+
+.job-details-date-applied {
+  font-size: 0.98rem;
+  color: $color-tertiary;
+  font-weight: 500;
+  flex: 1;
+  text-align: left;
+  cursor: pointer;
+}
+
+.job-details-status-container {
+  font-size: 0.98rem;
+  flex: 1;
+  text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.job-details-status-wrapper {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+}
+
+.job-details-status-chip {
+  font-weight: 500;
+  height: 22px;
+  padding-left: 8px;
+  padding-right: 22px;
+  font-size: 0.80rem;
+  letter-spacing: 0.1em;
+  box-shadow: 0 1px 2px 0 rgba(32, 165, 166, 0.08);
+  white-space: nowrap;
+  vertical-align: middle;
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+}
+
+.job-details-status-dropdown {
+  position: absolute;
+  right: 6px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 18px;
+  color: #fff;
+  pointer-events: none;
+}
+
+.job-details-menu-item {
+  font-size: 0.95rem;
+  min-height: 32px;
+  padding: 4px 16px;
+}
+
+.job-details-last-updated {
+  font-size: 0.98rem;
+  color: $color-tertiary;
+  font-weight: 500;
+  flex: 1;
+  text-align: right;
+}
+
+.job-details-field-container {
+  display: flex;
+  align-items: center;
+  flex: 1;
+}
+
+.job-details-field-text {
+  flex: 1;
+}
+
+.job-details-edit-controls {
+  margin-left: auto;
+}
+
+.job-details-edit-input {
+  font-size: 1.08rem;
+  color: #222;
+  border: none;
+  border-bottom: 2px solid #1976d2;
+  background: transparent;
+  outline: none;
+  font-family: inherit;
+  box-sizing: border-box;
+  min-width: 0;
+  flex: 1;
+}
+
+.job-details-save-button {
+  margin-left: 8px;
+  color: green;
+}
+
+.job-details-cancel-button {
+  margin-left: 4px;
+  color: red;
+}
+
+.job-details-edit-button {
+  color: $color-primary;
+}
+
 .job-card {
   display: flex;
   flex-direction: column;
-  gap: 1.2rem;
-  padding: 0.1rem 0 0 0;
+  gap: 0.8rem;
+  padding: 0;
+  flex: 1;
+  height: 100%;
+}
+
+.job-card-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.job-card-actions {
+  margin-top: auto;
+  padding-top: 1.5rem;
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.7rem;
 }
 
 .job-card .MuiTypography-h4 {
@@ -22,9 +193,10 @@
 .job-card .job-details-row {
   display: flex;
   flex-wrap: wrap;
-  gap: 2.5rem;
-  margin-bottom: 0.7rem;
+  gap: 2rem;
+  margin-bottom: 0.4rem;
   align-items: center;
+  text-align: left;
 }
 
 .job-card .job-details-label {
@@ -37,17 +209,20 @@
 .job-card .job-details-value {
   color: $color-text;
   font-weight: 400;
+  display: flex;
+  align-items: center;
+  flex: 1;
 }
 
-.job-card .MuiChip-root {
+.job-card .MuiChip-root:not(.job-details-status-chip) {
   align-self: flex-start;
   font-weight: 600;
   background: $color-primary;
-  color: $color-background;
+  color: #fff;
 }
 
 .job-card .job-details-description {
-  margin-top: 0.5rem;
+  margin-top: 0.3rem;
   color: $color-text;
   font-size: 1.08rem;
   line-height: 1.6;
@@ -55,4 +230,316 @@
   border-radius: 8px;
   padding: 0.7rem 1rem;
   white-space: pre-line;
+  height: 12rem;
+  position: relative;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.job-card .job-details-description.editing {
+  padding-bottom: 2.5rem;
+}
+
+.job-card .job-details-description textarea {
+  width: 100%;
+  height: 10rem;
+  min-height: 10rem;
+  max-height: 20rem;
+  font-size: 1.08rem;
+  line-height: 1.6;
+  background: transparent;
+  border: none;
+  resize: none;
+  font-family: inherit;
+  color: inherit;
+  outline: none;
+  box-shadow: none;
+  padding: 0;
+  margin: 0;
+  box-sizing: border-box;
+  overflow-y: auto;
+}
+
+.job-card .job-details-description-text {
+  width: 100%;
+  height: 10rem;
+  min-height: 10rem;
+  text-align: left;
+  display: flex;
+  align-items: flex-start;
+  box-sizing: border-box;
+  overflow-y: auto;
+}
+
+/* Custom scrollbar styling for description areas */
+.job-card .job-details-description textarea::-webkit-scrollbar,
+.job-card .job-details-description-text::-webkit-scrollbar {
+  width: 6px;
+}
+
+.job-card .job-details-description textarea::-webkit-scrollbar-track,
+.job-card .job-details-description-text::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.job-card .job-details-description textarea::-webkit-scrollbar-thumb,
+.job-card .job-details-description-text::-webkit-scrollbar-thumb {
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 3px;
+}
+
+.job-card .job-details-description textarea::-webkit-scrollbar-thumb:hover,
+.job-card .job-details-description-text::-webkit-scrollbar-thumb:hover {
+  background: rgba(0, 0, 0, 0.3);
+}
+
+.description-action-button {
+  position: absolute !important;
+  bottom: 8px;
+  right: 8px;
+  background: $color-primary !important;
+  color: #fff !important;
+  border: none;
+  border-radius: 50% !important;
+  padding: 6px !important;
+  cursor: pointer;
+  box-shadow: 0 1px 2px 0 rgba(32, 165, 166, 0.08) !important;
+  transition: all 0.2s ease;
+  z-index: 10;
+  width: 32px;
+  height: 32px;
+}
+
+.description-action-button:hover {
+  transform: translateY(-1px) !important;
+  box-shadow: 0 2px 4px 0 rgba(32, 165, 166, 0.12) !important;
+  background: $color-tertiary !important;
+}
+
+.job-card-actions button {
+  border: none;
+  border-radius: 20px;
+  padding: 6px 18px;
+  font-size: 1rem;
+  font-weight: 500;
+  cursor: pointer;
+  box-shadow: 0 1px 2px 0 rgba(32, 165, 166, 0.08);
+  transition: all 0.2s ease;
+}
+
+.job-card-actions button:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 2px 4px 0 rgba(32, 165, 166, 0.12);
+}
+
+.job-card-actions .archive-button {
+  background: $color-tertiary;
+  color: #fff;
+}
+
+.job-card-actions .save-button {
+  background: $color-primary;
+  color: #fff;
+}
+
+.job-card-actions .delete-button {
+  background: #ff5252;
+  color: #fff;
+}
+
+.description-save-button {
+  position: absolute;
+  bottom: 10px;
+  right: 18px;
+  background: #1976d2;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  padding: 4px 16px;
+  font-size: 0.98rem;
+  font-weight: 500;
+  cursor: pointer;
+  box-shadow: 0 1px 2px 0 rgba(32, 165, 166, 0.08);
+  transition: all 0.2s ease;
+}
+
+.description-save-button:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 2px 4px 0 rgba(32, 165, 166, 0.12);
+}
+
+// Additional component classes for refactoring
+.job-details-row {
+  display: flex;
+  align-items: center;
+  text-align: left;
+}
+
+.job-details-row--skills {
+  align-items: flex-start;
+  margin-top: 1rem;
+  min-height: 2.6rem;
+}
+
+.job-details-row--skills.editing {
+  align-items: flex-start;
+}
+
+.job-details-value {
+  display: flex;
+  align-items: center;
+  flex: 1;
+}
+
+.job-details-value--skills {
+  flex-direction: row;
+  align-items: flex-start;
+  width: auto;
+}
+
+.job-details-value--skills.editing {
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.job-details-label--skills {
+  margin-right: 0.7rem;
+  margin-top: 2px; /* Adjust to align with chip text baseline */
+  min-width: 120px;
+  width: 120px;
+  display: inline-flex;
+  align-items: flex-start;
+  align-self: flex-start;
+}
+
+.job-details-label--skills.editing {
+  margin-top: 0;
+  align-items: center;
+}
+
+.job-details-field-content {
+  flex: 1;
+}
+
+.job-details-edit-container {
+  margin-left: auto;
+}
+
+.job-details-edit-container--skills {
+  margin-left: auto;
+  align-self: flex-start;
+  margin-top: 0;
+  display: inline-flex;
+  align-items: flex-start;
+  height: 24px; /* Match chip height for proper alignment */
+  
+  .job-details-icon-button--edit {
+    padding-top: 0 !important;
+    margin-top: 0 !important;
+  }
+}
+
+.job-details-input {
+  font-size: 1.08rem;
+  color: #222;
+  border: none;
+  border-bottom: 2px solid #1976d2;
+  background: transparent;
+  outline: none;
+  font-family: inherit;
+  box-sizing: border-box;
+  padding: 4px 0;
+  width: 200px;
+  margin-right: 0.5rem;
+}
+
+.job-details-date-input {
+  width: 140px;
+  padding: 6px 8px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 1rem;
+  color: #333;
+  background: #fff;
+  outline: none;
+  font-family: inherit;
+}
+
+.job-details-date-input:focus {
+  border-color: #1976d2;
+  box-shadow: 0 0 0 2px rgba(25, 118, 210, 0.2);
+}
+
+.skills-editing-container {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  margin-bottom: 0.5rem;
+}
+
+.skills-input-container {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  margin-bottom: 0.3rem;
+}
+
+.skills-input {
+  font-size: 1.08rem;
+  color: #222;
+  border: none;
+  border-bottom: 2px solid #1976d2;
+  background: transparent;
+  outline: none;
+  font-family: inherit;
+  box-sizing: border-box;
+  min-width: 0;
+  width: 200px;
+  margin-right: 0.5rem;
+}
+
+.skills-hint {
+  font-size: 0.85rem;
+  color: #666;
+  font-style: italic;
+}
+
+.skills-chips-container {
+  display: flex;
+  align-items: flex-start;
+  align-content: flex-start;
+  flex: 1;
+  width: 100%;
+  margin-left: 0;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  min-height: 32px; /* Ensure consistent height for alignment */
+}
+
+.skills-chips-container.editing {
+  align-items: center;
+  flex: none;
+}
+
+.skills-no-content {
+  color: #888;
+  margin-left: 0;
+}
+
+.job-details-icon-button--edit {
+  color: $color-primary !important;
+}
+
+.job-details-icon-button--save {
+  margin-left: 8px;
+  color: green !important;
+}
+
+.job-details-icon-button--cancel {
+  margin-left: 4px;
+  color: red !important;
+}
+
+.job-card .job-details-description-section {
+  margin-top: 1.8rem;
 }

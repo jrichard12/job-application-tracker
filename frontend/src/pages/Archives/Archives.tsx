@@ -3,7 +3,7 @@ import "./Archives.scss";
 import type { JobApp } from "../../types/JobApp";
 import { useState, useEffect } from "react";
 import JobDetails from "../../components/JobDetails/JobDetails";
-import AppsToolBar from "../../components/AppsToolBar/AppsToolBar";
+import { Typography } from "@mui/material";
 import { type UserInfo } from "../../types/UserInfo";
 
 interface ArchivesProps {
@@ -29,7 +29,13 @@ function Archives({ userInfo, updateUser }: ArchivesProps) {
     return (
         <div className="archives">
             <div className="job-apps">
-                <AppsToolBar headerTitle={'Archived Applications'}></AppsToolBar>
+                <div className="apps-tool-bar">
+                    <div className="page-title">
+                        <Typography variant="h5" fontFamily={"var(--font-family)"} fontWeight="bold">
+                            Archived Applications
+                        </Typography>
+                    </div>
+                </div>
                 <div className="job-apps-content">
                     <JobAppList jobDetailsHandler={handleShowDetails} jobs={archivedJobs} currentJob={currentJobDetails ?? null} />
                     <JobDetails job={currentJobDetails ?? null} userInfo={userInfo ?? null} updateUser={updateUser ?? null} />
