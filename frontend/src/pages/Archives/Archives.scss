@@ -47,6 +47,44 @@
           color: #fff !important;
         }
       }
+
+      .toolbar-actions {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+
+        .view-toggle-buttons {
+          display: flex;
+          align-items: center;
+          background: rgba(255, 255, 255, 0.1);
+          border-radius: 8px;
+          padding: 0.2rem;
+          gap: 0.2rem;
+
+          .view-toggle-btn {
+            background: transparent;
+            color: rgba(255, 255, 255, 0.7);
+            border-radius: 6px;
+            padding: 0.4rem;
+            transition: all 0.15s ease;
+
+            &:hover {
+              background: rgba(255, 255, 255, 0.15);
+              color: rgba(255, 255, 255, 0.9);
+            }
+
+            &.active {
+              background: rgba(255, 255, 255, 0.25);
+              color: #fff;
+              box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            }
+
+            .MuiSvgIcon-root {
+              font-size: 1.2rem;
+            }
+          }
+        }
+      }
     }
 
     .job-apps-content {
@@ -56,6 +94,13 @@
       width: 100%;
       padding: 1.5rem;
       box-sizing: border-box;
+
+      // When showing list view, use full width
+      &.list-view {
+        flex-direction: column;
+        gap: 0;
+        padding: 0;
+      }
 
       .job-app-list {
         width: 36vw;

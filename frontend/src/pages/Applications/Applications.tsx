@@ -1,11 +1,13 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useEffect, useState } from "react";
 import JobAppList from "../../components/JobAppList/JobAppList";
 import JobDetails from "../../components/JobDetails/JobDetails";
+import JobAppsListView from "../../components/JobAppsListView/JobAppsListView";
 import type { JobApp } from "../../types/JobApp";
 import "./Applications.scss";
-import { Paper, Typography } from "@mui/material";
+import { Paper, Typography, IconButton, Tooltip } from "@mui/material";
 import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
+import ViewListIcon from '@mui/icons-material/ViewList';
+import ViewModuleIcon from '@mui/icons-material/ViewModule';
 import CreateAppModal from "../../components/CreateAppModal/CreateAppModal";
 import { useAuth } from "../../services/authService";
 import { type UserInfo } from "../../types/UserInfo";
@@ -21,6 +23,7 @@ function Applications({ userInfo, updateUser }: ApplicationsProps) {
     const [currentJobDetails, setCurrentJobDetails] = useState<JobApp>();
     const [createModalOpen, setCreateModalOpen] = useState<boolean>(false);
     const [jobs, setJobs] = useState<JobApp[]>([]);
+    const [isListView, setIsListView] = useState<boolean>(false);
     const { user, demoMode } = useAuth();
     const jobHandlerUrl = demoMode ? "demoUrl" : import.meta.env.VITE_JOB_HANDLER_URL;
 
@@ -56,7 +59,7 @@ function Applications({ userInfo, updateUser }: ApplicationsProps) {
                 body: JSON.stringify({
                     userId: user?.id,
                     job: jobApp
-                } as any)
+                })
             });
 
             if (response.status !== 200) {
@@ -90,16 +93,44 @@ function Applications({ userInfo, updateUser }: ApplicationsProps) {
                             Your Applications
                         </Typography>
                     </div>
-                    <div className="add-app-button">
-                        <button className="modern-add-btn" onClick={() => setCreateModalOpen(true)}>
-                            <AddCircleOutlineIcon fontSize="medium" style={{ marginRight: 6 }} />
-                            <span>Add</span>
-                        </button>
+                    <div className="toolbar-actions">
+                        <div className="view-toggle-buttons">
+                            <Tooltip title="Card View">
+                                <IconButton
+                                    className={`view-toggle-btn ${!isListView ? 'active' : ''}`}
+                                    onClick={() => setIsListView(false)}
+                                    size="small"
+                                >
+                                    <ViewModuleIcon />
+                                </IconButton>
+                            </Tooltip>
+                            <Tooltip title="List View">
+                                <IconButton
+                                    className={`view-toggle-btn ${isListView ? 'active' : ''}`}
+                                    onClick={() => setIsListView(true)}
+                                    size="small"
+                                >
+                                    <ViewListIcon />
+                                </IconButton>
+                            </Tooltip>
+                        </div>
+                        <div className="add-app-button">
+                            <button className="modern-add-btn" onClick={() => setCreateModalOpen(true)}>
+                                <AddCircleOutlineIcon fontSize="medium" style={{ marginRight: 6 }} />
+                                <span>Add</span>
+                            </button>
+                        </div>
                     </div>
                 </div>
-                <div className="job-apps-content">
-                    <JobAppList jobDetailsHandler={handleShowDetails} jobs={jobs} currentJob={currentJobDetails ?? null} />
-                    <JobDetails job={currentJobDetails ?? null} userInfo={userInfo ?? null} updateUser={updateUser ?? null} />
+                <div className={`job-apps-content ${isListView ? 'list-view' : ''}`}>
+                    {isListView ? (
+                        <JobAppsListView jobs={jobs} />
+                    ) : (
+                        <>
+                            <JobAppList jobDetailsHandler={handleShowDetails} jobs={jobs} currentJob={currentJobDetails ?? null} />
+                            <JobDetails job={currentJobDetails ?? null} userInfo={userInfo ?? null} updateUser={updateUser ?? null} />
+                        </>
+                    )}
                 </div>
             </Paper>
         </div>
