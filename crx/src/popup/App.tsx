@@ -2,7 +2,7 @@ import { useState } from 'react';
 import Homepage from '@/components/Homepage/Homepage';
 import CreateAppModal from '@/components/CreateAppModal/CreateAppModal';
 import { JobApp } from '@/types/JobApp';
-import './App.css';
+import './App.scss';
 
 export default function App() {
   const [isLoading, setIsLoading] = useState(false);
@@ -32,7 +32,7 @@ export default function App() {
   };
 
   return (
-    <div>
+    <div className="app-container">
       <Homepage 
         onExtractJobData={handleExtractJobData}
         isLoading={isLoading}
