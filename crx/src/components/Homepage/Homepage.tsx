@@ -3,10 +3,11 @@ import './Homepage.scss';
 
 interface HomepageProps {
   onExtractJobData: () => void;
+  onManualEntry: () => void;
   isLoading: boolean;
 }
 
-const Homepage: React.FC<HomepageProps> = ({ onExtractJobData, isLoading }) => {
+const Homepage: React.FC<HomepageProps> = ({ onExtractJobData, onManualEntry, isLoading }) => {
   if (isLoading) {
     return (
       <div className="homepage">
@@ -36,6 +37,17 @@ const Homepage: React.FC<HomepageProps> = ({ onExtractJobData, isLoading }) => {
           onClick={onExtractJobData}
         >
           Extract Job Data
+        </button>
+        
+        <div className="button-divider">
+          <span>or</span>
+        </div>
+        
+        <button 
+          className="manual-button"
+          onClick={onManualEntry}
+        >
+          Manual Entry
         </button>
       </div>
     </div>

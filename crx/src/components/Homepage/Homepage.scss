@@ -46,7 +46,9 @@
     margin-top: 10px;
     width: 100%;
     display: flex;
-    justify-content: center;
+    flex-direction: column;
+    align-items: center;
+    gap: 15px;
 
     .extract-button {
       background: $button-primary;
@@ -59,6 +61,7 @@
       cursor: pointer;
       transition: $transition-default;
       box-shadow: 0 2px 4px $shadow-medium;
+      width: 200px;
 
       &:hover {
         background: $button-primary-hover;
@@ -69,6 +72,63 @@
       &:active {
         transform: translateY(0);
         box-shadow: 0 2px 4px $shadow-medium;
+      }
+    }
+
+    .button-divider {
+      display: flex;
+      align-items: center;
+      color: $text-secondary;
+      font-size: 14px;
+      font-weight: 400;
+      opacity: 0.8;
+
+      span {
+        padding: 0 10px;
+        position: relative;
+
+        &::before,
+        &::after {
+          content: '';
+          position: absolute;
+          top: 50%;
+          width: 40px;
+          height: 1px;
+          background: rgba(255, 255, 255, 0.3);
+        }
+
+        &::before {
+          right: 100%;
+        }
+
+        &::after {
+          left: 100%;
+        }
+      }
+    }
+
+    .manual-button {
+      background: transparent;
+      color: $text-primary;
+      border: 2px solid rgba(255, 255, 255, 0.5);
+      padding: $padding-small $padding-large;
+      font-size: 16px;
+      font-weight: 500;
+      border-radius: $border-radius-small;
+      cursor: pointer;
+      transition: $transition-default;
+      width: 200px;
+
+      &:hover {
+        background: rgba(255, 255, 255, 0.1);
+        border-color: rgba(255, 255, 255, 0.8);
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px $shadow-medium;
+      }
+
+      &:active {
+        transform: translateY(0);
+        box-shadow: 0 2px 4px $shadow-light;
       }
     }
   }

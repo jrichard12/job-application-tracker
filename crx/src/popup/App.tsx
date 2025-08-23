@@ -102,6 +102,12 @@ export default function App() {
     setExtractedJobApp(null); // Clear extracted data when modal closes
   };
 
+  const handleManualEntry = () => {
+    console.log('🎯 Manual entry button clicked!');
+    setExtractedJobApp(null); // Ensure no extracted data is used
+    setShowModal(true);
+  };
+
   const handleCreateApp = (jobApp: JobApp) => {
     console.log('Save clicked - Job app data:', jobApp);
     setShowModal(false);
@@ -126,6 +132,7 @@ export default function App() {
         <>
           <Homepage 
             onExtractJobData={handleExtractJobData}
+            onManualEntry={handleManualEntry}
             isLoading={isLoading}
           />
           
