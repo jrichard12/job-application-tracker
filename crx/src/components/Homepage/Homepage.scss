@@ -11,13 +11,21 @@
   display: flex !important;
   flex-direction: column !important;
   align-items: stretch !important;
-  justify-content: center !important;
+  justify-content: space-between !important;
   text-align: center;
   background: $background-primary !important;
   color: $text-primary;
   border-radius: 0;
   box-sizing: border-box !important;
   overflow: hidden !important;
+
+  .main-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+  }
 
   .welcome-section {
     margin-bottom: 30px;
@@ -163,6 +171,42 @@
       opacity: 0.9;
       max-width: 280px;
       text-align: center;
+    }
+  }
+
+  // User status styling
+  .user-status {
+    padding: 8px 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    .user-indicator {
+      font-size: 11px;
+      color: rgba(0, 0, 0, 0.6);
+      background: rgba(255, 255, 255, 0.1);
+      padding: 4px 8px;
+      border-radius: 12px;
+      border: 1px solid rgba(0, 0, 0, 0.1);
+      backdrop-filter: blur(10px);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      max-width: calc(100% - 16px);
+      
+      // Light mode styling
+      @media (prefers-color-scheme: light) {
+        color: rgba(0, 0, 0, 0.6);
+        background: rgba(255, 255, 255, 0.8);
+        border-color: rgba(0, 0, 0, 0.1);
+      }
+      
+      // Dark mode styling
+      @media (prefers-color-scheme: dark) {
+        color: rgba(255, 255, 255, 0.7);
+        background: rgba(0, 0, 0, 0.3);
+        border-color: rgba(255, 255, 255, 0.1);
+      }
     }
   }
 }

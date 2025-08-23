@@ -18,12 +18,17 @@ export default defineManifest({
     'sidePanel',
     'contentSettings',
     'activeTab',
+    'storage',
+    'tabs',
   ],
   content_scripts: [{
     js: ['src/content/main.tsx'],
-    matches: ['https://*/*'],
+    matches: ['https://*/*', 'http://localhost:*/*', 'http://127.0.0.1:*/*'],
   }],
   side_panel: {
     default_path: 'src/sidepanel/index.html',
+  },
+  background: {
+    service_worker: 'src/background/background.ts',
   },
 })

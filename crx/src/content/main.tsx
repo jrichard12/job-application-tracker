@@ -5,6 +5,49 @@ import { triggerJobExtraction, isExtractionSupported, getJobSiteName } from '../
 
 // This is where any scripts should go. 
 console.log('[CRXJS] Hello world from content script!')
+console.log('[Content Script] Loaded on:', window.location.href);
+
+// Listen for auth tokens from web app
+document.addEventListener('auth-tokens-updated', async (event: any) => {
+  console.log('[Content Script] Received auth tokens from web app:', event.detail);
+  console.log('[Content Script] Current URL:', window.location.href);
+  
+  try {
+    // Send tokens to background script or handle directly
+    console.log('[Content Script] Sending tokens to background script...');
+    chrome.runtime.sendMessage({
+      action: 'storeAuthTokens',
+      tokens: event.detail
+    }, () => {
+      if (chrome.runtime.lastError) {
+        console.error('[Content Script] Error sending tokens to background:', chrome.runtime.lastError);
+      } else {
+        console.log('[Content Script] Tokens sent to background script successfully');
+      }
+    });
+  } catch (error) {
+    console.error('[Content Script] Error handling auth tokens:', error);
+  }
+});
+
+// Listen for token clearing from web app
+document.addEventListener('auth-tokens-cleared', async () => {
+  console.log('[Content Script] Received token clear request from web app');
+  
+  try {
+    chrome.runtime.sendMessage({
+      action: 'clearAuthTokens'
+    }, () => {
+      if (chrome.runtime.lastError) {
+        console.error('[Content Script] Error sending clear request to background:', chrome.runtime.lastError);
+      } else {
+        console.log('[Content Script] Clear request sent to background script successfully');
+      }
+    });
+  } catch (error) {
+    console.error('[Content Script] Error handling token clear:', error);
+  }
+});
 
 // Listen for messages from popup
 chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {

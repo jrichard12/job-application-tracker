@@ -3,12 +3,19 @@ import './MessagePage.scss';
 
 export type MessageType = 'error' | 'warning' | 'info' | 'success';
 
+interface ActionButton {
+  text: string;
+  onClick: () => void;
+  variant?: 'primary' | 'secondary';
+}
+
 interface MessagePageProps {
   title: string;
   message: string;
   type: MessageType;
-  onBack: () => void;
+  onBack?: () => void;
   backButtonText?: string;
+  actions?: ActionButton[];
 }
 
 const MessagePage: React.FC<MessagePageProps> = ({ 
@@ -16,7 +23,8 @@ const MessagePage: React.FC<MessagePageProps> = ({
   message, 
   type, 
   onBack, 
-  backButtonText = 'Back to Home' 
+  backButtonText = 'Back to Home',
+  actions
 }) => {
   const getIcon = (messageType: MessageType) => {
     switch (messageType) {
@@ -46,12 +54,26 @@ const MessagePage: React.FC<MessagePageProps> = ({
       </div>
       
       <div className="action-section">
-        <button 
-          className="back-button"
-          onClick={onBack}
-        >
-          {backButtonText}
-        </button>
+        {actions && actions.length > 0 ? (
+          // New multiple actions pattern
+          actions.map((action, index) => (
+            <button 
+              key={index}
+              className={`action-button ${action.variant || 'secondary'}`}
+              onClick={action.onClick}
+            >
+              {action.text}
+            </button>
+          ))
+        ) : onBack ? (
+          // Legacy single button pattern
+          <button 
+            className="back-button"
+            onClick={onBack}
+          >
+            {backButtonText}
+          </button>
+        ) : null}
       </div>
     </div>
   );

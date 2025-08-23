@@ -6,6 +6,7 @@ import Toolbar from '@mui/material/Toolbar';
 import Typography from '@mui/material/Typography';
 import { Link } from 'react-router-dom';
 import { logoutUser, useAuth } from '../../services/authService';
+import { ExtensionCommunicator } from '../../services/extensionCommunicator';
 import "./AppBar.scss";
 
 
@@ -14,7 +15,7 @@ function CustomAppBar() {
 
   const pages = ['Home', 'Applications', 'Archives'];
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
     if (demoMode) {
       setDemoMode(false);
     }
@@ -23,6 +24,15 @@ function CustomAppBar() {
     }
     localStorage.removeItem("userInfo");
     localStorage.removeItem("demoMode");
+    
+    // Clear extension tokens as backup
+    try {
+      await ExtensionCommunicator.clearExtensionTokens();
+      console.log('Extension tokens cleared from AppBar logout');
+    } catch (error) {
+      console.log('Extension not available or error clearing tokens from AppBar:', error);
+    }
+    
     setUser(null);
   };
 

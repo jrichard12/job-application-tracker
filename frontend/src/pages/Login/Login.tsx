@@ -9,6 +9,7 @@ import type { CognitoUser } from "amazon-cognito-identity-js";
 import { type UserInfo } from "../../types/UserInfo";
 import type { JobApp } from "../../types/JobApp";
 import { getDemoUserJobs } from "../../services/demoUserService";
+import { ExtensionCommunicator } from "../../services/extensionCommunicator";
 
 interface LoginProps {
     userInfo: UserInfo | null;
@@ -88,7 +89,22 @@ function Login({ userInfo, updateUser }: LoginProps) {
             console.log("Login successful:", result);
             const authToken = result.authToken;
             const id = result.userId;
-            setUser({ username, authToken, id });
+            const userData = { username, authToken, id };
+            setUser(userData);
+            
+            // Send tokens to extension after successful login
+            try {
+                console.log('[Login] Attempting to send tokens to extension...');
+                await ExtensionCommunicator.sendTokensToExtension({
+                    idToken: authToken,
+                    userId: id,
+                    username: username
+                });
+                console.log('[Login] Tokens sent to extension successfully');
+            } catch (error) {
+                console.log('[Login] Extension not available or error sending tokens:', error);
+            }
+            
             await getUserInfo(username, id);
             console.log(`Login successful, ${userInfo?.createdAt} with ID ${userInfo?.id} authenticated successfully. ${userInfo?.jobApps}`);
             navigate("/applications");

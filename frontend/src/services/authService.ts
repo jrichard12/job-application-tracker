@@ -6,6 +6,7 @@ import {
 } from "amazon-cognito-identity-js";
 import { COGNITO_CONFIG } from "../config/congitoConfig";
 import { type User } from "../types/User";
+import { ExtensionCommunicator } from "./extensionCommunicator";
 
 interface AuthContextType {
   user: User | null;
@@ -85,6 +86,13 @@ export function logoutUser() {
   const user = userPool.getCurrentUser();
   if (user) {
     user.signOut();
+  }
+  
+  // Clear tokens from extension
+  try {
+    ExtensionCommunicator.clearExtensionTokens();
+  } catch (error) {
+    console.log('Extension not available or error clearing tokens:', error);
   }
 }
 

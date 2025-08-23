@@ -1,10 +1,12 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import HomePage from '@/components/HomePage/HomePage';
 import CreatePage from '@/components/CreatePage/CreatePage';
 import MessagePage from '@/components/MessagePage/MessagePage';
 import { MessageTemplates } from '@/components/MessagePage/messageTemplates';
 import { JobApp } from '@/types/JobApp';
 import type { MessageType } from '@/components/MessagePage/MessagePage';
+import { ExtensionAuthService } from '@/services/authService';
+import { EXTENSION_CONFIG } from '@/config/config';
 import './App.scss';
 
 export default function App() {
@@ -17,6 +19,77 @@ export default function App() {
     message: string;
   }>(MessageTemplates.EXTRACTION_NOT_SUPPORTED);
   const [extractedJobApp, setExtractedJobApp] = useState<JobApp | null>(null);
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
+  const [currentUser, setCurrentUser] = useState<{username: string; userId: string} | null>(null);
+  const [isCheckingAuth, setIsCheckingAuth] = useState<boolean>(true);
+
+  // Check authentication status on component mount
+  useEffect(() => {
+    checkAuthStatus();
+  }, []);
+
+  // Also check auth status when popup becomes visible (if supported)
+  useEffect(() => {
+    const handleVisibilityChange = () => {
+      if (!document.hidden) {
+        checkAuthStatus();
+      }
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    return () => document.removeEventListener('visibilitychange', handleVisibilityChange);
+  }, []);
+
+  const checkAuthStatus = async () => {
+    console.log('[Popup] Checking authentication status...');
+    setIsCheckingAuth(true);
+    try {
+      const authenticated = await ExtensionAuthService.isAuthenticated();
+      console.log('[Popup] Authentication status:', authenticated);
+      setIsAuthenticated(authenticated);
+      
+      if (authenticated) {
+        const user = await ExtensionAuthService.getCurrentUser();
+        console.log('[Popup] Current user:', user);
+        if (user) {
+          setCurrentUser({ username: user.username, userId: user.userId });
+        }
+      } else {
+        setCurrentUser(null);
+        console.log('[Popup] No user authenticated');
+      }
+    } catch (error) {
+      console.error('[Popup] Error checking auth status:', error);
+      setIsAuthenticated(false);
+      setCurrentUser(null);
+    } finally {
+      setIsCheckingAuth(false);
+    }
+  };
+
+  const handleRefreshAuth = async () => {
+    console.log('Refreshing authentication status...');
+    await checkAuthStatus();
+  };
+
+  const handleManualLogout = async () => {
+    console.log('[Popup] Manual logout initiated...');
+    setIsCheckingAuth(true);
+    try {
+      await ExtensionAuthService.logout();
+      console.log('[Popup] Manual logout completed');
+      await checkAuthStatus();
+    } catch (error) {
+      console.error('[Popup] Error during manual logout:', error);
+      setIsCheckingAuth(false);
+    }
+  };
+
+  const handleGoToLogin = () => {
+    console.log('[Popup] Opening login page...');
+    // Open the web app login page in a new tab
+    chrome.tabs.create({ url: EXTENSION_CONFIG.LOGIN_URL });
+  };
 
   const handleExtractJobData = async () => {
     console.log('🎯 Extract job data button clicked!');
@@ -121,7 +194,33 @@ export default function App() {
 
   return (
     <div className="app-container">
-      {showMessage ? (
+      {isCheckingAuth ? (
+        // Show loading state while checking authentication
+        <div className="auth-loading">
+          <div className="loading-spinner">🔄</div>
+          <p>Checking authentication...</p>
+        </div>
+      ) : !isAuthenticated ? (
+        // Show login required message when not authenticated
+        <MessagePage
+          title={MessageTemplates.LOGIN_REQUIRED.title}
+          message={MessageTemplates.LOGIN_REQUIRED.message}
+          type={MessageTemplates.LOGIN_REQUIRED.type}
+          actions={[
+            {
+              text: "Go to Login",
+              onClick: handleGoToLogin,
+              variant: "primary"
+            },
+            {
+              text: "Refresh",
+              onClick: handleRefreshAuth,
+              variant: "secondary"
+            }
+          ]}
+        />
+      ) : showMessage ? (
+        // Show other messages (extraction errors, etc.)
         <MessagePage
           title={messageData.title}
           message={messageData.message}
@@ -129,11 +228,26 @@ export default function App() {
           onBack={handleBackToHome}
         />
       ) : (
+        // Show main functionality when authenticated
         <>
+          {/* Authentication Status */}
+          <div className="auth-status">
+            <div className="auth-success">
+              ✅ Logged in as {currentUser?.username}
+              <button className="refresh-btn" onClick={handleRefreshAuth} title="Refresh auth status">
+                🔄
+              </button>
+              <button className="logout-btn" onClick={handleManualLogout} title="Logout from extension">
+                🚪
+              </button>
+            </div>
+          </div>
+          
           <HomePage 
             onExtractJobData={handleExtractJobData}
             onManualEntry={handleManualEntry}
             isLoading={isLoading}
+            currentUser={currentUser}
           />
           
           <CreatePage 
