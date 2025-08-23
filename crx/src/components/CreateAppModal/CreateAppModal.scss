@@ -1,0 +1,194 @@
+@use "sass:color";
+@use '../../variables' as *;
+
+.MuiDialog-paper {
+  border-radius: $border-radius-medium;
+  box-shadow: 0 4px 6px $shadow-light;
+  background: $background-primary !important;
+  color: $text-primary;
+}
+
+.MuiBackdrop-root {
+  background-color: rgba(0, 0, 0, 0.5) !important;
+}
+
+.MuiDialogTitle-root {
+  font-weight: 600;
+  color: $text-primary;
+  letter-spacing: 0.5px;
+  padding-bottom: 0.2em;
+  text-align: center;
+  text-shadow: 0 2px 4px $shadow-medium;
+  font-size: 24px;
+}
+
+.MuiDialogContent-root {
+  padding-top: 0.5em;
+  padding-bottom: 1.5em;
+  
+  // Custom scrollbar styling
+  &::-webkit-scrollbar {
+    width: 8px;
+  }
+  
+  &::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 4px;
+  }
+  
+  &::-webkit-scrollbar-thumb {
+    background: rgba(102, 126, 234, 0.6); // Using gradient start color
+    border-radius: 4px;
+    
+    &:hover {
+      background: rgba(118, 75, 162, 0.8); // Using gradient end color on hover
+    }
+  }
+  
+  &::-webkit-scrollbar-thumb:active {
+    background: rgba(118, 75, 162, 1); // Solid gradient end color when active
+  }
+}
+
+.MuiDialogActions-root {
+  padding: 1em 1.5em;
+  gap: 1em;
+}
+
+.MuiFormControl-root {
+  margin-bottom: 0;
+  .MuiInputLabel-root {
+    color: #333 !important; // Dark gray - visible on both white input and gradient background
+    font-weight: 500;
+  }
+  .MuiInputBase-root {
+    background: $background-input;
+    border-radius: $border-radius-small;
+    padding-left: 0.5em;
+    color: $text-input;
+    
+    &.Mui-focused {
+      .MuiOutlinedInput-notchedOutline {
+        border-color: #333 !important; // Dark gray border when focused
+        border-width: 2px;
+      }
+    }
+    
+    .MuiOutlinedInput-notchedOutline {
+      border-color: rgba(102, 126, 234, 0.7) !important; // Darker gradient start color
+    }
+    
+    &:hover .MuiOutlinedInput-notchedOutline {
+      border-color: #333 !important; // Dark gray on hover for consistency
+    }
+  }
+}
+
+.MuiTextField-root {
+  margin-bottom: 0;
+  .MuiInputLabel-root {
+    color: #333 !important; // Dark gray - visible on both white input and gradient background
+    font-weight: 500;
+  }
+  .MuiInputBase-root {
+    background: $background-input;
+    border-radius: $border-radius-small;
+    padding-left: 0.5em;
+    color: $text-input;
+    
+    &.Mui-focused {
+      .MuiOutlinedInput-notchedOutline {
+        border-color: #333 !important; // Dark gray border when focused
+        border-width: 2px;
+      }
+    }
+    
+    .MuiOutlinedInput-notchedOutline {
+      border-color: rgba(102, 126, 234, 0.7) !important; // Darker gradient start color
+    }
+    
+    &:hover .MuiOutlinedInput-notchedOutline {
+      border-color: #333 !important; // Dark gray on hover for consistency
+    }
+  }
+  
+  // Style the placeholder text
+  .MuiInputBase-input::placeholder {
+    color: rgba(102, 126, 234, 0.6) !important; // Using gradient start color with opacity
+    opacity: 1;
+  }
+  
+  // Also target the placeholder for multiline inputs
+  .MuiInputBase-inputMultiline::placeholder {
+    color: rgba(102, 126, 234, 0.6) !important;
+    opacity: 1;
+  }
+}
+
+// Style the Select component
+.MuiSelect-root {
+  .MuiOutlinedInput-notchedOutline {
+    border-color: rgba(102, 126, 234, 0.7) !important; // Darker gradient start color
+  }
+  
+  &.Mui-focused .MuiOutlinedInput-notchedOutline {
+    border-color: #333 !important; // Dark gray border when focused
+    border-width: 2px;
+  }
+  
+  &:hover .MuiOutlinedInput-notchedOutline {
+    border-color: #333 !important; // Dark gray on hover for consistency
+  }
+}
+.MuiChip-root {
+  font-weight: 500;
+  background: $button-primary;
+  color: $text-primary;
+  border-radius: $border-radius-small;
+  .MuiChip-deleteIcon {
+    color: $text-primary;
+    opacity: 0.7;
+    &:hover {
+      opacity: 1;
+    }
+  }
+}
+
+.MuiButton-contained {
+  background: $button-primary;
+  color: $text-primary;
+  font-weight: 500;
+  border-radius: $border-radius-small;
+  box-shadow: 0 2px 4px $shadow-medium;
+  transition: $transition-default;
+  padding: $padding-small $padding-large;
+  font-size: 16px;
+  &:hover, &:focus {
+    background: $button-primary-hover;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px $shadow-strong;
+  }
+  &:active {
+    transform: translateY(0);
+    box-shadow: 0 2px 4px $shadow-medium;
+  }
+}
+
+.MuiButton-root {
+  text-transform: none;
+  font-size: 16px;
+  letter-spacing: 0.2px;
+  font-weight: 500;
+  border-radius: $border-radius-small;
+  padding: $padding-small $padding-large;
+  transition: $transition-default;
+  
+  &:not(.MuiButton-contained) {
+    color: $text-secondary;
+    border: 1px solid $border-light;
+    &:hover {
+      background: $background-input-hover;
+      border-color: $border-medium;
+    }
+  }
+}

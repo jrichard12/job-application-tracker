@@ -1,0 +1,38 @@
+// Theme Colors
+$gradient-start: #667eea;
+$gradient-end: #764ba2;
+$button-primary: #4CAF50;
+$button-primary-hover: #45a049;
+$text-white: white;
+$text-dark: #333;
+
+// Background Colors
+$background-primary: linear-gradient(135deg, $gradient-start 0%, $gradient-end 100%);
+$background-input: rgba(255, 255, 255, 0.9);
+$background-input-hover: rgba(255, 255, 255, 0.1);
+
+// Text Colors
+$text-primary: white;
+$text-secondary: rgba(255, 255, 255, 0.8);
+$text-input: #333;
+
+// Shadow Colors
+$shadow-light: rgba(0, 0, 0, 0.1);
+$shadow-medium: rgba(0, 0, 0, 0.2);
+$shadow-strong: rgba(0, 0, 0, 0.3);
+
+// Border Colors
+$border-light: rgba(255, 255, 255, 0.3);
+$border-medium: rgba(255, 255, 255, 0.5);
+
+// Spacing
+$padding-small: 12px;
+$padding-medium: 20px;
+$padding-large: 24px;
+
+// Border Radius
+$border-radius-small: 6px;
+$border-radius-medium: 8px;
+
+// Transitions
+$transition-default: all 0.3s ease;
