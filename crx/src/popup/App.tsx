@@ -1,10 +1,10 @@
 import { useState } from 'react';
-import Homepage from '@/components/Homepage/Homepage';
-import CreateAppModal from '@/components/CreateAppModal/CreateAppModal';
-import MessageScreen from '@/components/MessageScreen/MessageScreen';
-import { MessageTemplates } from '@/components/MessageScreen/messageTemplates';
+import HomePage from '@/components/HomePage/HomePage';
+import CreatePage from '@/components/CreatePage/CreatePage';
+import MessagePage from '@/components/MessagePage/MessagePage';
+import { MessageTemplates } from '@/components/MessagePage/messageTemplates';
 import { JobApp } from '@/types/JobApp';
-import type { MessageType } from '@/components/MessageScreen/MessageScreen';
+import type { MessageType } from '@/components/MessagePage/MessagePage';
 import './App.scss';
 
 export default function App() {
@@ -122,7 +122,7 @@ export default function App() {
   return (
     <div className="app-container">
       {showMessage ? (
-        <MessageScreen
+        <MessagePage
           title={messageData.title}
           message={messageData.message}
           type={messageData.type}
@@ -130,13 +130,13 @@ export default function App() {
         />
       ) : (
         <>
-          <Homepage 
+          <HomePage 
             onExtractJobData={handleExtractJobData}
             onManualEntry={handleManualEntry}
             isLoading={isLoading}
           />
           
-          <CreateAppModal 
+          <CreatePage 
             isOpen={showModal}
             handleClose={handleCloseModal}
             handleCreateApp={handleCreateApp}

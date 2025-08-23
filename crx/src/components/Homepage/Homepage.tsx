@@ -1,13 +1,13 @@
 import React from 'react';
-import './Homepage.scss';
+import './HomePage.scss';
 
-interface HomepageProps {
+interface HomePageProps {
   onExtractJobData: () => void;
   onManualEntry: () => void;
   isLoading: boolean;
 }
 
-const Homepage: React.FC<HomepageProps> = ({ onExtractJobData, onManualEntry, isLoading }) => {
+const HomePage: React.FC<HomePageProps> = ({ onExtractJobData, onManualEntry, isLoading }) => {
   if (isLoading) {
     return (
       <div className="homepage">
@@ -54,4 +54,4 @@ const Homepage: React.FC<HomepageProps> = ({ onExtractJobData, onManualEntry, is
   );
 };
 
-export default Homepage;
+export default HomePage;
