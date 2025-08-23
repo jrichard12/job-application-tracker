@@ -1,5 +1,5 @@
 import { Box, Button, Chip, Dialog, DialogActions, DialogContent, DialogTitle, FormControl, InputLabel, MenuItem, Select, TextField } from "@mui/material";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { v4 as uuidv4 } from 'uuid';
 import { jobAppStatusOptions, type JobApp } from "../../types/JobApp";
 import "./CreateAppModal.scss";
@@ -7,19 +7,36 @@ import "./CreateAppModal.scss";
 type CreateAppModalProps = {
     isOpen: boolean,
     handleClose: () => void,
-    handleCreateApp: (jobApp: JobApp) => void
+    handleCreateApp: (jobApp: JobApp) => void,
+    initialData?: Partial<JobApp> // Optional prop for pre-populating the form
 }
 
-function CreateAppModal({ isOpen, handleClose, handleCreateApp }: CreateAppModalProps) {
-    const [newJobApp, setNewJobApp] = useState<JobApp>({
+function CreateAppModal({ isOpen, handleClose, handleCreateApp, initialData }: CreateAppModalProps) {
+    const getInitialJobApp = (): JobApp => ({
         id: '',
         source: '',
         company: '',
         jobTitle: '',
         jobStatus: 'Interested',
-        isArchived: false
+        isArchived: false,
+        // Merge in any initial data provided
+        ...initialData
     } as JobApp);
+
+    const [newJobApp, setNewJobApp] = useState<JobApp>(getInitialJobApp());
     const [skillInput, setSkillInput] = useState('');
+    const [isEditingSkills, setIsEditingSkills] = useState(false);
+
+    // Update form when initialData changes
+    useEffect(() => {
+        if (isOpen) {
+            const jobApp = getInitialJobApp();
+            setNewJobApp(jobApp);
+            // If initial data has skills, populate the skill input field
+            const skillsString = jobApp.skills?.join(', ') || '';
+            setSkillInput(skillsString);
+        }
+    }, [isOpen, initialData]);
 
     const isFormValid = () => {
         return (
@@ -39,8 +56,7 @@ function CreateAppModal({ isOpen, handleClose, handleCreateApp }: CreateAppModal
         const jobToSave: JobApp = {
             ...newJobApp,
             id: uuidv4(),
-            lastUpdated: new Date(),
-            skills: skillInput.trim() ? skillInput.split(',').map(skill => skill.trim()).filter(skill => skill !== '') : newJobApp.skills
+            lastUpdated: new Date()
         };
         handleCreateApp(jobToSave);
         resetModal();
@@ -60,29 +76,40 @@ function CreateAppModal({ isOpen, handleClose, handleCreateApp }: CreateAppModal
         }
     };
 
-    const handleDeleteSkill = (index: number) => {
-        setNewJobApp({
-            ...newJobApp,
-            skills: newJobApp.skills?.filter((_, i) => i !== index) || []
-        });
-    };
-
     const resetModal = () => {
         handleClose();
-        setNewJobApp({
-            id: '',
-            source: '',
-            company: '',
-            jobTitle: '',
-            jobStatus: 'Interested',
-            isArchived: false
-        } as JobApp);
+        setNewJobApp(getInitialJobApp());
+        setSkillInput('');
+        setIsEditingSkills(false);
+    };
+
+    const handleEditSkills = () => {
+        // Convert current skills array to comma-separated string for editing
+        const skillsString = newJobApp.skills?.join(', ') || '';
+        setSkillInput(skillsString);
+        setIsEditingSkills(true);
+    };
+
+    const handleSaveSkills = () => {
+        // Convert comma-separated string back to array
+        const skillsArray = skillInput.trim() 
+            ? skillInput.split(',').map(skill => skill.trim()).filter(skill => skill !== '')
+            : [];
+        setNewJobApp(prev => ({ ...prev, skills: skillsArray }));
+        setIsEditingSkills(false);
+        setSkillInput('');
+    };
+
+    const handleCancelSkillEdit = () => {
+        setIsEditingSkills(false);
         setSkillInput('');
     };
 
     return (
         <Dialog open={isOpen} onClose={resetModal} maxWidth="md" fullWidth>
-            <DialogTitle>Create New Application</DialogTitle>
+            <DialogTitle>
+                {initialData ? 'Review Extracted Job Data' : 'Create New Application'}
+            </DialogTitle>
             <DialogContent>
                 <Box component="form" onSubmit={handleSave} sx={{ mt: 2 }}>
                     <Box sx={{ display: 'grid', gap: 2, gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr' } }}>
@@ -148,24 +175,72 @@ function CreateAppModal({ isOpen, handleClose, handleCreateApp }: CreateAppModal
                             />
                         </Box>
                         <Box sx={{ gridColumn: '1 / -1' }}>
-                            <TextField
-                                fullWidth
-                                label="Skills (comma separated)"
-                                value={skillInput}
-                                onChange={(e: any) => setSkillInput(e.target.value)}
-                                placeholder="e.g. React, TypeScript, Node.js, Python"
-                            />
-                            {newJobApp.skills && newJobApp.skills.length > 0 && (
-                                <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1, mt: 1 }}>
-                                    {newJobApp.skills.map((skill: string, index: number) => (
-                                        <Chip
-                                            key={index}
-                                            label={skill}
-                                            variant="outlined"
-                                            onDelete={() => handleDeleteSkill(index)}
-                                            size="small"
-                                        />
-                                    ))}
+                            {isEditingSkills ? (
+                                // Edit mode - show text input with save/cancel buttons
+                                <Box>
+                                    <TextField
+                                        fullWidth
+                                        label="Skills (comma separated)"
+                                        value={skillInput}
+                                        onChange={(e: any) => setSkillInput(e.target.value)}
+                                        placeholder="e.g. React, TypeScript, Node.js, Python"
+                                        multiline
+                                        rows={2}
+                                    />
+                                    <Box sx={{ display: 'flex', gap: 1, mt: 1 }}>
+                                        <Button 
+                                            size="small" 
+                                            variant="contained" 
+                                            onClick={handleSaveSkills}
+                                        >
+                                            Save
+                                        </Button>
+                                        <Button 
+                                            size="small" 
+                                            variant="outlined" 
+                                            onClick={handleCancelSkillEdit}
+                                        >
+                                            Cancel
+                                        </Button>
+                                    </Box>
+                                </Box>
+                            ) : (
+                                // Display mode - show skills as bullet list with edit button
+                                <Box>
+                                    <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1 }}>
+                                        <label style={{ fontSize: '0.875rem', color: 'rgba(0, 0, 0, 0.6)' }}>Skills</label>
+                                        <Button 
+                                            size="small" 
+                                            variant="outlined" 
+                                            onClick={handleEditSkills}
+                                        >
+                                            {newJobApp.skills && newJobApp.skills.length > 0 ? 'Edit' : 'Add Skills'}
+                                        </Button>
+                                    </Box>
+                                    {newJobApp.skills && newJobApp.skills.length > 0 ? (
+                                        <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1, p: 2, border: '1px solid #e0e0e0', borderRadius: 1, minHeight: '56px', alignItems: 'flex-start', backgroundColor: 'white' }}>
+                                            {newJobApp.skills.map((skill: string, index: number) => (
+                                                <Chip
+                                                    key={index}
+                                                    label={skill}
+                                                    variant="outlined"
+                                                    size="small"
+                                                    sx={{ 
+                                                        background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                                                        color: 'white',
+                                                        border: 'none',
+                                                        '& .MuiChip-label': {
+                                                            color: 'white'
+                                                        }
+                                                    }}
+                                                />
+                                            ))}
+                                        </Box>
+                                    ) : (
+                                        <Box sx={{ p: 2, border: '1px solid #e0e0e0', borderRadius: 1, minHeight: '56px', display: 'flex', alignItems: 'center', color: '#999', backgroundColor: 'white' }}>
+                                            No skills added yet
+                                        </Box>
+                                    )}
                                 </Box>
                             )}
                         </Box>
