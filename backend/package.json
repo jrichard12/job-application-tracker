@@ -1,7 +1,8 @@
 {
   "dependencies": {
     "@aws-sdk/client-dynamodb": "^3.859.0",
-    "@aws-sdk/lib-dynamodb": "^3.859.0"
+    "@aws-sdk/lib-dynamodb": "^3.859.0",
+    "aws-jwt-verify": "^5.1.0"
   },
   "devDependencies": {
     "@types/aws-lambda": "^8.10.152",
@@ -9,6 +10,6 @@
     "typescript": "^5.9.2"
   },
   "scripts": {
-    "build": "rmdir /s /q dist && npx tsc"
+    "build": "rmdir /s /q dist && npx tsc && xcopy /E /I /Y lambdas\\node_modules dist\\lambdas\\node_modules"
   }
 }

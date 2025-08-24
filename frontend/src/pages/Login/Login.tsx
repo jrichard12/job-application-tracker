@@ -66,11 +66,27 @@ function Login({ userInfo, updateUser }: LoginProps) {
         if (!cognitoUser) return;
 
         cognitoUser.completeNewPasswordChallenge(newPassword, {}, {
-            onSuccess: (result) => {
+            onSuccess: async (result) => {
                 setNewPasswordRequired(false);
                 setCognitoUser(null);
                 const authToken = result.getIdToken().getJwtToken();
-                setUser({ username, authToken });
+                const id = result.getIdToken().payload.sub;
+                const userData = { username, authToken, id };
+                setUser(userData);
+                
+                try {
+                    console.log('[Login] Attempting to send tokens to extension...');
+                    await ExtensionCommunicator.sendTokensToExtension({
+                        idToken: authToken,
+                        userId: id,
+                        username: username
+                    });
+                    console.log('[Login] Tokens sent to extension successfully');
+                } catch (error) {
+                    console.log('[Login] Extension not available or error sending tokens:', error);
+                }
+                
+                await getUserInfo(username, id, authToken);
                 navigate("/applications");
             },
             onFailure: (err) => {
@@ -105,7 +121,7 @@ function Login({ userInfo, updateUser }: LoginProps) {
                 console.log('[Login] Extension not available or error sending tokens:', error);
             }
             
-            await getUserInfo(username, id);
+            await getUserInfo(username, id, authToken);
             console.log(`Login successful, ${userInfo?.createdAt} with ID ${userInfo?.id} authenticated successfully. ${userInfo?.jobApps}`);
             navigate("/applications");
         } catch (err: any) {
@@ -113,7 +129,7 @@ function Login({ userInfo, updateUser }: LoginProps) {
         }
     };
 
-    const getUserInfo = async (username: string, id: string) => {
+    const getUserInfo = async (username: string, id: string, authToken: string) => {
         console.log(user);
         if (username === "" || id === "") {
             console.error("User is not authenticated or user ID is missing.");
@@ -124,6 +140,7 @@ function Login({ userInfo, updateUser }: LoginProps) {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
+                    "Authorization": `Bearer ${authToken}`
                 },
                 body: JSON.stringify({
                     userId: id,

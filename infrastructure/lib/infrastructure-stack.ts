@@ -64,19 +64,16 @@ export class InfrastructureStack extends cdk.Stack {
         handler: "userInfoHandler.handler",
         environment: {
           TABLE_NAME: this.jobAppTable.tableName,
+          USER_POOL_ID: this.userPool.userPoolId,
+          CLIENT_ID: this.userPoolClient.userPoolClientId,
         },
       }
     );
     this.jobAppTable.grantReadWriteData(this.userInfoHandlerLambda);
 
-    // TODO: add auth later
     const userInfoHandlerLambdaUrl = this.userInfoHandlerLambda.addFunctionUrl({
-      authType: lambdaUrl.FunctionUrlAuthType.NONE, // No auth for now
-      cors: {
-        allowedOrigins: ["http://localhost:5173"],
-        allowedMethods: [lambda.HttpMethod.POST, lambda.HttpMethod.GET],
-        allowedHeaders: ["Content-Type", "Authorization"],
-      },
+      authType: lambdaUrl.FunctionUrlAuthType.NONE, // Using JWT verification in function
+      // Remove CORS config to let Lambda function handle all CORS
     });
 
     this.jobHandlerLambda = new lambda.Function(this, "JobHandlerLambda", {
@@ -89,18 +86,15 @@ export class InfrastructureStack extends cdk.Stack {
       handler: "jobHandler.handler",
       environment: {
         TABLE_NAME: this.jobAppTable.tableName,
+        USER_POOL_ID: this.userPool.userPoolId,
+        CLIENT_ID: this.userPoolClient.userPoolClientId,
       },
     });
     this.jobAppTable.grantReadWriteData(this.jobHandlerLambda);
 
-    // TODO: Add auth later
     const jobHandlerLambdaUrl = this.jobHandlerLambda.addFunctionUrl({
-      authType: lambdaUrl.FunctionUrlAuthType.NONE, // No auth for now
-      cors: {
-        allowedOrigins: ["http://localhost:5173"],
-        allowedMethods: [lambda.HttpMethod.POST, lambda.HttpMethod.PUT, lambda.HttpMethod.GET, lambda.HttpMethod.DELETE],
-        allowedHeaders: ["Content-Type", "Authorization"],
-      },
+      authType: lambdaUrl.FunctionUrlAuthType.NONE, // Using JWT verification in function
+      // Remove CORS config to let Lambda function handle all CORS
     });
 
     // Output values for .env

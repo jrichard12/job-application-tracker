@@ -55,6 +55,7 @@ function Applications({ userInfo, updateUser }: ApplicationsProps) {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
+                    "Authorization": `Bearer ${user?.authToken}`
                 },
                 body: JSON.stringify({
                     userId: user?.id,

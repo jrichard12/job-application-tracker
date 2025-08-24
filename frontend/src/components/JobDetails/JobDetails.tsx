@@ -30,7 +30,7 @@ function JobDetails({ job, updateUser, userInfo }: JobDetailsProps) {
     const [editingSkills, setEditingSkills] = useState(false);
     const [newSkill, setNewSkill] = useState("");
     const [tempSkills, setTempSkills] = useState<string[]>([]);
-    const { demoMode } = useAuth();
+    const { demoMode, user } = useAuth();
     const jobHandlerUrl = import.meta.env.VITE_JOB_HANDLER_URL;
     // Click outside to cancel editing
     useEffect(() => {
@@ -94,6 +94,7 @@ function JobDetails({ job, updateUser, userInfo }: JobDetailsProps) {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${user?.authToken}`
                 },
                 body: JSON.stringify(job),
             });
@@ -105,7 +106,7 @@ function JobDetails({ job, updateUser, userInfo }: JobDetailsProps) {
         } catch (error) {
             console.error('Error updating job:', error);
         }
-    }, [currentJob, demoMode, updateUser, userInfo, jobHandlerUrl]);
+    }, [currentJob, demoMode, updateUser, userInfo, jobHandlerUrl, user?.authToken]);
 
     const handleArchive = async () => {
         if (!currentJob) return;
@@ -147,6 +148,7 @@ function JobDetails({ job, updateUser, userInfo }: JobDetailsProps) {
                 method: 'DELETE',
                 headers: {
                     'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${user?.authToken}`
                 }
             });
             const result = await response.json();
