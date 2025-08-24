@@ -30,6 +30,9 @@ web-ext-artifacts/
 .env.test.local
 .env.production.local
 
+# API Configuration (contains sensitive URLs)
+src/config/api.ts
+
 # OS generated files
 .DS_Store
 .DS_Store?

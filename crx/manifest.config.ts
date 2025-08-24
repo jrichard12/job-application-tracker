@@ -22,7 +22,7 @@ export default defineManifest({
     'tabs',
   ],
   content_scripts: [{
-    js: ['src/content/main.tsx'],
+    js: ['src/content/main.ts'],
     matches: ['https://*/*', 'http://localhost:*/*', 'http://127.0.0.1:*/*'],
   }],
   side_panel: {

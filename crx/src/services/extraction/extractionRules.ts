@@ -1,27 +1,17 @@
 import { ExtractionRuleSet } from './types';
-import { linkedinRules } from './rules/linkedin';
 import { indeedRules } from './rules/indeed';
 import { glassdoorRules } from './rules/glassdoor';
-import { leverRules } from './rules/lever';
-import { greenhouseRules } from './rules/greenhouse';
 
 // Collection of all extraction rules from individual rule files
 export const extractionRules: ExtractionRuleSet[] = [
-  linkedinRules,
   indeedRules,
-  glassdoorRules,
-  leverRules,
-  greenhouseRules
+  glassdoorRules
 ];
 
 export function getRulesForUrl(url: string): ExtractionRuleSet | null {
   try {
     const urlObj = new URL(url);
     const domain = urlObj.hostname.replace('www.', '');
-    
-    console.log('🔍 getRulesForUrl - Input URL:', url);
-    console.log('🔍 getRulesForUrl - Parsed domain:', domain);
-    console.log('🔍 getRulesForUrl - Available rule domains:', extractionRules.map(r => r.domain));
     
     for (const ruleSet of extractionRules) {
       console.log(`🔍 Checking rule for domain: ${ruleSet.domain} against parsed domain: ${domain}`);

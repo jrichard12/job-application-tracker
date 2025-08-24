@@ -1,10 +1,6 @@
-import { StrictMode } from 'react'
-import { createRoot } from 'react-dom/client'
-import App from './views/App.tsx'
 import { triggerJobExtraction, isExtractionSupported, getJobSiteName } from '../utils/extractionUtils'
 
 // This is where any scripts should go. 
-console.log('[CRXJS] Hello world from content script!')
 console.log('[Content Script] Loaded on:', window.location.href);
 
 // Listen for auth tokens from web app
@@ -111,13 +107,4 @@ chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
   return true;
 });
 
-// scripts end here. 
-
-const container = document.createElement('div')
-container.id = 'crxjs-app'
-document.body.appendChild(container)
-createRoot(container).render(
-  <StrictMode>
-    <App />
-  </StrictMode>,
-)
+// scripts end here.

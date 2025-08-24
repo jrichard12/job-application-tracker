@@ -182,9 +182,17 @@ export default function App() {
   };
 
   const handleCreateApp = (jobApp: JobApp) => {
-    console.log('Save clicked - Job app data:', jobApp);
+    console.log('Job application saved successfully:', jobApp);
     setShowModal(false);
     setExtractedJobApp(null); // Clear extracted data when app is created
+    
+    // Show success message to user
+    setMessageData({
+      type: 'success',
+      title: 'Job Application Saved!',
+      message: `Your application for ${jobApp.jobTitle} at ${jobApp.company} has been saved successfully.`
+    });
+    setShowMessage(true);
   };
 
   const handleBackToHome = () => {

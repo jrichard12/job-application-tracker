@@ -1,7 +1,8 @@
-import { Box, Button, Chip, Dialog, DialogActions, DialogContent, DialogTitle, FormControl, InputLabel, MenuItem, Select, TextField } from "@mui/material";
+import { Box, Button, Chip, Dialog, DialogActions, DialogContent, DialogTitle, FormControl, InputLabel, MenuItem, Select, TextField, CircularProgress, Alert } from "@mui/material";
 import { useState, useEffect } from "react";
 import { v4 as uuidv4 } from 'uuid';
 import { jobAppStatusOptions, type JobApp } from "../../types/JobApp";
+import { JobService, ExtensionAuthService } from "../../services";
 import "./CreatePage.scss";
 
 type CreatePageProps = {
@@ -26,6 +27,9 @@ function CreatePage({ isOpen, handleClose, handleCreateApp, initialData }: Creat
     const [newJobApp, setNewJobApp] = useState<JobApp>(getInitialJobApp());
     const [skillInput, setSkillInput] = useState('');
     const [isEditingSkills, setIsEditingSkills] = useState(false);
+    const [isSaving, setIsSaving] = useState(false);
+    const [error, setError] = useState<string | null>(null);
+    const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
 
     // Update form when initialData changes
     useEffect(() => {
@@ -35,8 +39,17 @@ function CreatePage({ isOpen, handleClose, handleCreateApp, initialData }: Creat
             // If initial data has skills, populate the skill input field
             const skillsString = jobApp.skills?.join(', ') || '';
             setSkillInput(skillsString);
+            // Clear any previous errors
+            setError(null);
         }
     }, [isOpen, initialData]);
+
+    // Check authentication status when modal opens
+    useEffect(() => {
+        if (isOpen) {
+            ExtensionAuthService.isAuthenticated().then(setIsAuthenticated);
+        }
+    }, [isOpen]);
 
     const isFormValid = () => {
         return (
@@ -46,20 +59,45 @@ function CreatePage({ isOpen, handleClose, handleCreateApp, initialData }: Creat
         );
     };
 
-    const handleSave = (event: React.FormEvent) => {
+    const handleSave = async (event: React.FormEvent) => {
         event.preventDefault();
         if (!isFormValid()) {
             alert('Please fill out all required fields: Source, Company, and Job Title.');
             return;
         }
         
+        if (isAuthenticated === false) {
+            setError('You must be logged in to save job applications. Please log in to the web app first.');
+            return;
+        }
+
         const jobToSave: JobApp = {
             ...newJobApp,
             id: uuidv4(),
             lastUpdated: new Date()
         };
-        handleCreateApp(jobToSave);
-        resetModal();
+
+        setIsSaving(true);
+        setError(null);
+
+        try {
+            if (isAuthenticated) {
+                // Save to backend if authenticated
+                const savedJob = await JobService.saveJobApplication(jobToSave);
+                console.log('Job saved to backend:', savedJob);
+                handleCreateApp(savedJob);
+            } else {
+                // For demo or offline use, just use the local job
+                console.log('Saving job locally (not authenticated)');
+                handleCreateApp(jobToSave);
+            }
+            resetModal();
+        } catch (error) {
+            console.error('Error saving job:', error);
+            setError(error instanceof Error ? error.message : 'Failed to save job application');
+        } finally {
+            setIsSaving(false);
+        }
     };
 
     const handleInputChange = (event: any) => {
@@ -81,6 +119,8 @@ function CreatePage({ isOpen, handleClose, handleCreateApp, initialData }: Creat
         setNewJobApp(getInitialJobApp());
         setSkillInput('');
         setIsEditingSkills(false);
+        setError(null);
+        setIsSaving(false);
     };
 
     const handleEditSkills = () => {
@@ -111,6 +151,12 @@ function CreatePage({ isOpen, handleClose, handleCreateApp, initialData }: Creat
                 {initialData ? 'Review Extracted Job Data' : 'Create New Application'}
             </DialogTitle>
             <DialogContent>
+                {error && (
+                    <Alert severity="error" sx={{ mb: 2 }}>
+                        {error}
+                    </Alert>
+                )}
+                
                 <Box component="form" onSubmit={handleSave} sx={{ mt: 2 }}>
                     <Box sx={{ display: 'grid', gap: 2, gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr' } }}>
                         <Box sx={{ gridColumn: '1 / -1' }}>
@@ -280,9 +326,16 @@ function CreatePage({ isOpen, handleClose, handleCreateApp, initialData }: Creat
                 </Box>
             </DialogContent>
             <DialogActions>
-                <Button onClick={resetModal}>Cancel</Button>
-                <Button onClick={handleSave} variant="contained">
-                    Save
+                <Button onClick={resetModal} disabled={isSaving}>
+                    Cancel
+                </Button>
+                <Button 
+                    onClick={handleSave} 
+                    variant="contained" 
+                    disabled={isSaving || !isFormValid()}
+                    startIcon={isSaving ? <CircularProgress size={16} /> : undefined}
+                >
+                    {isSaving ? 'Saving...' : 'Save'}
                 </Button>
             </DialogActions>
         </Dialog>
