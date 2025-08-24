@@ -1,9 +1,7 @@
 import { DynamoDBClient } from "@aws-sdk/client-dynamodb";
 import {
   DynamoDBDocumentClient,
-  GetCommand,
   PutCommand,
-  QueryCommand,
   UpdateCommand,
   UpdateCommandInput,
   DeleteCommand,
@@ -26,8 +24,6 @@ const verifier = CognitoJwtVerifier.create({
 
 const verifyToken = async (authorizationHeader: string) => {
   console.log('=== Token Verification START ===');
-  console.log('USER_POOL_ID:', USER_POOL_ID);
-  console.log('CLIENT_ID:', CLIENT_ID);
   
   if (!authorizationHeader || !authorizationHeader.startsWith('Bearer ')) {
     console.error('Missing or invalid authorization header format');
@@ -35,17 +31,14 @@ const verifyToken = async (authorizationHeader: string) => {
   }
 
   const token = authorizationHeader.substring(7); // Remove 'Bearer ' prefix
-  console.log('Token extracted (first 20 chars):', token.substring(0, 20) + '...');
   
   try {
     console.log('Calling verifier.verify()...');
     const payload = await verifier.verify(token);
-    console.log('Token verification successful. Payload sub:', payload.sub);
     console.log('=== Token Verification END (SUCCESS) ===');
     return payload;
   } catch (error) {
     console.error('=== Token Verification END (FAILED) ===');
-    console.error('Token verification failed:', error);
     console.error('Error details:', error instanceof Error ? error.message : 'Unknown error');
     throw new Error('Invalid token');
   }
@@ -53,24 +46,19 @@ const verifyToken = async (authorizationHeader: string) => {
 
 const getCorsHeaders = (event: any) => {
   const origin = event.headers?.origin;
-  console.log('Request origin:', origin);
   
   // Only allow specific localhost ports
   let allowOrigin = null;
   if (origin === 'http://localhost:5173' || origin === 'http://localhost:5174') {
     allowOrigin = origin;
-    console.log('Allowed origin:', allowOrigin);
-  } else {
-    console.log('Origin not allowed:', origin);
   }
-  
+
   const headers = {
     'Access-Control-Allow-Origin': allowOrigin || 'http://localhost:5173', // fallback to 5173
     'Access-Control-Allow-Headers': 'Content-Type,Authorization',
     'Access-Control-Allow-Methods': 'GET,POST,PUT,DELETE,OPTIONS'
   };
   
-  console.log('CORS headers being returned:', JSON.stringify(headers, null, 2));
   return headers;
 };
 
@@ -89,8 +77,6 @@ const createResponse = (statusCode: number, body: any, event?: any) => {
 
 const addJob = async (body: any, tokenPayload: any, event: any) => {
   console.log('=== AddJob START ===');
-  console.log('Body received:', JSON.stringify(body, null, 2));
-  console.log('Token payload sub:', tokenPayload.sub);
   
   const { userId, job } = body;
   if (!userId || !job) {
@@ -122,7 +108,6 @@ const addJob = async (body: any, tokenPayload: any, event: any) => {
     return createResponse(200, dbJob, event);
   } catch (error) {
     console.error('=== AddJob END (FAILED) ===');
-    console.error("Error adding job:", error);
     console.error('Error details:', error instanceof Error ? error.message : 'Unknown error');
     return createResponse(500, { message: "Error adding job" }, event);
   }
@@ -182,7 +167,6 @@ const updateJob = async (body: any, tokenPayload: any, event: any) => {
     ConditionExpression: "attribute_exists(PK) AND attribute_exists(SK)", // Ensure job exists
     ReturnValues: "ALL_NEW", // Return updated item
   };
-  console.log("Update params:", JSON.stringify(params, null, 2));
 
   try {
     const result = await docClient.send(new UpdateCommand(params));
@@ -236,13 +220,11 @@ export const handler = async (event: any) => {
     
     // Verify authentication token
     const authHeader = event.headers?.authorization || event.headers?.Authorization;
-    console.log('Auth header received:', authHeader ? 'Bearer ' + authHeader.substring(7, 20) + '...' : 'MISSING');
     
     let tokenPayload;
     try {
       console.log('Attempting token verification...');
       tokenPayload = await verifyToken(authHeader);
-      console.log('Token verification successful. User ID:', tokenPayload.sub);
     } catch (error) {
       console.error('Token verification failed:', error);
       return createResponse(401, { message: 'Unauthorized' }, event);
@@ -250,8 +232,6 @@ export const handler = async (event: any) => {
 
     const method = event.requestContext.http.method;
     const body = event.body ? JSON.parse(event.body) : {};
-    console.log('Request method:', method);
-    console.log('Request body:', JSON.stringify(body, null, 2));
 
     switch (method) {
       case "POST":
@@ -274,7 +254,6 @@ export const handler = async (event: any) => {
     }
   } catch (error) {
     console.error('=== ERROR in JobHandler ===');
-    console.error('Unexpected error:', error);
     console.error('Error stack:', error instanceof Error ? error.stack : 'No stack available');
     return createResponse(500, { message: 'Internal Server Error' }, event);
   } finally {

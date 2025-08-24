@@ -3,3 +3,6 @@ dist
 dist-ssr
 *.local
 .env
+dist-lambdas
+build-lambdas.ts
+

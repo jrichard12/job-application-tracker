@@ -55,11 +55,11 @@ export class InfrastructureStack extends cdk.Stack {
       this,
       "UserInfoHandlerLambda",
       {
-        runtime: lambda.Runtime.NODEJS_18_X,
+        runtime: lambda.Runtime.NODEJS_22_X,
         functionName: "UserInfoHandlerLambda",
         description: "Lambda function to handle creating/fetching user data on login",
         code: lambda.Code.fromAsset(
-          path.join(__dirname, "../../backend/dist/lambdas")
+          path.join(__dirname, "../../backend/dist-lambdas")
         ),
         handler: "userInfoHandler.handler",
         environment: {
@@ -77,11 +77,11 @@ export class InfrastructureStack extends cdk.Stack {
     });
 
     this.jobHandlerLambda = new lambda.Function(this, "JobHandlerLambda", {
-      runtime: lambda.Runtime.NODEJS_18_X,
+      runtime: lambda.Runtime.NODEJS_22_X,
       functionName: "JobHandlerLambda",
       description: "Lambda function to handle job application CRUD operations",
       code: lambda.Code.fromAsset(
-        path.join(__dirname, "../../backend/dist/lambdas")
+        path.join(__dirname, "../../backend/dist-lambdas")
       ),
       handler: "jobHandler.handler",
       environment: {

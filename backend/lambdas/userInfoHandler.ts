@@ -23,8 +23,6 @@ const verifier = CognitoJwtVerifier.create({
 
 const verifyToken = async (authorizationHeader: string) => {
   console.log('=== Token Verification START ===');
-  console.log('USER_POOL_ID:', USER_POOL_ID);
-  console.log('CLIENT_ID:', CLIENT_ID);
   
   if (!authorizationHeader || !authorizationHeader.startsWith('Bearer ')) {
     console.error('Missing or invalid authorization header format');
@@ -32,17 +30,14 @@ const verifyToken = async (authorizationHeader: string) => {
   }
 
   const token = authorizationHeader.substring(7); // Remove 'Bearer ' prefix
-  console.log('Token extracted (first 20 chars):', token.substring(0, 20) + '...');
   
   try {
     console.log('Calling verifier.verify()...');
     const payload = await verifier.verify(token);
-    console.log('Token verification successful. Payload sub:', payload.sub);
     console.log('=== Token Verification END (SUCCESS) ===');
     return payload;
   } catch (error) {
     console.error('=== Token Verification END (FAILED) ===');
-    console.error('Token verification failed:', error);
     console.error('Error details:', error instanceof Error ? error.message : 'Unknown error');
     throw new Error('Invalid token');
   }
@@ -50,15 +45,11 @@ const verifyToken = async (authorizationHeader: string) => {
 
 const getCorsHeaders = (event: any) => {
   const origin = event.headers?.origin;
-  console.log('Request origin:', origin);
   
   // Only allow specific localhost ports
   let allowOrigin = null;
   if (origin === 'http://localhost:5173' || origin === 'http://localhost:5174') {
     allowOrigin = origin;
-    console.log('Allowed origin:', allowOrigin);
-  } else {
-    console.log('Origin not allowed:', origin);
   }
   
   const headers = {
@@ -67,13 +58,11 @@ const getCorsHeaders = (event: any) => {
     'Access-Control-Allow-Methods': 'GET,POST,OPTIONS'
   };
   
-  console.log('CORS headers being returned:', JSON.stringify(headers, null, 2));
   return headers;
 };
 
 export const handler = async (event: any) => {
   console.log('=== UserInfoHandler START ===');
-  console.log('Event received:', JSON.stringify(event, null, 2));
   
   const corsHeaders = getCorsHeaders(event);
   
@@ -92,13 +81,12 @@ export const handler = async (event: any) => {
     
     // Verify authentication token
     const authHeader = event.headers?.authorization || event.headers?.Authorization;
-    console.log('Auth header received:', authHeader ? 'Bearer ' + authHeader.substring(7, 20) + '...' : 'MISSING');
     
     let tokenPayload;
     try {
       console.log('Attempting token verification...');
       tokenPayload = await verifyToken(authHeader);
-      console.log('Token verification successful. User ID:', tokenPayload.sub);
+      console.log('Token verification successful.');
     } catch (error) {
       console.error('Token verification failed:', error);
       return {
@@ -110,11 +98,10 @@ export const handler = async (event: any) => {
 
     console.log('Parsing request body...');
     const { userId, email } = JSON.parse(event.body);
-    console.log('Request data - userId:', userId, 'email:', email);
     
     // Verify that the token's sub matches the requested userId
     if (tokenPayload.sub !== userId) {
-      console.error('User ID mismatch. Token sub:', tokenPayload.sub, 'Requested userId:', userId);
+      console.error('User ID mismatch.');
       return {
         statusCode: 403,
         headers: corsHeaders,
@@ -143,7 +130,6 @@ export const handler = async (event: any) => {
         Key: { PK, SK },
       })
     );
-    console.log('GetUser result:', getUserResult.Item ? 'User found' : 'User not found');
 
     // If user not found, create it
     if (!getUserResult.Item) {
@@ -185,8 +171,6 @@ export const handler = async (event: any) => {
       jobApps: jobApps,
     };
 
-    console.log('Returning successful response');
-    console.log('CORS headers for success response:', JSON.stringify(corsHeaders, null, 2));
     const successResponse = {
       statusCode: 200,
       headers: {
@@ -195,11 +179,9 @@ export const handler = async (event: any) => {
       },
       body: JSON.stringify(frontendUser),
     };
-    console.log('Complete success response:', JSON.stringify(successResponse, null, 2));
     return successResponse;
   } catch (error) {
     console.error("=== ERROR in UserInfoHandler ===");
-    console.error("Error fetching user data:", error);
     console.error("Error stack:", error instanceof Error ? error.stack : 'No stack available');
 
     return {
