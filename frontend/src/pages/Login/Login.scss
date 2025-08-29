@@ -7,8 +7,8 @@
   min-width: 260px;
   margin: 12vh auto;
   box-shadow: 0 4px 24px rgba(0,0,0,0.08);
-  background: #fff;
-  border-radius: 18px;
+  background: $color-background-light;
+  border-radius: $border-radius-xlarge;
   display: flex;
   flex-direction: column;
   justify-content: stretch;
@@ -30,7 +30,7 @@
   text-align: center;
   font-weight: 600;
   font-size: 1.7rem;
-  color: #222;
+  color: $color-text;
   margin-bottom: 1.2rem;
   letter-spacing: 0.5px;
 }
@@ -74,7 +74,7 @@
   align-self: flex-end;
 }
 .login .MuiButton-root:hover {
-  background: color.scale($color-primary, $lightness: -8%)
+  background: #e6830a; // Darker orange manually calculated
 }
 
 

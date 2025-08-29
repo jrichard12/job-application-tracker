@@ -3,9 +3,9 @@
 
 .job-details-card {
   width: 100%;
-  background: #fff;
-  border-radius: 12px;
-  box-shadow: 0 1px 6px 0 rgba(32, 165, 166, 0.07);
+  background: $color-background-light;
+  border-radius: $border-radius-medium;
+  box-shadow: 0 1px 6px 0 rgba($color-status-applied, 0.07);
   padding: 0 0.8rem;
   min-height: 50vh;
   display: flex;
@@ -15,7 +15,7 @@
 
 .job-details-card-content {
   position: relative;
-  padding: 1rem 0.5rem;
+  padding: $spacing-md $spacing-sm;
   display: flex;
   flex-direction: column;
   height: 100%;
@@ -26,9 +26,9 @@
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
-  gap: 1rem;
+  gap: $spacing-md;
   flex-direction: column;
-  margin-bottom: 0.5rem;
+  margin-bottom: $spacing-sm;
 }
 
 .job-details-title-row {
@@ -79,11 +79,11 @@
 .job-details-status-chip {
   font-weight: 500;
   height: 22px;
-  padding-left: 8px;
+  padding-left: $border-radius-small;
   padding-right: 22px;
   font-size: 0.80rem;
   letter-spacing: 0.1em;
-  box-shadow: 0 1px 2px 0 rgba(32, 165, 166, 0.08);
+  box-shadow: 0 1px 2px 0 rgba($color-status-applied, 0.08);
   white-space: nowrap;
   vertical-align: middle;
   display: flex;
@@ -97,7 +97,7 @@
   top: 50%;
   transform: translateY(-50%);
   font-size: 18px;
-  color: #fff;
+  color: $color-text-white;
   pointer-events: none;
 }
 

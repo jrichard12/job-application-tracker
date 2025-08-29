@@ -7,14 +7,14 @@
   width: 100% !important;
   height: 100% !important;
   margin: 0 !important;
-  padding: $padding-medium !important;
+  padding: $spacing-lg !important;
   display: flex !important;
   flex-direction: column !important;
   align-items: stretch !important;
   justify-content: center !important;
   text-align: center;
-  background: $background-primary !important;
-  color: $text-primary;
+  background: $gradient-primary !important;
+  color: $color-text-light;
   border-radius: 0;
   box-sizing: border-box !important;
   overflow: hidden !important;
@@ -32,19 +32,19 @@
       opacity: 0.9;
       
       &.error {
-        filter: drop-shadow(0 2px 4px rgba(255, 0, 0, 0.3));
+        filter: drop-shadow(0 2px 4px rgba($color-accent, 0.5));
       }
       
       &.warning {
-        filter: drop-shadow(0 2px 4px rgba(255, 165, 0, 0.3));
+        filter: drop-shadow(0 2px 4px rgba($color-secondary, 0.5));
       }
       
       &.info {
-        filter: drop-shadow(0 2px 4px rgba(0, 123, 255, 0.3));
+        filter: drop-shadow(0 2px 4px rgba($color-primary, 0.5));
       }
       
       &.success {
-        filter: drop-shadow(0 2px 4px rgba(40, 167, 69, 0.3));
+        filter: drop-shadow(0 2px 4px rgba($color-primary, 0.5));
       }
     }
 
@@ -77,10 +77,10 @@
     .back-button,
     .action-button {
       border: none;
-      padding: $padding-small $padding-large;
+      padding: $spacing-md $spacing-lg;
       font-size: 16px;
       font-weight: 500;
-      border-radius: $border-radius-small;
+      border-radius: $border-radius-medium;
       cursor: pointer;
       transition: $transition-default;
       box-shadow: 0 2px 4px $shadow-medium;
@@ -88,7 +88,7 @@
 
       &:focus {
         outline: none;
-        box-shadow: 0 2px 4px $shadow-medium, 0 0 0 3px rgba(76, 175, 80, 0.3);
+        box-shadow: 0 2px 4px $shadow-medium, 0 0 0 3px rgba($color-primary, 0.3);
       }
 
       &:active {
@@ -99,8 +99,8 @@
 
     .back-button,
     .action-button.secondary {
-      background: $button-primary;
-      color: $text-primary;
+      background: $color-primary;
+      color: $color-text-light;
 
       &:hover {
         background: $button-primary-hover;
@@ -110,17 +110,17 @@
     }
 
     .action-button.primary {
-      background: #007bff;
-      color: white;
+      background: $color-tertiary;
+      color: $color-text-light;
 
       &:hover {
-        background: #0056b3;
+        background: #34495e;
         transform: translateY(-2px);
-        box-shadow: 0 4px 8px rgba(0, 123, 255, 0.3);
+        box-shadow: 0 4px 8px rgba($color-tertiary, 0.3);
       }
 
       &:focus {
-        box-shadow: 0 2px 4px $shadow-medium, 0 0 0 3px rgba(0, 123, 255, 0.3);
+        box-shadow: 0 2px 4px $shadow-medium, 0 0 0 3px rgba($color-tertiary, 0.3);
       }
     }
   }

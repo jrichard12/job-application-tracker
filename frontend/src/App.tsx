@@ -4,6 +4,7 @@ import Main from "./pages/Main/Main"
 import Applications from "./pages/Applications/Applications";
 import CustomAppBar from "./components/AppBar/AppBar";
 import Archives from "./pages/Archives/Archives";
+import Dashboard from "./pages/Dashboard/Dashboard";
 import Login from "./pages/Login/Login";
 import { type UserInfo } from "./types/UserInfo";
 import { useState, useEffect } from "react";
@@ -42,7 +43,7 @@ function App() {
         <Route path="/login" element={<Login userInfo={userInfo} updateUser={handleUpdateUserInfo} />} />
         <Route path="/applications" element={<ProtectedRoute><Applications userInfo={userInfo} updateUser={handleUpdateUserInfo} /></ProtectedRoute>} />
         <Route path="/archives" element={<ProtectedRoute><Archives userInfo={userInfo} updateUser={handleUpdateUserInfo}  /></ProtectedRoute>} />
-        <Route path="/dashboard" element={<ProtectedRoute><Main userInfo={userInfo} updateUser={handleUpdateUserInfo} /></ProtectedRoute>} />
+        <Route path="/dashboard" element={<ProtectedRoute><Dashboard userInfo={userInfo} updateUser={handleUpdateUserInfo} /></ProtectedRoute>} />
       </Routes>
     </BrowserRouter>
   );

@@ -156,6 +156,7 @@ function Login({ userInfo, updateUser }: LoginProps) {
             updateUser({
                 id: data.id,
                 email: data.email,
+                sendNotifications: data.sendNotifications,
                 jobApps: data.jobApps
             } as UserInfo);
             console.log("User jobs fetched successfully:", data.jobApps);

@@ -2,7 +2,7 @@
 @use '../../variables' as *;
 
 .MuiDialog-paper {
-  border-radius: 18px;
+  border-radius: $border-radius-xlarge;
   box-shadow: 0 4px 32px 0 rgba($color-primary, 0.13);
   background: $color-background;
 }
@@ -21,8 +21,8 @@
 }
 
 .MuiDialogActions-root {
-  padding: 1em 1.5em;
-  gap: 1em;
+  padding: $spacing-md $spacing-lg;
+  gap: $spacing-md;
 }
 
 .MuiFormControl-root {
@@ -32,18 +32,18 @@
     font-weight: 500;
   }
   .MuiInputBase-root {
-    background: #fff;
+    background: $color-background-light;
     border-radius: 6px;
-    padding-left: 0.5em;
+    padding-left: $spacing-sm;
   }
 }
 
 .MuiTextField-root {
   margin-bottom: 0;
   .MuiInputBase-root {
-    background: #fff;
+    background: $color-background-light;
     border-radius: 6px;
-    padding-left: 0.5em;
+    padding-left: $spacing-sm;
   }
 }
 .MuiChip-root {
@@ -60,20 +60,39 @@
   }
 }
 
-.MuiButton-contained {
-  background: $color-primary;
-  color: $color-background;
-  font-weight: 600;
-  border-radius: 6px;
-  box-shadow: 0 2px 8px 0 rgba($color-primary, 0.10);
-  &:hover, &:focus {
-    background: color.scale($color-primary, $lightness: -8%);
-    box-shadow: 0 4px 16px 0 rgba($color-primary, 0.18);
-  }
-}
-
+// All button variants styling
 .MuiButton-root {
   text-transform: none;
   font-size: 1rem;
   letter-spacing: 0.2px;
+  border-radius: 6px;
+  font-weight: 600;
+}
+
+.MuiButton-contained {
+  background: $color-primary !important;
+  color: $color-background !important;
+  box-shadow: 0 2px 8px 0 rgba($color-primary, 0.10);
+  &:hover, &:focus {
+    background: #e6830a !important; // Darker orange manually calculated
+    box-shadow: 0 4px 16px 0 rgba($color-primary, 0.18);
+  }
+}
+
+.MuiButton-outlined {
+  border-color: $color-primary !important;
+  color: $color-primary !important;
+  &:hover, &:focus {
+    background: rgba($color-primary, 0.08) !important;
+    border-color: #e6830a !important;
+    color: #e6830a !important;
+  }
+}
+
+.MuiButton-text {
+  color: $color-tertiary !important;
+  &:hover, &:focus {
+    background: rgba($color-tertiary, 0.08) !important;
+    color: $color-primary !important;
+  }
 }

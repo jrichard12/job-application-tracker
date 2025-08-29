@@ -1,0 +1,335 @@
+@use "sass:color";
+@use "../../variables" as *;
+
+.dashboard {
+  margin: 1.5rem auto;
+  background: transparent;
+  max-width: 1200px;
+  min-height: 70vh;
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+
+  .dashboard-content {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+    width: 100%;
+  }
+
+  .dashboard-header {
+    background: $color-background-light;
+    border-radius: $border-radius-xlarge;
+    box-shadow: $shadow-medium;
+
+    .header-toolbar {
+      border-radius: $border-radius-xlarge;
+      width: 100%;
+      box-shadow: $shadow-gradient;
+      background: $gradient-primary;
+      color: $color-text-white;
+      padding: 0 $spacing-xxl;
+      font-size: 1.2rem;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      height: 72px;
+      box-sizing: border-box;
+
+      .page-title {
+        color: $color-text-white !important;
+
+        .MuiTypography-root {
+          color: $color-text-white !important;
+        }
+      }
+    }
+  }
+
+  .stats-section {
+    .section-title {
+      font-family: $font-family;
+      font-weight: 600;
+      color: $color-text;
+      margin-bottom: 1.5rem;
+      text-align: left;
+    }
+
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: $spacing-lg;
+      margin-bottom: $spacing-md;
+
+      .stat-card {
+        border-radius: $border-radius-large;
+        background: $color-background-light;
+        transition: all 0.3s ease;
+        border: 2px solid transparent;
+
+        &:hover {
+          transform: translateY(-2px);
+          box-shadow: $shadow-heavy;
+        }
+
+        &--primary {
+          border-left: 6px solid $color-primary;
+
+          .stat-value {
+            color: $color-primary;
+          }
+        }
+
+        &--secondary {
+          border-left: 6px solid $color-secondary;
+
+          .stat-value {
+            color: #b3b337; // Darker yellow manually calculated
+          }
+        }
+
+        &--tertiary {
+          border-left: 6px solid $color-tertiary;
+
+          .stat-value {
+            color: $color-tertiary;
+          }
+        }
+
+        &--success {
+          border-left: 6px solid $color-success;
+
+          .stat-value {
+            color: $color-success;
+          }
+        }
+
+        &--error {
+          border-left: 6px solid $color-error;
+
+          .stat-value {
+            color: $color-error;
+          }
+        }
+
+        .stat-content {
+          text-align: center;
+          padding: $spacing-xl $spacing-lg;
+
+          .stat-value {
+            font-family: $font-family;
+            font-weight: 700;
+            margin-bottom: $spacing-sm;
+          }
+
+          .stat-title {
+            font-family: $font-family;
+            color: $color-text;
+            font-weight: 500;
+            text-transform: uppercase;
+            font-size: 0.875rem;
+            letter-spacing: 0.5px;
+          }
+        }
+      }
+    }
+  }
+
+  .profile-section {
+    background: $color-background-light;
+    border-radius: $border-radius-large;
+    box-shadow: $shadow-medium;
+    padding: $spacing-xl;
+
+    .section-title {
+      font-family: $font-family;
+      font-weight: 600;
+      color: $color-text;
+      margin-bottom: $spacing-xl;
+      text-align: left;
+      border-bottom: 2px solid $color-background;
+      padding-bottom: $spacing-sm;
+    }
+
+    .profile-content {
+      display: flex;
+      flex-direction: column;
+      gap: $spacing-lg;
+
+      .user-info {
+        display: flex;
+        align-items: center;
+        gap: $spacing-md;
+        padding: $spacing-md;
+        background: $color-light-gray; // Using predefined light gray
+        border-radius: $border-radius-medium;
+        border-left: 4px solid $color-primary;
+
+        .info-label {
+          font-family: $font-family;
+          font-weight: 600;
+          color: $color-text;
+          min-width: 120px;
+        }
+
+        .info-value {
+          font-family: $font-family;
+          color: $color-text;
+          background: $color-background-light;
+          padding: $spacing-sm $spacing-md;
+          border-radius: $border-radius-small;
+          border: 1px solid $color-border;
+        }
+      }
+
+      .notification-settings {
+        padding: $spacing-lg;
+        background: $color-light-gray; // Using predefined light gray
+        border-radius: $border-radius-medium;
+        border-left: 4px solid $color-secondary;
+
+        .settings-title {
+          font-family: $font-family;
+          font-weight: 600;
+          color: $color-text;
+          margin-bottom: $spacing-md;
+        }
+
+        .notification-control {
+          .MuiFormControlLabel-label {
+            font-family: $font-family;
+            color: $color-text;
+            font-size: 1rem;
+          }
+
+          .notification-checkbox {
+            &.Mui-checked {
+              color: $color-primary;
+            }
+          }
+        }
+      }
+
+      .save-section {
+        display: flex;
+        justify-content: center;
+        padding-top: $spacing-md;
+
+        .save-button {
+          background: $gradient-primary;
+          color: $color-text-white;
+          font-family: $font-family;
+          font-weight: 600;
+          border-radius: $border-radius-medium;
+          padding: 0.75rem $spacing-xl;
+          box-shadow: $shadow-gradient;
+          transition: all 0.3s ease;
+          text-transform: none;
+          font-size: 1.1rem;
+
+          &:hover {
+            background: $gradient-header;
+            box-shadow: 0 6px 20px rgba($color-primary, 0.4);
+            transform: translateY(-2px);
+          }
+
+          &:active {
+            transform: translateY(0);
+          }
+        }
+      }
+    }
+  }
+}
+
+// Responsive design
+@media (max-width: 768px) {
+  .dashboard {
+    margin: $spacing-md;
+    padding: $spacing-sm;
+
+    .dashboard-header {
+      .header-toolbar {
+        padding: 0 $spacing-lg;
+        height: 60px;
+
+        .page-title {
+          font-size: 1.5rem;
+        }
+      }
+    }
+
+    .stats-section {
+      .stats-grid {
+        grid-template-columns: 1fr;
+        gap: $spacing-md;
+
+        .stat-card {
+          .stat-content {
+            padding: $spacing-lg $spacing-md;
+
+            .stat-value {
+              font-size: 2rem;
+            }
+          }
+        }
+      }
+    }
+
+    .profile-section {
+      padding: $spacing-lg;
+
+      .profile-content {
+        .user-info {
+          flex-direction: column;
+          align-items: flex-start;
+          gap: $spacing-sm;
+
+          .info-label {
+            min-width: auto;
+          }
+
+          .info-value {
+            width: 100%;
+            box-sizing: border-box;
+          }
+        }
+
+        .notification-settings {
+          padding: $spacing-md;
+        }
+      }
+    }
+  }
+}
+
+@media (max-width: 480px) {
+  .dashboard {
+    .dashboard-header {
+      .header-toolbar {
+        padding: 0 1rem;
+
+        .page-title {
+          font-size: 1.25rem;
+        }
+      }
+    }
+
+    .stats-section {
+      .stats-grid {
+        .stat-card {
+          .stat-content {
+            .stat-value {
+              font-size: 1.75rem;
+            }
+
+            .stat-title {
+              font-size: 0.75rem;
+            }
+          }
+        }
+      }
+    }
+  }
+}

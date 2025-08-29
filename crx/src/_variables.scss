@@ -1,38 +1,70 @@
-// Theme Colors
-$gradient-start: #667eea;
-$gradient-end: #764ba2;
-$button-primary: #4CAF50;
-$button-primary-hover: #45a049;
-$text-white: white;
-$text-dark: #333;
+// Primary Color Palette - Orange/Yellow Theme
+$color-primary: #ff930f;
+$color-secondary: #fff95b;
+$color-tertiary: #2c3e50;
+$color-accent: #e74c3c;
 
 // Background Colors
-$background-primary: linear-gradient(135deg, $gradient-start 0%, $gradient-end 100%);
+$color-background: #ffffff;
+$color-background-light: #f8f9fa;
+$color-background-dark: #2c3e50;
+
+// Text Colors
+$color-text-primary: #2c3e50;
+$color-text-secondary: #6c757d;
+$color-text-light: #ffffff;
+$color-text-muted: #adb5bd;
+
+// Gradient Definitions
+$gradient-primary: linear-gradient(135deg, $color-primary 0%, $color-secondary 100%);
+$gradient-secondary: linear-gradient(135deg, $color-secondary 0%, $color-primary 100%);
+$gradient-dark: linear-gradient(135deg, $color-tertiary 0%, #34495e 100%);
+
+// Legacy variables for backward compatibility
+$gradient-start: $color-primary;
+$gradient-end: $color-secondary;
+$button-primary: $color-primary;
+$button-primary-hover: #e6830a;
+$text-white: $color-text-light;
+$text-dark: $color-text-primary;
+
+// Background Colors
+$background-primary: $gradient-primary;
 $background-input: rgba(255, 255, 255, 0.9);
 $background-input-hover: rgba(255, 255, 255, 0.1);
 
 // Text Colors
-$text-primary: white;
+$text-primary: $color-text-light;
 $text-secondary: rgba(255, 255, 255, 0.8);
-$text-input: #333;
+$text-input: $color-text-primary;
 
 // Shadow Colors
-$shadow-light: rgba(0, 0, 0, 0.1);
-$shadow-medium: rgba(0, 0, 0, 0.2);
-$shadow-strong: rgba(0, 0, 0, 0.3);
+$shadow-light: rgba($color-primary, 0.1);
+$shadow-medium: rgba($color-primary, 0.2);
+$shadow-strong: rgba($color-primary, 0.3);
 
 // Border Colors
 $border-light: rgba(255, 255, 255, 0.3);
 $border-medium: rgba(255, 255, 255, 0.5);
 
 // Spacing
-$padding-small: 12px;
-$padding-medium: 20px;
-$padding-large: 24px;
+$spacing-xs: 4px;
+$spacing-sm: 8px;
+$spacing-md: 16px;
+$spacing-lg: 24px;
+$spacing-xl: 32px;
+
+$padding-small: $spacing-sm;
+$padding-medium: $spacing-md;
+$padding-large: $spacing-lg;
 
 // Border Radius
-$border-radius-small: 6px;
+$border-radius-small: 4px;
 $border-radius-medium: 8px;
+$border-radius-large: 12px;
+$border-radius-xlarge: 16px;
 
 // Transitions
 $transition-default: all 0.3s ease;
+$transition-fast: all 0.15s ease;
+$transition-slow: all 0.5s ease;

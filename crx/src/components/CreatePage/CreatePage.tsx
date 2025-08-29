@@ -272,7 +272,7 @@ function CreatePage({ isOpen, handleClose, handleCreateApp, initialData }: Creat
                                                     variant="outlined"
                                                     size="small"
                                                     sx={{ 
-                                                        background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                                                        background: 'linear-gradient(135deg, #ff930f 0%, #fff95b 100%)',
                                                         color: 'white',
                                                         border: 'none',
                                                         '& .MuiChip-label': {

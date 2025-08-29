@@ -1,9 +1,72 @@
-$color-primary:  #42047e;
-$color-secondary: #E8E288;
-$color-tertiary: #4F4789;
-$color-background: #A9BCD0;
-$color-text: #201335;
+@use "sass:color";
+
+// Primary color palette - Professional orange/yellow gradient theme
+$color-primary: #ff930f;           // Vibrant orange - main brand color
+$color-secondary: #fff95b;         // Bright yellow - accent color
+$color-tertiary: #2c3e50;          // Dark blue-gray - professional contrast
+$color-error: #e74c3c;             // Clean red for errors
+$color-success: #27ae60;           // Professional green for success
+$color-warning: #f39c12;           // Orange for warnings (complements gradient)
+$color-info: #3498db;              // Blue for info messages
+
+// Background colors
+$color-background: #f8f9fa;        // Light neutral background
+$color-background-gradient: linear-gradient(135deg, $color-primary 0%, $color-secondary 100%);
+$color-background-dark: #2c3e50;   // Dark background alternative
+$color-background-light: #ffffff;  // Pure white for cards
+
+// Text colors
+$color-text: #2c3e50;              // Dark blue-gray for main text (excellent readability)
+$color-text-light: #6c757d;       // Lighter gray for secondary text
+$color-text-muted: #adb5bd;       // Muted gray for tertiary text
+$color-text-white: #ffffff;       // White text for dark backgrounds
+$color-text-gradient: #495057;    // Slightly darker text for gradient backgrounds
+
+// Common colors - Enhanced for professional look
+$color-white: #ffffff;
+$color-black: #000000;
+$color-dark-gray: #343a40;         // Slightly warmer dark gray
+$color-medium-gray: #6c757d;       // Medium gray for borders and secondary elements
+$color-light-gray: #e9ecef;        // Light gray for subtle backgrounds
+$color-border: #dee2e6;            // Professional border color
+$color-disabled: #adb5bd;          // Disabled state color
+
+// Status colors (for job applications) - Updated to be more professional
+$color-status-interested: #6c757d;   // Neutral gray
+$color-status-applied: #17a2b8;      // Professional teal
+$color-status-interviewed: #007bff;   // Professional blue
+$color-status-offered: $color-warning; // Orange (matches theme)
+$color-status-accepted: $color-success; // Green
+$color-status-rejected: $color-error;    // Red
+
+// Shadow and transparency - Enhanced for depth
+$shadow-light: 0 2px 4px rgba(0, 0, 0, 0.1);
+$shadow-medium: 0 4px 12px rgba(0, 0, 0, 0.15);
+$shadow-heavy: 0 8px 25px rgba(0, 0, 0, 0.2);
+$shadow-primary: 0 4px 15px rgba($color-primary, 0.25);
+$shadow-gradient: 0 4px 15px rgba($color-primary, 0.3);
+
+// Gradient variations for different uses
+$gradient-primary: linear-gradient(135deg, $color-primary 0%, $color-secondary 100%);
+$gradient-subtle: linear-gradient(135deg, rgba($color-primary, 0.1) 0%, rgba($color-secondary, 0.1) 100%);
+$gradient-header: linear-gradient(90deg, $color-primary 0%, #e6e043 100%); // Darker yellow instead of color.scale
+
+// Typography
 $font-family: 'Space Grotesk', sans-serif;
+
+// Border radius
+$border-radius-small: 8px;
+$border-radius-medium: 12px;
+$border-radius-large: 16px;
+$border-radius-xlarge: 18px;
+
+// Spacing
+$spacing-xs: 0.25rem;
+$spacing-sm: 0.5rem;
+$spacing-md: 1rem;
+$spacing-lg: 1.5rem;
+$spacing-xl: 2rem;
+$spacing-xxl: 2.5rem;
 
 //96C9DC
 //7DCE82

@@ -59,9 +59,9 @@ export class InfrastructureStack extends cdk.Stack {
         functionName: "UserInfoHandlerLambda",
         description: "Lambda function to handle creating/fetching user data on login",
         code: lambda.Code.fromAsset(
-          path.join(__dirname, "../../backend/dist-lambdas")
+          path.join(__dirname, "../../backend/dist/userInfo")
         ),
-        handler: "userInfoHandler.handler",
+        handler: "userInfo/handler.handler",
         environment: {
           TABLE_NAME: this.jobAppTable.tableName,
           USER_POOL_ID: this.userPool.userPoolId,
@@ -81,9 +81,9 @@ export class InfrastructureStack extends cdk.Stack {
       functionName: "JobHandlerLambda",
       description: "Lambda function to handle job application CRUD operations",
       code: lambda.Code.fromAsset(
-        path.join(__dirname, "../../backend/dist-lambdas")
+        path.join(__dirname, "../../backend/dist/job")
       ),
-      handler: "jobHandler.handler",
+      handler: "job/handler.handler",
       environment: {
         TABLE_NAME: this.jobAppTable.tableName,
         USER_POOL_ID: this.userPool.userPoolId,
@@ -96,6 +96,9 @@ export class InfrastructureStack extends cdk.Stack {
       authType: lambdaUrl.FunctionUrlAuthType.NONE, // Using JWT verification in function
       // Remove CORS config to let Lambda function handle all CORS
     });
+
+    // Grant invoke permission to other lambdas
+    // Token verification is now handled locally in each Lambda
 
     // Output values for .env
     new cdk.CfnOutput(this, "UserPoolId", {
@@ -125,6 +128,8 @@ export class InfrastructureStack extends cdk.Stack {
     new cdk.CfnOutput(this, "JobHandlerLambdaUrl", {
       value: jobHandlerLambdaUrl.url,
     });
+
+    // Note: No URL output for token verification handler since it doesn't have a Lambda URL
   }
 }
 

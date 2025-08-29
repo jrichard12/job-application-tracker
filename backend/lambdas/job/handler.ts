@@ -6,74 +6,12 @@ import {
   UpdateCommandInput,
   DeleteCommand,
 } from "@aws-sdk/lib-dynamodb";
-import { CognitoJwtVerifier } from "aws-jwt-verify";
+import { verifyTokenLocally, createResponse } from "../utils/shared-utils";
 
 const client = new DynamoDBClient({});
 const docClient = DynamoDBDocumentClient.from(client);
 
 const TABLE_NAME = process.env.TABLE_NAME!;
-const USER_POOL_ID = process.env.USER_POOL_ID!;
-const CLIENT_ID = process.env.CLIENT_ID!;
-
-// Create JWT verifier
-const verifier = CognitoJwtVerifier.create({
-  userPoolId: USER_POOL_ID,
-  tokenUse: "id",
-  clientId: CLIENT_ID,
-});
-
-const verifyToken = async (authorizationHeader: string) => {
-  console.log('=== Token Verification START ===');
-  
-  if (!authorizationHeader || !authorizationHeader.startsWith('Bearer ')) {
-    console.error('Missing or invalid authorization header format');
-    throw new Error('Missing or invalid authorization header');
-  }
-
-  const token = authorizationHeader.substring(7); // Remove 'Bearer ' prefix
-  
-  try {
-    console.log('Calling verifier.verify()...');
-    const payload = await verifier.verify(token);
-    console.log('=== Token Verification END (SUCCESS) ===');
-    return payload;
-  } catch (error) {
-    console.error('=== Token Verification END (FAILED) ===');
-    console.error('Error details:', error instanceof Error ? error.message : 'Unknown error');
-    throw new Error('Invalid token');
-  }
-};
-
-const getCorsHeaders = (event: any) => {
-  const origin = event.headers?.origin;
-  
-  // Only allow specific localhost ports
-  let allowOrigin = null;
-  if (origin === 'http://localhost:5173' || origin === 'http://localhost:5174') {
-    allowOrigin = origin;
-  }
-
-  const headers = {
-    'Access-Control-Allow-Origin': allowOrigin || 'http://localhost:5173', // fallback to 5173
-    'Access-Control-Allow-Headers': 'Content-Type,Authorization',
-    'Access-Control-Allow-Methods': 'GET,POST,PUT,DELETE,OPTIONS'
-  };
-  
-  return headers;
-};
-
-const createResponse = (statusCode: number, body: any, event?: any) => {
-  return {
-    statusCode,
-    headers: event ? getCorsHeaders(event) : {
-      'Content-Type': 'application/json',
-      'Access-Control-Allow-Origin': '*',
-      'Access-Control-Allow-Headers': 'Content-Type,Authorization',
-      'Access-Control-Allow-Methods': 'GET,POST,PUT,DELETE'
-    },
-    body: JSON.stringify(body),
-  };
-};
 
 const addJob = async (body: any, tokenPayload: any, event: any) => {
   console.log('=== AddJob START ===');
@@ -224,7 +162,7 @@ export const handler = async (event: any) => {
     let tokenPayload;
     try {
       console.log('Attempting token verification...');
-      tokenPayload = await verifyToken(authHeader);
+      tokenPayload = await verifyTokenLocally(authHeader);
     } catch (error) {
       console.error('Token verification failed:', error);
       return createResponse(401, { message: 'Unauthorized' }, event);

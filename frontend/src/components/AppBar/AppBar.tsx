@@ -13,7 +13,7 @@ import "./AppBar.scss";
 function CustomAppBar() {
   const { user, setUser, demoMode, setDemoMode } = useAuth();
 
-  const pages = ['Home', 'Applications', 'Archives'];
+  const pages = ['Home', 'Dashboard', 'Applications', 'Archives'];
 
   const handleLogout = async () => {
     if (demoMode) {
@@ -37,10 +37,11 @@ function CustomAppBar() {
   };
 
   const appBarStyling = {
-    backgroundColor: 'var(--color-primary)',
+    background: 'var(--color-background-gradient)',
     width: '100%',
     left: 0,
-    right: 0
+    right: 0,
+    boxShadow: '0 4px 15px rgba(255, 147, 15, 0.25)'
   };
 
   return (
