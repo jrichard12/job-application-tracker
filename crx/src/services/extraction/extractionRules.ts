@@ -1,11 +1,13 @@
 import { ExtractionRuleSet } from './types';
 import { indeedRules } from './rules/indeed';
 import { glassdoorRules } from './rules/glassdoor';
+import { simplyhiredRules } from './rules/simplyhired';
 
 // Collection of all extraction rules from individual rule files
 export const extractionRules: ExtractionRuleSet[] = [
   indeedRules,
-  glassdoorRules
+  glassdoorRules,
+  simplyhiredRules
 ];
 
 export function getRulesForUrl(url: string): ExtractionRuleSet | null {

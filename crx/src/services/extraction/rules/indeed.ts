@@ -6,27 +6,28 @@ export const indeedRules: ExtractionRuleSet = {
   rules: [
     {
       field: 'jobTitle',
-      selector: '[data-testid="jobsearch-JobInfoHeader-title"] h1, .jobsearch-JobInfoHeader-title',
-      attribute: 'textContent'
+      selector: '[data-testid^="jobsearch-JobInfoHeader-title"]',
+      attribute: 'textContent',
+      transform: (value: string) => value.replace(/\s*-\s*job post\s*$/, '').trim()
     },
     {
       field: 'company',
-      selector: '[data-testid="inlineHeader-companyName"] a, .jobsearch-InlineCompanyRating',
+      selector: '[data-testid="inlineHeader-companyName"] a',
       attribute: 'textContent'
     },
     {
       field: 'location',
-      selector: '[data-testid="job-location"], .jobsearch-JobInfoHeader-subtitle',
+      selector: '[data-testid^="inlineHeader-companyLocation"]',
       attribute: 'textContent'
     },
     {
       field: 'salary',
-      selector: '[data-testid="job-salary"], .jobsearch-JobMetadataHeader-item',
+      selector: '[id^="salaryInfoAndJobType"]',
       attribute: 'textContent'
     },
     {
       field: 'description',
-      selector: '#jobDescriptionText, .jobsearch-jobDescriptionText',
+      selector: '[id^="jobDescriptionText"]',
       attribute: 'textContent'
     },
     {
