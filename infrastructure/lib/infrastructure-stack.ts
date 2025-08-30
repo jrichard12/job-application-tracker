@@ -1,9 +1,9 @@
 import * as cdk from "aws-cdk-lib";
-import { Construct } from "constructs";
 import * as cognito from "aws-cdk-lib/aws-cognito";
 import * as dynamodb from "aws-cdk-lib/aws-dynamodb";
 import * as lambda from "aws-cdk-lib/aws-lambda";
 import * as lambdaUrl from "aws-cdk-lib/aws-lambda";
+import { Construct } from "constructs";
 import * as path from "path";
 
 export class InfrastructureStack extends cdk.Stack {
@@ -50,14 +50,15 @@ export class InfrastructureStack extends cdk.Stack {
       removalPolicy: cdk.RemovalPolicy.DESTROY, // switch to .RETAIN later. This destroys table on cdk destroy
     });
 
-    // LAMBDA
+    // USER HANDLER LAMBDA
     this.userInfoHandlerLambda = new lambda.Function(
       this,
       "UserInfoHandlerLambda",
       {
         runtime: lambda.Runtime.NODEJS_22_X,
         functionName: "UserInfoHandlerLambda",
-        description: "Lambda function to handle creating/fetching user data on login",
+        description:
+          "Lambda function to handle creating/fetching user data on login",
         code: lambda.Code.fromAsset(
           path.join(__dirname, "../../backend/dist/userInfo")
         ),
@@ -73,9 +74,9 @@ export class InfrastructureStack extends cdk.Stack {
 
     const userInfoHandlerLambdaUrl = this.userInfoHandlerLambda.addFunctionUrl({
       authType: lambdaUrl.FunctionUrlAuthType.NONE, // Using JWT verification in function
-      // Remove CORS config to let Lambda function handle all CORS
     });
 
+    // JOB HANDLER LAMBDA
     this.jobHandlerLambda = new lambda.Function(this, "JobHandlerLambda", {
       runtime: lambda.Runtime.NODEJS_22_X,
       functionName: "JobHandlerLambda",
@@ -94,13 +95,9 @@ export class InfrastructureStack extends cdk.Stack {
 
     const jobHandlerLambdaUrl = this.jobHandlerLambda.addFunctionUrl({
       authType: lambdaUrl.FunctionUrlAuthType.NONE, // Using JWT verification in function
-      // Remove CORS config to let Lambda function handle all CORS
     });
 
-    // Grant invoke permission to other lambdas
-    // Token verification is now handled locally in each Lambda
-
-    // Output values for .env
+    // Output values
     new cdk.CfnOutput(this, "UserPoolId", {
       value: this.userPool.userPoolId,
     });
@@ -128,9 +125,5 @@ export class InfrastructureStack extends cdk.Stack {
     new cdk.CfnOutput(this, "JobHandlerLambdaUrl", {
       value: jobHandlerLambdaUrl.url,
     });
-
-    // Note: No URL output for token verification handler since it doesn't have a Lambda URL
   }
 }
-
-export class InfraStack extends cdk.Stack {}

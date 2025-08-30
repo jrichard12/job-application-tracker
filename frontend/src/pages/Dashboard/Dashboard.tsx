@@ -99,7 +99,7 @@ export function Dashboard({ userInfo, updateUser }: DashboardProps) {
     // Stats
     const stats = userInfo?.stats || {
         totalJobsApplied: userInfo?.jobApps?.filter(job => job.dateApplied !== null).length || 0,
-        totalInterviews: userInfo?.jobApps?.filter(job => job.interviewed === true).length || 0,
+        totalInterviews: userInfo?.jobApps?.filter(job => job.jobStatus === 'Interviewed' || job.jobStatus === 'Offered').length || 0,
         totalRejections: userInfo?.jobApps?.filter(job => job.jobStatus === 'Rejected').length || 0,
         totalOffers: userInfo?.jobApps?.filter(job => job.jobStatus === 'Offered' || job.jobStatus === 'Accepted').length || 0,
         responseRate: 0,
