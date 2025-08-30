@@ -1,10 +1,9 @@
-import { useContext, createContext } from "react";
 import {
   AuthenticationDetails,
   CognitoUser,
   CognitoUserPool,
 } from "amazon-cognito-identity-js";
-import { COGNITO_CONFIG } from "../config/congitoConfig";
+import { createContext, useContext } from "react";
 import { type User } from "../types/User";
 import { ExtensionCommunicator } from "./extensionCommunicator";
 
@@ -16,8 +15,8 @@ interface AuthContextType {
 }
 
 const poolData = {
-  UserPoolId: COGNITO_CONFIG.UserPoolId,
-  ClientId: COGNITO_CONFIG.ClientId,
+  UserPoolId: import.meta.env.VITE_COGNITO_USER_POOL_ID,
+  ClientId: import.meta.env.VITE_COGNITO_CLIENT_ID,
 };
 
 export const userPool = new CognitoUserPool(poolData);
@@ -79,10 +78,7 @@ export function loginUser(
 }
 
 export function logoutUser() {
-  const userPool = new CognitoUserPool({
-    UserPoolId: COGNITO_CONFIG.UserPoolId,
-    ClientId: COGNITO_CONFIG.ClientId,
-  });
+  const userPool = new CognitoUserPool(poolData);
   const user = userPool.getCurrentUser();
   if (user) {
     user.signOut();

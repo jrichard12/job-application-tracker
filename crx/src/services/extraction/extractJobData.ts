@@ -65,7 +65,7 @@ function extractSkillsFromText(description: string): string[] {
   const skills: string[] = [];
   const skillPatterns = [
     // Common programming languages
-    /\b(JavaScript|TypeScript|Python|Java|C\+\+|C#|PHP|Ruby|Go|Rust|Kotlin|Swift|C|R)\b/gi,
+    /\b(JavaScript|TypeScript|Python|Java|C\+\+|C#|PHP|Ruby|Rust|Kotlin|Swift|Go(?![a-z])|C(?![#\+a-z])|R(?![a-z]))\b/gi,
     // Frameworks and libraries
     /\b(React|Angular|Vue|Node\.js|Express|Django|Flask|Spring|Laravel|Rails|Next\.js|\.NET)\b/gi,
     // UI
@@ -77,7 +77,7 @@ function extractSkillsFromText(description: string): string[] {
     // Cloud platforms
     /\b(AWS|Azure|Google Cloud|GCP|Docker|Kubernetes)\b/gi,
     // Tools and methodologies
-    /\b(Git|GitHub|GitLab|Jira|Agile|Scrum|CI\/CD|DevOps|Terraform|CDK)\b/gi
+    /\b(Git|GitHub|GitLab|Jira|Agile|Scrum|CI\/CD|DevOps|Terraform|CDK|CloudFormation)\b/gi
   ];
 
   skillPatterns.forEach(pattern => {

@@ -1,8 +1,8 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { useState, useEffect, type ReactNode } from 'react';
-import { userPool, AuthContext } from './services/authService';
-import { type User } from './types/User';
+import { useEffect, useState, type ReactNode } from 'react';
+import { AuthContext, userPool } from './services/authService';
 import { ExtensionCommunicator } from './services/extensionCommunicator';
+import { type User } from './types/User';
 
 interface AuthProviderProps {
     children: ReactNode;
@@ -32,7 +32,6 @@ const sendTokensToExtension = async (user: User, session?: any) => {
 export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     const [user, setUser] = useState<User | null>(null);
     const [demoMode, setDemoMode] = useState(() => {
-        // Check localStorage for demo mode state on initialization
         return localStorage.getItem('demoMode') === 'true';
     });
     const [checkingSession, setCheckingSession] = useState(true);
@@ -83,7 +82,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     // Watch for user logout and clear extension tokens
     useEffect(() => {
         if (user === null && !demoMode && !checkingSession) {
-            // User has been logged out, clear extension tokens
             try {
                 ExtensionCommunicator.clearExtensionTokens();
                 console.log('Extension tokens cleared on logout');

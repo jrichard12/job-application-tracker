@@ -1,18 +1,19 @@
-import { useEffect, useState } from "react";
-import JobAppList from "../../components/JobAppList/JobAppList";
-import JobDetails from "../../components/JobDetails/JobDetails";
-import JobAppsListView from "../../components/JobAppsListView/JobAppsListView";
-import type { JobApp } from "../../types/JobApp";
-import "./Applications.scss";
-import { Paper, Typography, IconButton, Tooltip } from "@mui/material";
 import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
+import SyncIcon from '@mui/icons-material/Sync';
 import ViewListIcon from '@mui/icons-material/ViewList';
 import ViewModuleIcon from '@mui/icons-material/ViewModule';
-import SyncIcon from '@mui/icons-material/Sync';
+import { IconButton, Paper, Tooltip, Typography } from "@mui/material";
+import { useEffect, useState } from "react";
+import SnackbarAlert from '../../components/SnackbarAlert/SnackbarAlert';
+import { getDemoUserJobs } from '../../services/demoUserService';
 import CreateAppModal from "../../components/CreateAppModal/CreateAppModal";
+import JobAppList from "../../components/JobAppList/JobAppList";
+import JobAppsListView from "../../components/JobAppsListView/JobAppsListView";
+import JobDetails from "../../components/JobDetails/JobDetails";
 import { useAuth } from "../../services/authService";
+import type { JobApp } from "../../types/JobApp";
 import { type UserInfo } from "../../types/UserInfo";
-
+import "./Applications.scss";
 
 interface ApplicationsProps {
     userInfo: UserInfo | null;
@@ -25,8 +26,24 @@ function Applications({ userInfo, updateUser }: ApplicationsProps) {
     const [createModalOpen, setCreateModalOpen] = useState<boolean>(false);
     const [jobs, setJobs] = useState<JobApp[]>([]);
     const [isListView, setIsListView] = useState<boolean>(false);
+
     const { user, demoMode } = useAuth();
-    const jobHandlerUrl = demoMode ? "demoUrl" : import.meta.env.VITE_JOB_HANDLER_URL;
+    const jobHandlerUrl = import.meta.env.VITE_JOB_HANDLER_URL;
+
+    const [snackbar, setSnackbar] = useState<{ open: boolean; message: string; severity: 'success' | 'error' | 'info' | 'warning' }>({
+        open: false,
+        message: '',
+        severity: 'success'
+    });
+
+    const showSnackbar = (message: string, severity: 'success' | 'error' | 'info' | 'warning' = 'info') => {
+        setSnackbar({ open: true, message, severity });
+    }
+
+    const handleSnackbarClose = (_event?: React.SyntheticEvent | Event, reason?: string) => {
+        if (reason === 'clickaway') return;
+        setSnackbar(prev => ({ ...prev, open: false }));
+    }
 
     useEffect(() => {
         const activeJobs: JobApp[] = userInfo?.jobApps?.filter(job => !job.isArchived) || [];
@@ -83,7 +100,18 @@ function Applications({ userInfo, updateUser }: ApplicationsProps) {
 
     async function handleRefreshJobs(event: React.MouseEvent<HTMLButtonElement, MouseEvent>): Promise<void> {
         event.preventDefault();
-        if (!userInfo || demoMode) return;
+        if (!userInfo) return;
+
+        if (demoMode) {
+            const loaded = getDemoUserJobs();
+            updateUser({ ...userInfo, jobApps: loaded });
+            const activeJobs = loaded.filter(job => !job.isArchived);
+            setJobs([...activeJobs]);
+            setCurrentJobDetails(undefined);
+            showSnackbar('Demo data reset', 'success');
+            return;
+        }
+
         try {
             const response = await fetch(`${jobHandlerUrl}?userId=${user?.id}`, {
                 method: "GET",
@@ -99,10 +127,11 @@ function Applications({ userInfo, updateUser }: ApplicationsProps) {
             const activeJobs = jobsData.filter(job => !job.isArchived);
             setJobs([...activeJobs]);
             setCurrentJobDetails(undefined);
-            // Optionally update userInfo with the latest jobs
             updateUser({ ...userInfo, jobApps: jobsData });
+            showSnackbar('Jobs refreshed', 'success');
         } catch (error) {
             console.error("Error refreshing job applications:", error);
+            showSnackbar('Failed to refresh jobs', 'error');
         }
     }
 
@@ -175,6 +204,7 @@ function Applications({ userInfo, updateUser }: ApplicationsProps) {
                     )}
                 </div>
             </Paper>
+            <SnackbarAlert open={snackbar.open} message={snackbar.message} severity={snackbar.severity} onClose={handleSnackbarClose} />
         </div>
     );
 }

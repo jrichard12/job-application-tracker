@@ -1,15 +1,14 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { Card, CardContent, Typography, TextField, Button } from "@mui/material";
-import { loginUser } from "../../services/authService";
+import { Button, Card, CardContent, CircularProgress, TextField, Typography } from "@mui/material";
+import type { CognitoUser } from "amazon-cognito-identity-js";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { useAuth } from "../../services/authService";
-import "./Login.scss";
-import type { CognitoUser } from "amazon-cognito-identity-js";
-import { type UserInfo } from "../../types/UserInfo";
-import type { JobApp } from "../../types/JobApp";
+import { loginUser, useAuth } from "../../services/authService";
 import { getDemoUserJobs } from "../../services/demoUserService";
 import { ExtensionCommunicator } from "../../services/extensionCommunicator";
+import type { JobApp } from "../../types/JobApp";
+import { type UserInfo } from "../../types/UserInfo";
+import "./Login.scss";
 
 interface LoginProps {
     userInfo: UserInfo | null;
@@ -20,29 +19,16 @@ interface LoginProps {
 function Login({ userInfo, updateUser }: LoginProps) {
     const [username, setUsername] = useState("");
     const [password, setPassword] = useState("");
-    const handleDemoLogin = async () => {
-        setDemoMode(true);
-        const result = await loginUser(username, password, handleNewPasswordRequired, true);
-        console.log("Login successful:", result);
-        const authToken = result.authToken;
-        const id = result.userId;
-        const loadedJobApps: JobApp[] = getDemoUserJobs();
-        setUser({ username, authToken, id });
-        updateUser({
-            id: id,
-            email: username,
-            jobApps: loadedJobApps
-        } as UserInfo);
-        console.log("Demo user login activated");
-        navigate("/applications");
-    };
     const [newPasswordRequired, setNewPasswordRequired] = useState(false);
     const [newPassword, setNewPassword] = useState("");
     const [confirmPassword, setConfirmPassword] = useState("");
-    const [cognitoUser, setCognitoUser] = useState<CognitoUser | null>(null);
+
     const [error, setError] = useState("");
-    const navigate = useNavigate();
+    const [loading, setLoading] = useState(false);
+
+    const [cognitoUser, setCognitoUser] = useState<CognitoUser | null>(null);
     const { user, setUser, setDemoMode } = useAuth();
+    const navigate = useNavigate();
     const userInfoHandlerUrl = import.meta.env.VITE_USER_INFO_URL;
 
     const handleNewPasswordRequired = (user: CognitoUser) => {
@@ -53,17 +39,23 @@ function Login({ userInfo, updateUser }: LoginProps) {
     const handleSubmitNewPassword = async (e: React.FormEvent) => {
         e.preventDefault();
         setError("");
+        setLoading(true);
 
         if (!newPassword || !confirmPassword) {
             setError("Please enter and confirm your new password.");
+            setLoading(false);
             return;
         }
         if (newPassword !== confirmPassword) {
             setError("Passwords do not match.");
+            setLoading(false);
             return;
         }
 
-        if (!cognitoUser) return;
+        if (!cognitoUser) {
+            setLoading(false);
+            return;
+        }
 
         cognitoUser.completeNewPasswordChallenge(newPassword, {}, {
             onSuccess: async (result) => {
@@ -73,7 +65,7 @@ function Login({ userInfo, updateUser }: LoginProps) {
                 const id = result.getIdToken().payload.sub;
                 const userData = { username, authToken, id };
                 setUser(userData);
-                
+
                 try {
                     console.log('[Login] Attempting to send tokens to extension...');
                     await ExtensionCommunicator.sendTokensToExtension({
@@ -85,11 +77,13 @@ function Login({ userInfo, updateUser }: LoginProps) {
                 } catch (error) {
                     console.log('[Login] Extension not available or error sending tokens:', error);
                 }
-                
+
                 await getUserInfo(username, id, authToken);
+                setLoading(false);
                 navigate("/applications");
             },
             onFailure: (err) => {
+                setLoading(false);
                 alert(err.message || JSON.stringify(err));
             },
         });
@@ -98,6 +92,7 @@ function Login({ userInfo, updateUser }: LoginProps) {
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setError("");
+        setLoading(true);
 
         try {
             console.log("Attempting to login with username:", username);
@@ -107,7 +102,7 @@ function Login({ userInfo, updateUser }: LoginProps) {
             const id = result.userId;
             const userData = { username, authToken, id };
             setUser(userData);
-            
+
             // Send tokens to extension after successful login
             try {
                 console.log('[Login] Attempting to send tokens to extension...');
@@ -120,12 +115,38 @@ function Login({ userInfo, updateUser }: LoginProps) {
             } catch (error) {
                 console.log('[Login] Extension not available or error sending tokens:', error);
             }
-            
+
             await getUserInfo(username, id, authToken);
             console.log(`Login successful, ${userInfo?.createdAt} with ID ${userInfo?.id} authenticated successfully. ${userInfo?.jobApps}`);
             navigate("/applications");
         } catch (err: any) {
             setError(err.message || "Login failed");
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const handleDemoLogin = async () => {
+        setLoading(true);
+        setDemoMode(true);
+        try {
+            const result = await loginUser(username, password, handleNewPasswordRequired, true);
+            console.log("Login successful:", result);
+            const authToken = result.authToken;
+            const id = result.userId;
+            const loadedJobApps: JobApp[] = getDemoUserJobs();
+            setUser({ username, authToken, id });
+            updateUser({
+                id: id,
+                email: username,
+                jobApps: loadedJobApps
+            } as UserInfo);
+            console.log("Demo user login activated");
+            navigate("/applications");
+        } catch (err: any) {
+            setError(err.message || "Demo login failed");
+        } finally {
+            setLoading(false);
         }
     };
 
@@ -167,70 +188,80 @@ function Login({ userInfo, updateUser }: LoginProps) {
 
     return (
         <>
-            <Card className="login">
-                <CardContent>
-                    <Typography variant="h5" component="div">
-                        Login
-                    </Typography>
-                    <form onSubmit={newPasswordRequired ? handleSubmitNewPassword : handleSubmit}>
-                        <TextField
-                            label="Email"
-                            variant="outlined"
-                            fullWidth
-                            margin="normal"
-                            required
-                            onChange={(e) => setUsername(e.target.value)}
-                            disabled={newPasswordRequired}
-                            value={username}
-                        />
-                        <TextField
-                            label={newPasswordRequired ? "New Password" : "Password"}
-                            type="password"
-                            variant="outlined"
-                            fullWidth
-                            margin="normal"
-                            required
-                            onChange={newPasswordRequired ? (e) => setNewPassword(e.target.value) : (e) => setPassword(e.target.value)}
-                            value={newPasswordRequired ? newPassword : password}
-                        />
-                        {newPasswordRequired && (
-                            <TextField
-                                label="Confirm New Password"
-                                type="password"
-                                variant="outlined"
-                                fullWidth
-                                margin="normal"
-                                required
-                                onChange={(e) => setConfirmPassword(e.target.value)}
-                                value={confirmPassword}
-                            />
-                        )}
-                        <Button
-                            variant="contained"
-                            color="primary"
-                            fullWidth
-                            type="submit"
-                            style={{ marginTop: '18px' }}
+            {loading && (
+                <div className="login-loading-overlay">
+                    <div className="loading-box">
+                        <CircularProgress color="primary" />
+                        <Typography variant="h6" component="div" className="loading-text">
+                            Logging you in...
+                        </Typography>
+                    </div>
+                </div>
+            )}
+            {!loading &&
+                <>
+                    <Card className="login">
+                        <CardContent>
+                            <Typography variant="h5" component="div">
+                                Login
+                            </Typography><form onSubmit={newPasswordRequired ? handleSubmitNewPassword : handleSubmit}>
+                                <TextField
+                                    label="Email"
+                                    variant="outlined"
+                                    fullWidth
+                                    margin="normal"
+                                    required
+                                    onChange={(e) => setUsername(e.target.value)}
+                                    disabled={newPasswordRequired}
+                                    value={username} />
+                                <TextField
+                                    label={newPasswordRequired ? "New Password" : "Password"}
+                                    type="password"
+                                    variant="outlined"
+                                    fullWidth
+                                    margin="normal"
+                                    required
+                                    onChange={newPasswordRequired ? (e) => setNewPassword(e.target.value) : (e) => setPassword(e.target.value)}
+                                    value={newPasswordRequired ? newPassword : password} />
+                                {newPasswordRequired && (
+                                    <TextField
+                                        label="Confirm New Password"
+                                        type="password"
+                                        variant="outlined"
+                                        fullWidth
+                                        margin="normal"
+                                        required
+                                        onChange={(e) => setConfirmPassword(e.target.value)}
+                                        value={confirmPassword} />
+                                )}
+                                <Button
+                                    variant="contained"
+                                    color="primary"
+                                    fullWidth
+                                    type="submit"
+                                    style={{ marginTop: '18px' }}
+                                >
+                                    {newPasswordRequired ? "Set New Password" : "Login"}
+                                </Button>
+                                {error && (
+                                    <div style={{ color: '#d32f2f', fontSize: '0.95rem', marginTop: '12px', textAlign: 'center', fontWeight: 500 }}>
+                                        {error}
+                                    </div>
+                                )}
+                            </form>
+                        </CardContent>
+                    </Card>
+                    <div>
+                        <a
+                            href="#"
+                            style={{ color: '#432371', textDecoration: 'underline', cursor: 'pointer', fontWeight: 500 }}
+                            onClick={(e) => { e.preventDefault(); handleDemoLogin(); }}
                         >
-                            {newPasswordRequired ? "Set New Password" : "Login"}
-                        </Button>
-                        {error && (
-                            <div style={{ color: '#d32f2f', fontSize: '0.95rem', marginTop: '12px', textAlign: 'center', fontWeight: 500 }}>
-                                {error}
-                            </div>
-                        )}
-                    </form>
-                </CardContent>
-            </Card>
-            <div style={{ textAlign: 'center', marginTop: '16px' }}>
-                <a
-                    href="#"
-                    style={{ color: '#432371', textDecoration: 'underline', cursor: 'pointer', fontWeight: 500 }}
-                    onClick={(e) => { e.preventDefault(); handleDemoLogin(); }}
-                >
-                    Login as demo user
-                </a>
-            </div>
+                            Login as demo user
+                        </a>
+                    </div>
+                </>
+            }
         </>
     );
 }

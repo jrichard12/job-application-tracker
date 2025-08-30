@@ -159,7 +159,7 @@
 
       .user-info {
         display: flex;
-        align-items: center;
+        align-items: flex-center;
         gap: $spacing-md;
         padding: $spacing-md;
         background: $color-light-gray; // Using predefined light gray
@@ -170,7 +170,8 @@
           font-family: $font-family;
           font-weight: 600;
           color: $color-text;
-          min-width: 120px;
+          min-width: 90px;
+          text-align: left;
         }
 
         .info-value {
@@ -194,13 +195,18 @@
           font-weight: 600;
           color: $color-text;
           margin-bottom: $spacing-md;
+          text-align: left;
         }
 
         .notification-control {
+          display: flex;
+          justify-content: flex-start;
+
           .MuiFormControlLabel-label {
             font-family: $font-family;
             color: $color-text;
             font-size: 1rem;
+            text-align: left;
           }
 
           .notification-checkbox {

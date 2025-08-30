@@ -1,9 +1,10 @@
-import { loginUser } from "../../services/authService";
-import "./Main.scss";
-import { getDemoUserJobs } from "../../services/demoUserService";
-import { useAuth } from "../../services/authService";
 import { Button } from "@mui/material";
+import { loginUser, useAuth } from "../../services/authService";
+import { getDemoUserJobs } from "../../services/demoUserService";
 import type { UserInfo } from "../../types/UserInfo";
+import "./Main.scss";
+import { useState } from 'react';
+import SnackbarAlert from '../../components/SnackbarAlert/SnackbarAlert';
 
 interface MainProps {
     userInfo: UserInfo | null;
@@ -35,6 +36,22 @@ function Main({ userInfo, updateUser }: MainProps) {
             ...userInfo,
             jobApps: loadedJobApps
         } as UserInfo);
+        showSnackbar('Demo data reset', 'success');
+    }
+
+    const [snackbar, setSnackbar] = useState<{ open: boolean; message: string; severity: 'success' | 'error' | 'info' | 'warning' }>({
+        open: false,
+        message: '',
+        severity: 'success'
+    });
+
+    const showSnackbar = (message: string, severity: 'success' | 'error' | 'info' | 'warning' = 'info') => {
+        setSnackbar({ open: true, message, severity });
+    }
+
+    const handleSnackbarClose = (_event?: React.SyntheticEvent | Event, reason?: string) => {
+        if (reason === 'clickaway') return;
+        setSnackbar(prev => ({ ...prev, open: false }));
     }
 
     return (
@@ -66,8 +83,10 @@ function Main({ userInfo, updateUser }: MainProps) {
                     </div>
                 )
             }
+            <SnackbarAlert open={snackbar.open} message={snackbar.message} severity={snackbar.severity} onClose={handleSnackbarClose} />
         </>
     );
 }
+
 
 export default Main;

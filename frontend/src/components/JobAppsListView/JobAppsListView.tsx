@@ -1,4 +1,4 @@
-import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Chip, Typography } from "@mui/material";
+import { Chip, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Typography } from "@mui/material";
 import type { JobApp } from "../../types/JobApp";
 import { jobStatusColors } from "../../types/JobApp";
 import "./JobAppsListView.scss";
@@ -97,9 +97,21 @@ function JobAppsListView({ jobs }: JobAppsListViewProps) {
                                         </Typography>
                                     </TableCell>
                                     <TableCell className="table-cell">
-                                        <Typography className="source-text">
-                                            {job.source}
-                                        </Typography>
+                                        {job.source && (job.source.startsWith('http://') || job.source.startsWith('https://')) ? (
+                                            <Typography 
+                                                component="a" 
+                                                href={job.source} 
+                                                target="_blank" 
+                                                rel="noopener noreferrer" 
+                                                className="source-link"
+                                            >
+                                                {job.source}
+                                            </Typography>
+                                        ) : (
+                                            <Typography className="source-text">
+                                                {job.source}
+                                            </Typography>
+                                        )}
                                     </TableCell>
                                 </TableRow>
                             ))

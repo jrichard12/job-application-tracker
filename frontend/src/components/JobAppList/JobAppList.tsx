@@ -1,4 +1,4 @@
-import { Card, CardContent, List, ListItemButton, Typography, Chip } from "@mui/material";
+import { Card, CardContent, Chip, List, ListItemButton, Typography } from "@mui/material";
 import type { JobApp } from "../../types/JobApp";
 import { jobStatusColors } from "../../types/JobApp";
 import "./JobAppList.scss";

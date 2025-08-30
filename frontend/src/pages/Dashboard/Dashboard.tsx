@@ -1,5 +1,6 @@
-import { useState, useEffect } from "react";
-import { Paper, Typography, FormControlLabel, Checkbox, Button, Box, Card, CardContent } from "@mui/material";
+import { Box, Button, Card, CardContent, Checkbox, FormControlLabel, Paper, Typography } from "@mui/material";
+import { useEffect, useState } from "react";
+import SnackbarAlert from '../../components/SnackbarAlert/SnackbarAlert';
 import { useAuth } from "../../services/authService";
 import type { UserInfo } from "../../types/UserInfo";
 import "./Dashboard.scss";
@@ -9,7 +10,7 @@ interface DashboardProps {
     updateUser: (newInfo: UserInfo | null) => void;
 }
 
-function Dashboard({ userInfo, updateUser }: DashboardProps) {
+export function Dashboard({ userInfo, updateUser }: DashboardProps) {
     const [notifications, setNotifications] = useState<boolean>(false);
     const [hasChanges, setHasChanges] = useState<boolean>(false);
     const { demoMode, user } = useAuth();
@@ -26,21 +27,16 @@ function Dashboard({ userInfo, updateUser }: DashboardProps) {
         setHasChanges(newValue !== (userInfo?.sendNotifications || false));
     };
 
-    const handleSaveChanges = async () => {
-        console.log("=== handleSaveChanges called ===");
-        console.log("userInfo:", userInfo);
-        console.log("notifications value:", notifications);
-        console.log("demoMode:", demoMode);
-        
+    const handleSaveChanges = async () => {        
         if (!userInfo) return;
 
         if (demoMode) {
-            // For demo mode, just update local state
             updateUser({
                 ...userInfo,
                 sendNotifications: notifications
             });
             setHasChanges(false);
+            showSnackbar('Notification preferences updated', 'success');
             return;
         }
 
@@ -51,14 +47,6 @@ function Dashboard({ userInfo, updateUser }: DashboardProps) {
                 console.error("No auth token found");
                 return;
             }
-
-            console.log("Saving user preferences:", { sendNotifications: notifications });
-            console.log("Using URL:", userInfoHandlerUrl);
-            console.log("Auth token:", user.authToken);
-            console.log("Request payload:", {
-                userId: userInfo.id,
-                sendNotifications: notifications
-            });
 
             const response = await fetch(userInfoHandlerUrl, {
                 method: "PUT",
@@ -72,9 +60,6 @@ function Dashboard({ userInfo, updateUser }: DashboardProps) {
                 })
             });
 
-            console.log("Update response status:", response.status);
-            console.log("Update response headers:", response.headers);
-
             if (response.status !== 200) {
                 const errorText = await response.text();
                 console.error("Update failed with status:", response.status, "Error:", errorText);
@@ -84,18 +69,34 @@ function Dashboard({ userInfo, updateUser }: DashboardProps) {
             const responseData = await response.json();
             console.log("Update response data:", responseData);
 
-            console.log("User preferences updated successfully");
-
             updateUser({
                 ...userInfo,
                 sendNotifications: notifications
             });
             setHasChanges(false);
+            showSnackbar('Notification preferences updated', 'success');
         } catch (error) {
             console.error("Error saving user preferences:", error);
+            showSnackbar('Failed to update notification preferences', 'error');
         }
     };
 
+    const [snackbar, setSnackbar] = useState<{ open: boolean; message: string; severity: 'success' | 'error' | 'info' | 'warning' }>({
+        open: false,
+        message: '',
+        severity: 'success'
+    });
+
+    const showSnackbar = (message: string, severity: 'success' | 'error' | 'info' | 'warning' = 'info') => {
+        setSnackbar({ open: true, message, severity });
+    }
+
+    const handleSnackbarClose = (_event?: React.SyntheticEvent | Event, reason?: string) => {
+        if (reason === 'clickaway') return;
+        setSnackbar(prev => ({ ...prev, open: false }));
+    }
+
+    // Stats
     const stats = userInfo?.stats || {
         totalJobsApplied: userInfo?.jobApps?.filter(job => job.dateApplied !== null).length || 0,
         totalInterviews: userInfo?.jobApps?.filter(job => job.interviewed === true).length || 0,
@@ -105,7 +106,7 @@ function Dashboard({ userInfo, updateUser }: DashboardProps) {
         avgResponseTime: 0
     };
 
-    // Calculate response rate
+    // Calculated stats
     const appliedJobs = stats.totalJobsApplied;
     const respondedJobs = stats.totalInterviews + stats.totalRejections + stats.totalOffers;
     const responseRate = appliedJobs > 0 ? Math.round((respondedJobs / appliedJobs) * 100) : 0;
@@ -133,7 +134,6 @@ function Dashboard({ userInfo, updateUser }: DashboardProps) {
     return (
         <div className="dashboard">
             <div className="dashboard-content">
-                {/* Header */}
                 <Paper className="dashboard-header" elevation={24}>
                     <div className="header-toolbar">
                         <Typography variant="h4" fontFamily={"var(--font-family)"} fontWeight="bold" className="page-title">
@@ -142,7 +142,6 @@ function Dashboard({ userInfo, updateUser }: DashboardProps) {
                     </div>
                 </Paper>
 
-                {/* Stats Cards */}
                 <div className="stats-section">
                     <Typography variant="h5" className="section-title">
                         Your Statistics
@@ -163,7 +162,6 @@ function Dashboard({ userInfo, updateUser }: DashboardProps) {
                     </div>
                 </div>
 
-                {/* User Profile Section */}
                 <Paper className="profile-section" elevation={3}>
                     <Typography variant="h5" className="section-title">
                         Profile Settings
@@ -176,15 +174,6 @@ function Dashboard({ userInfo, updateUser }: DashboardProps) {
                             </Typography>
                             <Typography variant="body1" className="info-value">
                                 {userInfo.email}
-                            </Typography>
-                        </div>
-
-                        <div className="user-info">
-                            <Typography variant="h6" className="info-label">
-                                Member Since:
-                            </Typography>
-                            <Typography variant="body1" className="info-value">
-                                {userInfo.createdAt ? new Date(userInfo.createdAt).toLocaleDateString() : 'N/A'}
                             </Typography>
                         </div>
 
@@ -220,6 +209,7 @@ function Dashboard({ userInfo, updateUser }: DashboardProps) {
                     </div>
                 </Paper>
             </div>
+                <SnackbarAlert open={snackbar.open} message={snackbar.message} severity={snackbar.severity} onClose={handleSnackbarClose} />
         </div>
     );
 }

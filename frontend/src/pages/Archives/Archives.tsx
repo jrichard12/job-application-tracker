@@ -1,13 +1,13 @@
-import JobAppList from "../../components/JobAppList/JobAppList";
-import JobAppsListView from "../../components/JobAppsListView/JobAppsListView";
-import "./Archives.scss";
-import type { JobApp } from "../../types/JobApp";
-import { useState, useEffect } from "react";
-import JobDetails from "../../components/JobDetails/JobDetails";
-import { Typography, IconButton, Tooltip } from "@mui/material";
 import ViewListIcon from '@mui/icons-material/ViewList';
 import ViewModuleIcon from '@mui/icons-material/ViewModule';
+import { IconButton, Tooltip, Typography } from "@mui/material";
+import { useEffect, useState } from "react";
+import JobAppList from "../../components/JobAppList/JobAppList";
+import JobAppsListView from "../../components/JobAppsListView/JobAppsListView";
+import JobDetails from "../../components/JobDetails/JobDetails";
+import type { JobApp } from "../../types/JobApp";
 import { type UserInfo } from "../../types/UserInfo";
+import "./Archives.scss";
 
 interface ArchivesProps {
     userInfo: UserInfo | null;
@@ -27,7 +27,6 @@ function Archives({ userInfo, updateUser }: ArchivesProps) {
 
     const handleShowDetails = (job: JobApp) => {
         setCurrentJobDetails(job);
-        console.log("Showing details for job:", job);
     };
 
     return (

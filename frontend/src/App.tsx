@@ -1,13 +1,13 @@
-import { BrowserRouter, Routes, Route } from "react-router-dom";
-import ProtectedRoute from "./components/ProtectedRoute";
-import Main from "./pages/Main/Main"
-import Applications from "./pages/Applications/Applications";
+import { useEffect, useState } from "react";
+import { BrowserRouter, Route, Routes } from "react-router-dom";
 import CustomAppBar from "./components/AppBar/AppBar";
+import ProtectedRoute from "./components/ProtectedRoute";
+import Applications from "./pages/Applications/Applications";
 import Archives from "./pages/Archives/Archives";
 import Dashboard from "./pages/Dashboard/Dashboard";
 import Login from "./pages/Login/Login";
+import Main from "./pages/Main/Main";
 import { type UserInfo } from "./types/UserInfo";
-import { useState, useEffect } from "react";
 
 
 function App() {

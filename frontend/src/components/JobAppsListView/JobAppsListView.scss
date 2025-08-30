@@ -1,5 +1,5 @@
 @use "sass:color";
-@use '../../variables' as *;
+@use "../../variables" as *;
 
 .job-apps-list-view {
   width: 100%;
@@ -123,9 +123,11 @@
         .salary-text,
         .date-text,
         .deadline-text,
-        .source-text {
+        .source-text,
+        .source-link {
           color: $color-text;
-          font-size: 0.85rem;
+          font-size: 1rem;
+          font-weight: 500;
           line-height: 1.3;
         }
 
@@ -134,10 +136,15 @@
           color: rgba($color-tertiary, 0.9);
         }
 
-        .source-text {
+        .source-link {
           font-weight: 500;
           color: rgba($color-tertiary, 0.9);
-          text-transform: capitalize;
+          text-decoration: none;
+
+          &:hover {
+            color: $color-primary;
+            text-decoration: underline;
+          }
         }
       }
     }
@@ -188,6 +195,14 @@
         .deadline-text,
         .source-text {
           font-size: 0.75rem;
+        }
+
+        .source-text {
+          text-decoration: none;
+
+          &:hover {
+            text-decoration: underline;
+          }
         }
       }
 

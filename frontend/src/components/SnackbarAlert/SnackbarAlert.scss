@@ -1,0 +1,33 @@
+.snackbar-alert {
+  border-radius: 12px !important;
+  box-shadow: 0 6px 18px rgba(32, 19, 53, 0.12);
+  font-weight: 600;
+  color: #fff;
+  padding: 8px 14px;
+}
+
+.snackbar-alert--success {
+  background: linear-gradient(180deg, #4caf50 0%, #2e7d32 100%) !important;
+}
+
+.snackbar-alert--error {
+  background: linear-gradient(180deg, #ef5350 0%, #c62828 100%) !important;
+}
+
+.snackbar-alert--warning {
+  background: linear-gradient(180deg, #ffb74d 0%, #ff8f00 100%) !important;
+  color: rgba(0,0,0,0.87) !important;
+}
+
+.snackbar-alert--info {
+  background: linear-gradient(180deg, #7e57c2 0%, #5e35b1 100%) !important;
+}
+
+/* Ensure the MUI Alert's icon and close button match the color */
+.snackbar-alert .MuiAlert-icon {
+  color: rgba(255,255,255,0.95);
+}
+
+.snackbar-alert--warning .MuiAlert-icon {
+  color: rgba(0,0,0,0.9);
+}

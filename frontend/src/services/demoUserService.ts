@@ -1,5 +1,5 @@
-import type { JobApp, JobAppStatus } from "../types/JobApp";
 import jobData from "../demoData.json";
+import type { JobApp, JobAppStatus } from "../types/JobApp";
 
 export function parseJobApps(): JobApp[] {
   return jobData.map((item) => ({
@@ -14,17 +14,5 @@ export function parseJobApps(): JobApp[] {
 
 export function getDemoUserJobs(): JobApp[] {
   return parseJobApps();
-}
-
-export function addDemoJob() {
-
-}
-
-export function updateDemoJob() {
-    
-}
-
-export function deleteDemoJob() {
-    
 }
 
