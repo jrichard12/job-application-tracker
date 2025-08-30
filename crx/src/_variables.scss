@@ -1,16 +1,16 @@
-// Primary Color Palette - Orange/Yellow Theme
-$color-primary: #ff930f;
-$color-secondary: #fff95b;
-$color-tertiary: #2c3e50;
+// Primary Color Palette - Purple/Orange Theme
+$color-primary: #432371;
+$color-secondary: #FAAE7B;
+$color-tertiary: #3d4852;
 $color-accent: #e74c3c;
 
 // Background Colors
 $color-background: #ffffff;
 $color-background-light: #f8f9fa;
-$color-background-dark: #2c3e50;
+$color-background-dark: #3d4852;
 
 // Text Colors
-$color-text-primary: #2c3e50;
+$color-text-primary: #3d4852;
 $color-text-secondary: #6c757d;
 $color-text-light: #ffffff;
 $color-text-muted: #adb5bd;
@@ -18,13 +18,13 @@ $color-text-muted: #adb5bd;
 // Gradient Definitions
 $gradient-primary: linear-gradient(135deg, $color-primary 0%, $color-secondary 100%);
 $gradient-secondary: linear-gradient(135deg, $color-secondary 0%, $color-primary 100%);
-$gradient-dark: linear-gradient(135deg, $color-tertiary 0%, #34495e 100%);
+$gradient-dark: linear-gradient(135deg, $color-tertiary 0%, #4a5568 100%);
 
 // Legacy variables for backward compatibility
 $gradient-start: $color-primary;
 $gradient-end: $color-secondary;
 $button-primary: $color-primary;
-$button-primary-hover: #e6830a;
+$button-primary-hover: #5a2d8b;
 $text-white: $color-text-light;
 $text-dark: $color-text-primary;
 

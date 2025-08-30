@@ -5,6 +5,7 @@ import {
   UpdateCommand,
   UpdateCommandInput,
   DeleteCommand,
+  QueryCommand,
 } from "@aws-sdk/lib-dynamodb";
 import { verifyTokenLocally, createResponse } from "../utils/shared-utils";
 
@@ -143,6 +144,52 @@ const deleteJob = async (PK: string, SK: string, tokenPayload: any, event: any) 
   }
 };
 
+const getJobs = async (userId: string, tokenPayload: any, event: any) => {
+  console.log('=== GetJobs START ===');
+  console.log('Fetching jobs for userId:', userId);
+  
+  if (!userId) {
+    console.error('Missing userId parameter');
+    return createResponse(400, { message: "Missing userId parameter" }, event);
+  }
+
+  // Verify that the token's sub matches the requested userId
+  if (tokenPayload.sub !== userId) {
+    console.error('User ID mismatch. Token sub:', tokenPayload.sub, 'Requested userId:', userId);
+    return createResponse(403, { message: 'Forbidden: User ID mismatch' }, event);
+  }
+
+  const PK = `USER#${userId}`;
+  
+  try {
+    console.log('Querying DynamoDB for PK:', PK);
+    const params = {
+      TableName: TABLE_NAME,
+      KeyConditionExpression: 'PK = :pk AND begins_with(SK, :skPrefix)',
+      ExpressionAttributeValues: {
+        ':pk': PK,
+        ':skPrefix': 'JOB#'
+      }
+    };
+
+    const result = await docClient.send(new QueryCommand(params));
+    console.log('Query successful, found', result.Items?.length || 0, 'jobs');
+    
+    // Remove PK and SK from the response items to clean up the data
+    const jobs = result.Items?.map(item => {
+      const { PK, SK, ...jobData } = item;
+      return jobData;
+    }) || [];
+
+    console.log('=== GetJobs END (SUCCESS) ===');
+    return createResponse(200, jobs, event);
+  } catch (error) {
+    console.error('=== GetJobs END (FAILED) ===');
+    console.error('Error details:', error instanceof Error ? error.message : 'Unknown error');
+    return createResponse(500, { message: "Error fetching jobs" }, event);
+  }
+};
+
 export const handler = async (event: any) => {
   console.log('=== JobHandler START ===');
   console.log("JobHandler event:", typeof event === 'string' ? event : JSON.stringify(event, null, 2));
@@ -172,6 +219,14 @@ export const handler = async (event: any) => {
     const body = event.body ? JSON.parse(event.body) : {};
 
     switch (method) {
+      case "GET": {
+        console.log('Processing GET request (fetch jobs)');
+        // Get userId from queryStringParameters
+        const params = event.queryStringParameters || {};
+        const { userId } = params;
+        console.log('Get params - userId:', userId);
+        return await getJobs(userId, tokenPayload, event);
+      }
       case "POST":
         console.log('Processing POST request (create job)');
         return await addJob(body, tokenPayload, event);

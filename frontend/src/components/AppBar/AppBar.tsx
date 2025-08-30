@@ -41,7 +41,7 @@ function CustomAppBar() {
     width: '100%',
     left: 0,
     right: 0,
-    boxShadow: '0 4px 15px rgba(255, 147, 15, 0.25)'
+    boxShadow: '0 4px 15px rgba(67, 35, 113, 0.25)'
   };
 
   return (
@@ -74,10 +74,11 @@ function CustomAppBar() {
               to={page === 'Home' ? '/' : `/${page.toLowerCase()}`}
               sx={{ 
                 mx: 1, 
-                color: 'white', 
+                color: 'white !important', 
                 display: 'block',
                 '&:hover': {
-                  backgroundColor: 'rgba(255, 255, 255, 0.1)'
+                  backgroundColor: 'rgba(255, 255, 255, 0.1)',
+                  color: 'white !important'
                 }
               }}
             >
@@ -125,7 +126,7 @@ function CustomAppBar() {
       {demoMode && (
         <Box sx={{
           width: '100%',
-          backgroundColor: 'var(--color-demo-banner, #FFA726)',
+          backgroundColor: '#17a2b8',
           color: 'black',
           textAlign: 'center',
           py: 1,

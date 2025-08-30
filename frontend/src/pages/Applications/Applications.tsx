@@ -8,6 +8,7 @@ import { Paper, Typography, IconButton, Tooltip } from "@mui/material";
 import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
 import ViewListIcon from '@mui/icons-material/ViewList';
 import ViewModuleIcon from '@mui/icons-material/ViewModule';
+import SyncIcon from '@mui/icons-material/Sync';
 import CreateAppModal from "../../components/CreateAppModal/CreateAppModal";
 import { useAuth } from "../../services/authService";
 import { type UserInfo } from "../../types/UserInfo";
@@ -80,6 +81,31 @@ function Applications({ userInfo, updateUser }: ApplicationsProps) {
         }
     };
 
+    async function handleRefreshJobs(event: React.MouseEvent<HTMLButtonElement, MouseEvent>): Promise<void> {
+        event.preventDefault();
+        if (!userInfo || demoMode) return;
+        try {
+            const response = await fetch(`${jobHandlerUrl}?userId=${user?.id}`, {
+                method: "GET",
+                headers: {
+                    "Content-Type": "application/json",
+                    "Authorization": `Bearer ${user?.authToken}`
+                }
+            });
+            if (response.status !== 200) {
+                throw new Error("Failed to fetch job applications.");
+            }
+            const jobsData: JobApp[] = await response.json();
+            const activeJobs = jobsData.filter(job => !job.isArchived);
+            setJobs([...activeJobs]);
+            setCurrentJobDetails(undefined);
+            // Optionally update userInfo with the latest jobs
+            updateUser({ ...userInfo, jobApps: jobsData });
+        } catch (error) {
+            console.error("Error refreshing job applications:", error);
+        }
+    }
+
     return (
         <div className="applications">
             <CreateAppModal
@@ -115,6 +141,17 @@ function Applications({ userInfo, updateUser }: ApplicationsProps) {
                                 </IconButton>
                             </Tooltip>
                         </div>
+                        <div className="refresh-button-container">
+                            <Tooltip title="Refresh Jobs">
+                                <IconButton
+                                    className={`refresh-btn`}
+                                    onClick={handleRefreshJobs}
+                                    size="small"
+                                >
+                                    <SyncIcon />
+                                </IconButton>
+                            </Tooltip>
+                        </div>
                         <div className="add-app-button">
                             <button className="modern-add-btn" onClick={() => setCreateModalOpen(true)}>
                                 <AddCircleOutlineIcon fontSize="medium" style={{ marginRight: 6 }} />
@@ -129,9 +166,9 @@ function Applications({ userInfo, updateUser }: ApplicationsProps) {
                     ) : (
                         <>
                             <JobAppList jobDetailsHandler={handleShowDetails} jobs={jobs} currentJob={currentJobDetails ?? null} />
-                            <JobDetails 
-                                job={currentJobDetails ?? null} 
-                                userInfo={userInfo ?? null} 
+                            <JobDetails
+                                job={currentJobDetails ?? null}
+                                userInfo={userInfo ?? null}
                                 updateUser={updateUser ?? null}
                             />
                         </>

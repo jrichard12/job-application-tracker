@@ -74,7 +74,7 @@
   color: $color-background !important;
   box-shadow: 0 2px 8px 0 rgba($color-primary, 0.10);
   &:hover, &:focus {
-    background: #e6830a !important; // Darker orange manually calculated
+    background: #5a2d8b !important; // Darker purple for hover state
     box-shadow: 0 4px 16px 0 rgba($color-primary, 0.18);
   }
 }
@@ -84,8 +84,8 @@
   color: $color-primary !important;
   &:hover, &:focus {
     background: rgba($color-primary, 0.08) !important;
-    border-color: #e6830a !important;
-    color: #e6830a !important;
+    border-color: #5a2d8b !important;
+    color: #5a2d8b !important;
   }
 }
 

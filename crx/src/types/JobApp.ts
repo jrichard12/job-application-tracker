@@ -35,10 +35,10 @@ export const jobAppStatusOptions = [
 ] as JobAppStatus[];
 
 export const jobStatusColors: Record<JobAppStatus, string> = {
-  Interested: '#bdbdbd',
-  Applied: '#20a5a6',
-  Interviewed: '#1976d2',
-  Offered: '#ff9800',
-  Accepted: '#388e3c',
-  Rejected: '#d32f2f',
+  Interested: '#6c757d',
+  Applied: '#17a2b8',
+  Interviewed: '#7b68ee',
+  Offered: '#e67e22',
+  Accepted: '#27ae60',
+  Rejected: '#e74c3c',
 };

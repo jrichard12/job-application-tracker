@@ -493,7 +493,7 @@ function JobDetails({ job, updateUser, userInfo }: JobDetailsProps) {
                                     />
                                 ) : (
                                     <div className="job-details-description-text">
-                                        {currentJob.description ? currentJob.description : <span style={{ color: '#888' }}>No description provided</span>}
+                                        {currentJob.description ? currentJob.description : <span style={{ color: '#6c757d' }}>No description provided</span>}
                                     </div>
                                 )}
                                 {!currentJob.isArchived && (

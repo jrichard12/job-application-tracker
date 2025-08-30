@@ -98,7 +98,7 @@
     p {
       margin: 0;
       font-size: 14px;
-      color: #666;
+      color: $color-text-secondary;
     }
   }
 
@@ -164,28 +164,5 @@ body, html {
 }
 
 .read-the-docs {
-  color: #888;
-}
-
-@keyframes logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
-}
-
-@media (prefers-reduced-motion: no-preference) {
-  a:nth-of-type(2) .logo {
-    animation: logo-spin infinite 20s linear;
-  }
-}
-
-.card {
-  padding: 2em;
-}
-
-.read-the-docs {
-  color: #888;
+  color: $color-text-muted;
 }

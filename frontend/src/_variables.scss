@@ -1,41 +1,41 @@
 @use "sass:color";
 
-// Primary color palette - Professional orange/yellow gradient theme
-$color-primary: #ff930f;           // Vibrant orange - main brand color
-$color-secondary: #fff95b;         // Bright yellow - accent color
-$color-tertiary: #2c3e50;          // Dark blue-gray - professional contrast
+// Primary color palette - Professional purple-to-orange gradient theme
+$color-primary: #432371;           // Deep purple - main brand color
+$color-secondary: #FAAE7B;         // Warm orange/peach - accent color
+$color-tertiary: #3d4852;          // Dark blue-gray - professional contrast (warmer tone)
 $color-error: #e74c3c;             // Clean red for errors
 $color-success: #27ae60;           // Professional green for success
-$color-warning: #f39c12;           // Orange for warnings (complements gradient)
+$color-warning: #e67e22;           // Warm orange for warnings (complements gradient)
 $color-info: #3498db;              // Blue for info messages
 
 // Background colors
 $color-background: #f8f9fa;        // Light neutral background
 $color-background-gradient: linear-gradient(135deg, $color-primary 0%, $color-secondary 100%);
-$color-background-dark: #2c3e50;   // Dark background alternative
+$color-background-dark: #3d4852;   // Dark background alternative (matches tertiary)
 $color-background-light: #ffffff;  // Pure white for cards
 
 // Text colors
-$color-text: #2c3e50;              // Dark blue-gray for main text (excellent readability)
+$color-text: #3d4852;              // Dark blue-gray for main text (warmer tone for better harmony)
 $color-text-light: #6c757d;       // Lighter gray for secondary text
 $color-text-muted: #adb5bd;       // Muted gray for tertiary text
 $color-text-white: #ffffff;       // White text for dark backgrounds
-$color-text-gradient: #495057;    // Slightly darker text for gradient backgrounds
+$color-text-gradient: #4a5568;    // Slightly darker text for gradient backgrounds (warmer)
 
 // Common colors - Enhanced for professional look
 $color-white: #ffffff;
 $color-black: #000000;
-$color-dark-gray: #343a40;         // Slightly warmer dark gray
+$color-dark-gray: #3d4852;         // Warmer dark gray (matches tertiary)
 $color-medium-gray: #6c757d;       // Medium gray for borders and secondary elements
 $color-light-gray: #e9ecef;        // Light gray for subtle backgrounds
 $color-border: #dee2e6;            // Professional border color
 $color-disabled: #adb5bd;          // Disabled state color
 
-// Status colors (for job applications) - Updated to be more professional
+// Status colors (for job applications) - Updated to complement purple-orange theme
 $color-status-interested: #6c757d;   // Neutral gray
 $color-status-applied: #17a2b8;      // Professional teal
-$color-status-interviewed: #007bff;   // Professional blue
-$color-status-offered: $color-warning; // Orange (matches theme)
+$color-status-interviewed: #7b68ee;  // Purple-blue (complements primary)
+$color-status-offered: #e67e22;     // Warm orange (complements secondary)
 $color-status-accepted: $color-success; // Green
 $color-status-rejected: $color-error;    // Red
 
@@ -49,10 +49,10 @@ $shadow-gradient: 0 4px 15px rgba($color-primary, 0.3);
 // Gradient variations for different uses
 $gradient-primary: linear-gradient(135deg, $color-primary 0%, $color-secondary 100%);
 $gradient-subtle: linear-gradient(135deg, rgba($color-primary, 0.1) 0%, rgba($color-secondary, 0.1) 100%);
-$gradient-header: linear-gradient(90deg, $color-primary 0%, #e6e043 100%); // Darker yellow instead of color.scale
+$gradient-header: linear-gradient(90deg, $color-primary 0%, #f4a460 100%); // Sandy brown that complements both colors
 
 // Typography
-$font-family: 'Space Grotesk', sans-serif;
+$font-family: 'Noto Sans Mono', sans-serif;
 
 // Border radius
 $border-radius-small: 8px;
@@ -67,6 +67,3 @@ $spacing-md: 1rem;
 $spacing-lg: 1.5rem;
 $spacing-xl: 2rem;
 $spacing-xxl: 2.5rem;
-
-//96C9DC
-//7DCE82

@@ -57,7 +57,7 @@ function Main({ userInfo, updateUser }: MainProps) {
                         <div style={{ textAlign: 'center', marginTop: '16px' }}>
                             <a
                                 href="#"
-                                style={{ color: '#1976d2', textDecoration: 'underline', cursor: 'pointer', fontWeight: 500 }}
+                                style={{ color: '#432371', textDecoration: 'underline', cursor: 'pointer', fontWeight: 500 }}
                                 onClick={(e) => { e.preventDefault(); handleDemoLogin(); }}
                             >
                                 Login as demo user
