@@ -67,7 +67,7 @@ function CustomAppBar() {
               onClick={handleLogout}
               className="auth-button"
             >
-              Logout
+              LOGOUT
             </Button>
           ) : (
             <Button
@@ -76,7 +76,7 @@ function CustomAppBar() {
               to="/login"
               className="auth-button"
             >
-              Login
+              LOGIN
             </Button>
           )}
         </Box>

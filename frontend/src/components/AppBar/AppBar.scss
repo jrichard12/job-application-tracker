@@ -34,10 +34,21 @@
   margin-left: 0.5rem;
   margin-right: 0.5rem;
   font-family: $font-family !important;
+  font-weight: 500 !important;
+  background: rgba(255, 255, 255, 0.15) !important;
   color: $color-text-white !important;
+  border: 2px solid rgba(255, 255, 255, 0.3) !important;
+  border-radius: 20px !important;
+  padding: 6px 18px !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1) !important;
+  transition: all 0.2s ease !important;
+  text-transform: none !important;
 
   &:hover {
-    background-color: rgba(255, 255, 255, 0.1);
+    background: rgba(255, 255, 255, 0.25) !important;
+    border-color: rgba(255, 255, 255, 0.5) !important;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15) !important;
   }
 }
 

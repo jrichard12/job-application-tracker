@@ -1,16 +1,18 @@
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
 import CheckIcon from '@mui/icons-material/Check';
+import CloseIcon from '@mui/icons-material/Close';
 import EditIcon from '@mui/icons-material/Edit';
-import { Card, CardContent, Chip, Divider, Typography } from "@mui/material";
+import OpenInFullIcon from '@mui/icons-material/OpenInFull';
+import { Card, CardContent, Chip, CircularProgress, Dialog, DialogContent, DialogTitle, Divider, Tooltip, Typography } from "@mui/material";
 import IconButton from '@mui/material/IconButton';
 import Menu from '@mui/material/Menu';
 import MenuItem from '@mui/material/MenuItem';
 import { useCallback, useEffect, useState } from "react";
-import SnackbarAlert from '../SnackbarAlert/SnackbarAlert';
 import { useAuth } from "../../services/authService";
 import type { JobApp } from "../../types/JobApp";
 import { jobAppStatusOptions, jobStatusColors } from "../../types/JobApp";
 import type { UserInfo } from "../../types/UserInfo";
+import SnackbarAlert from '../SnackbarAlert/SnackbarAlert';
 import "./JobDetails.scss";
 
 type JobDetailsProps = {
@@ -30,12 +32,32 @@ function JobDetails({ job, updateUser, userInfo }: JobDetailsProps) {
     const [editingDescription, setEditingDescription] = useState(false);
     const [tempDescription, setTempDescription] = useState<string>("");
     const [editingDeadline, setEditingDeadline] = useState(false);
+    const [loading, setLoading] = useState(false);
+    const [descriptionModalOpen, setDescriptionModalOpen] = useState(false);
 
     const [statusMenuAnchor, setStatusMenuAnchor] = useState<null | HTMLElement>(null);
+    
+    // Helper function to safely parse dates
+    const parseDate = (dateValue: string | Date | null | undefined): Date | null => {
+        if (!dateValue) return null;
+        
+        if (dateValue instanceof Date) {
+            return isNaN(dateValue.getTime()) ? null : dateValue;
+        }
+        
+        if (typeof dateValue === 'string') {
+            // Handle ISO strings and date-only strings
+            const date = dateValue.includes('T') ? new Date(dateValue) : new Date(dateValue + 'T12:00:00');
+            return isNaN(date.getTime()) ? null : date;
+        }
+        
+        return null;
+    };
+    
     const [currentJob, setCurrentJob] = useState<JobApp | null>(job ? {
         ...job,
-        deadline: job?.deadline ? new Date(job.deadline) : null,
-        lastUpdated: job?.lastUpdated ? new Date(job.lastUpdated) : null,
+        deadline: parseDate(job.deadline),
+        lastUpdated: parseDate(job.lastUpdated),
     } : null);
 
     const { demoMode, user } = useAuth();
@@ -62,8 +84,8 @@ function JobDetails({ job, updateUser, userInfo }: JobDetailsProps) {
         setTempDescription("");
         setCurrentJob(job ? {
             ...job,
-            deadline: job?.deadline ? new Date(job.deadline) : null,
-            lastUpdated: job?.lastUpdated ? new Date(job.lastUpdated) : null,
+            deadline: parseDate(job.deadline),
+            lastUpdated: parseDate(job.lastUpdated),
         } : null);
         setEditingDeadline(false);
     }, [job])
@@ -91,19 +113,44 @@ function JobDetails({ job, updateUser, userInfo }: JobDetailsProps) {
 
     const handleSave = useCallback(async (jobToSave?: JobApp | null) => {
         const job = jobToSave ?? currentJob;
-        if (!job) return false;
+        if (!job) {
+            showSnackbar('No job data to save', 'error');
+            return false;
+        }
+
+        if (!user?.authToken) {
+            showSnackbar('Authentication required to save job', 'error');
+            return false;
+        }
+
+        setLoading(true);
 
         // Just updating local state for demo users
         if (demoMode) {
+            // Add a small delay to show the spinner for demo mode
+            await new Promise(resolve => setTimeout(resolve, 500));
             if (updateUser && userInfo) {
                 updateUser({ ...userInfo, jobApps: userInfo.jobApps?.map(app => app.id === job.id ? { ...job } : app) });
             }
             showSnackbar('Job saved', 'success');
+            setLoading(false);
             return true;
         }
 
-        if (!job.PK || !job.SK) return false;
+        if (!job.PK || !job.SK) {
+            showSnackbar('Job is missing required identifiers (PK/SK)', 'error');
+            setLoading(false);
+            return false;
+        }
+        
         console.log("Saving job:", job);
+
+        // Format the job data for the API, ensuring dates are in ISO string format
+        const jobDataForAPI = {
+            ...job,
+            deadline: job.deadline instanceof Date ? job.deadline.toISOString() : job.deadline,
+            lastUpdated: new Date().toISOString() // Always update the lastUpdated timestamp
+        };
 
         try {
             const response = await fetch(jobHandlerUrl, {
@@ -112,41 +159,66 @@ function JobDetails({ job, updateUser, userInfo }: JobDetailsProps) {
                     'Content-Type': 'application/json',
                     'Authorization': `Bearer ${user?.authToken}`
                 },
-                body: JSON.stringify(job),
+                body: JSON.stringify(jobDataForAPI),
             });
             const result = await response.json();
             console.log('Update result:', result);
             if (response.ok) {
+                const updatedJob = { ...job, lastUpdated: new Date() };
                 if (updateUser && userInfo) {
-                    updateUser({ ...userInfo, jobApps: userInfo.jobApps?.map(app => app.id === job.id ? { ...job } : app) });
+                    updateUser({ ...userInfo, jobApps: userInfo.jobApps?.map(app => app.id === job.id ? updatedJob : app) });
                 }
+                setCurrentJob(updatedJob);
                 showSnackbar('Job saved', 'success');
+                setLoading(false);
                 return true;
             } else {
                 showSnackbar('Failed to save job', 'error');
+                setLoading(false);
                 return false;
             }
         } catch (error) {
             console.error('Error updating job:', error);
             showSnackbar('Error updating job', 'error');
+            setLoading(false);
             return false;
         }
     }, [currentJob, demoMode, updateUser, userInfo, jobHandlerUrl, user?.authToken]);
 
     const handleArchive = async () => {
-        if (!currentJob) return;
+        if (!currentJob) {
+            showSnackbar('No job selected to archive', 'error');
+            return;
+        }
+
+        if (!user?.authToken) {
+            showSnackbar('Authentication required to archive job', 'error');
+            return;
+        }
+
+        setLoading(true);
+        
         if (demoMode) {
+            // Add a small delay to show the spinner for demo mode
+            await new Promise(resolve => setTimeout(resolve, 500));
             const updatedJob = { ...currentJob, isArchived: true };
             updateUser({
                 ...userInfo, jobApps: [...userInfo?.jobApps?.map(app => app.id === updatedJob.id ? updatedJob : app) || []]
             } as UserInfo);
             setCurrentJob(null);
             showSnackbar('Job archived', 'success');
+            setLoading(false);
             return;
         }
+        
         const updatedJob = { ...currentJob, isArchived: true };
         console.log("Archiving job:", updatedJob);
-        if (!updatedJob.PK || !updatedJob.SK) return;
+        
+        if (!updatedJob.PK || !updatedJob.SK) {
+            showSnackbar('Job is missing required identifiers (PK/SK)', 'error');
+            setLoading(false);
+            return;
+        }
         const ok = await handleSave(updatedJob);
         if (ok) {
             setCurrentJob(null);
@@ -154,22 +226,39 @@ function JobDetails({ job, updateUser, userInfo }: JobDetailsProps) {
         } else {
             showSnackbar('Failed to archive job', 'error');
         }
+        setLoading(false);
     }
 
     const handleDelete = async () => {
-        if (!currentJob) return;
+        if (!currentJob) {
+            showSnackbar('No job selected to delete', 'error');
+            return;
+        }
+
+        if (!user?.authToken) {
+            showSnackbar('Authentication required to delete job', 'error');
+            return;
+        }
+
+        setLoading(true);
+        
         if (demoMode) {
+            // Add a small delay to show the spinner for demo mode
+            await new Promise(resolve => setTimeout(resolve, 500));
             updateUser({
                 ...userInfo, jobApps: [...userInfo?.jobApps?.filter(app => app.id !== currentJob.id) || []]
             } as UserInfo);
             setCurrentJob(null);
             showSnackbar('Job deleted', 'success');
+            setLoading(false);
             return;
         }
+        
         console.log("Attempting to delete job with PK:", currentJob.PK, "and SK:", currentJob.SK);
         if (!currentJob.PK || !currentJob.SK) {
             console.error("Cannot delete job: Missing PK or SK.");
-            showSnackbar('Cannot delete job: missing identifiers', 'error');
+            showSnackbar('Job is missing required identifiers (PK/SK)', 'error');
+            setLoading(false);
             return;
         }
 
@@ -199,11 +288,23 @@ function JobDetails({ job, updateUser, userInfo }: JobDetailsProps) {
         } catch (error) {
             console.error('Error deleting job:', error);
             showSnackbar('Error deleting job', 'error');
+        } finally {
+            setLoading(false);
         }
     }
 
     return (
         <Card className="job-details-card">
+            {loading && (
+                <div className="job-details-loading-overlay">
+                    <div className="loading-box">
+                        <CircularProgress color="primary" />
+                        <Typography variant="h6" component="div" className="loading-text">
+                            Processing...
+                        </Typography>
+                    </div>
+                </div>
+            )}
             <CardContent className="job-details-card-content">
                 {currentJob &&
                     <div className="job-card">
@@ -215,37 +316,40 @@ function JobDetails({ job, updateUser, userInfo }: JobDetailsProps) {
                                     </Typography>
                                 </div>
                                 <div className="job-details-info-row">
-                                    <span className="job-details-date-applied"
-                                        onClick={currentJob.isArchived ? undefined : () => setEditingDeadline(true)}
-                                    >
-                                        Deadline: {editingDeadline ? (
-                                            <input
-                                                type="date"
-                                                value={currentJob.deadline ? new Date(currentJob.deadline).toISOString().split('T')[0] : ''}
-                                                onChange={(e) => {
-                                                    const newValue = e.target.value ? new Date(e.target.value) : null;
-                                                    setCurrentJob({ ...currentJob, deadline: newValue });
-                                                    setEditingDeadline(false);
-                                                }}
-                                                onBlur={() => setEditingDeadline(false)}
-                                                autoFocus
-                                                style={{
-                                                    fontSize: '0.98rem',
-                                                    color: '#201335',
-                                                    border: '1px solid #ccc',
-                                                    borderRadius: '4px',
-                                                    padding: '2px 6px',
-                                                    background: 'white'
-                                                }}
-                                            />
-                                        ) : (
-                                            currentJob.deadline ? currentJob.deadline.toLocaleDateString() : 'No deadline set'
-                                        )}
-                                    </span>
+                                    <Tooltip title={currentJob.isArchived ? "" : "Click to edit deadline"} arrow>
+                                        <span className="job-details-deadline"
+                                            onClick={currentJob.isArchived ? undefined : () => setEditingDeadline(true)}
+                                        >
+                                            Deadline: {editingDeadline ? (
+                                                <input
+                                                    type="date"
+                                                    value={currentJob.deadline && !isNaN(currentJob.deadline.getTime()) ? currentJob.deadline.toISOString().split('T')[0] : ''}
+                                                    onChange={(e) => {
+                                                        // Create a Date object at noon local time to avoid timezone issues
+                                                        const date = parseDate(e.target.value);
+                                                        setCurrentJob({ ...currentJob, deadline: date });
+                                                        setEditingDeadline(false);
+                                                    }}
+                                                    onBlur={() => setEditingDeadline(false)}
+                                                    autoFocus
+                                                    style={{
+                                                        fontSize: '0.98rem',
+                                                        color: '#201335',
+                                                        border: '1px solid #ccc',
+                                                        borderRadius: '4px',
+                                                        padding: '2px 6px',
+                                                        background: 'white'
+                                                    }}
+                                                />
+                                            ) : (
+                                                currentJob.deadline && !isNaN(currentJob.deadline.getTime()) ? currentJob.deadline.toLocaleDateString() : 'No deadline set'
+                                            )}
+                                        </span>
+                                    </Tooltip>
                                     <span className="job-details-status-container">
                                         <div className="job-details-status-wrapper">
                                             <Chip
-                                                label={currentJob.jobStatus ? currentJob.jobStatus : "Draft"}
+                                                label={currentJob.jobStatus ? currentJob.jobStatus : "Interested"}
                                                 size="small"
                                                 className="job-details-status-chip"
                                                 sx={{
@@ -298,7 +402,7 @@ function JobDetails({ job, updateUser, userInfo }: JobDetailsProps) {
                                         </Menu>
                                     </span>
                                     <span className="job-details-last-updated">
-                                        Last Updated: {currentJob.lastUpdated ? currentJob.lastUpdated.toLocaleDateString() : 'No date provided'}
+                                        Last Updated: {currentJob.lastUpdated && !isNaN(currentJob.lastUpdated.getTime()) ? currentJob.lastUpdated.toLocaleDateString() : 'No date provided'}
                                     </span>
                                 </div>
                             </div>
@@ -357,7 +461,19 @@ function JobDetails({ job, updateUser, userInfo }: JobDetailsProps) {
                                         </>
                                     ) : (
                                         <div className="job-details-field-container">
-                                            <span className="job-details-field-text">{currentJob.source || 'No source provided'}</span>
+                                            {currentJob.source && (currentJob.source.startsWith('http://') || currentJob.source.startsWith('https://')) ? (
+                                                <Typography 
+                                                    component="a" 
+                                                    href={currentJob.source} 
+                                                    target="_blank" 
+                                                    rel="noopener noreferrer" 
+                                                    className="job-details-source-link"
+                                                >
+                                                    {currentJob.source}
+                                                </Typography>
+                                            ) : (
+                                                <span className="job-details-field-text">{currentJob.source || 'No source provided'}</span>
+                                            )}
                                             {!currentJob.isArchived &&
                                                 <div className="job-details-edit-controls">
                                                     <IconButton size="small" className="job-details-icon-button--edit" aria-label="Edit source" onClick={() => { setEditingField('source'); setTempFieldValue(currentJob.source || ""); }}>
@@ -520,6 +636,17 @@ function JobDetails({ job, updateUser, userInfo }: JobDetailsProps) {
                             </div>
 
                             <div className={`job-details-description job-details-description-section ${editingDescription ? 'editing' : ''}`}>
+                                {currentJob.description && !editingDescription && (
+                                    <Tooltip title="View description in modal" arrow>
+                                        <IconButton
+                                            size="small"
+                                            className="description-view-button"
+                                            onClick={() => setDescriptionModalOpen(true)}
+                                        >
+                                            <OpenInFullIcon fontSize="small" />
+                                        </IconButton>
+                                    </Tooltip>
+                                )}
                                 {editingDescription ? (
                                     <textarea
                                         value={tempDescription}
@@ -558,12 +685,22 @@ function JobDetails({ job, updateUser, userInfo }: JobDetailsProps) {
                                     <button
                                         type="button"
                                         className="archive-button"
-                                        onClick={handleArchive}
+                                        onClick={() => {
+                                            if (currentJob) {
+                                                handleArchive();
+                                            }
+                                        }}
+                                        disabled={loading}
                                     >Archive</button>
                                     <button
                                         type="button"
                                         className="save-button"
-                                        onClick={() => handleSave()}
+                                        onClick={() => {
+                                            if (currentJob) {
+                                                handleSave();
+                                            }
+                                        }}
+                                        disabled={loading}
                                     >Save</button>
                                 </>
                             )}
@@ -572,6 +709,7 @@ function JobDetails({ job, updateUser, userInfo }: JobDetailsProps) {
                                     type="button"
                                     className="delete-button"
                                     onClick={handleDelete}
+                                    disabled={loading}
                                 >Delete</button>
                             )}
                         </div>
@@ -582,6 +720,73 @@ function JobDetails({ job, updateUser, userInfo }: JobDetailsProps) {
                 }
                 <SnackbarAlert open={snackbar.open} message={snackbar.message} severity={snackbar.severity} onClose={handleSnackbarClose} />
             </CardContent>
+
+            {/* Description Modal */}
+            <Dialog
+                open={descriptionModalOpen}
+                onClose={() => {
+                    setDescriptionModalOpen(false);
+                    setEditingDescription(false);
+                    setTempDescription("");
+                }}
+                maxWidth="md"
+                fullWidth
+                className="job-description-modal"
+                slotProps={{
+                    paper: {
+                        className: "job-description-modal-paper"
+                    }
+                }}
+            >
+                <DialogTitle className="job-description-modal-title">
+                    Job Description - {currentJob?.jobTitle}
+                    <IconButton
+                        onClick={() => {
+                            setDescriptionModalOpen(false);
+                            setEditingDescription(false);
+                            setTempDescription("");
+                        }}
+                        className="job-description-modal-close-button"
+                        size="small"
+                    >
+                        <CloseIcon />
+                    </IconButton>
+                </DialogTitle>
+                <DialogContent className="job-description-modal-content">
+                    {editingDescription ? (
+                        <textarea
+                            value={tempDescription}
+                            onChange={(e) => setTempDescription(e.target.value)}
+                            autoFocus
+                            placeholder="Enter job description..."
+                            className="job-description-modal-textarea"
+                        />
+                    ) : (
+                        <div className="job-description-modal-viewer">
+                            {currentJob?.description || 'No description provided'}
+                        </div>
+                    )}
+                    {!currentJob?.isArchived && (
+                        <IconButton
+                            size="small"
+                            onClick={() => {
+                                if (editingDescription) {
+                                    if (currentJob) {
+                                        setCurrentJob({ ...currentJob, description: tempDescription });
+                                    }
+                                    setEditingDescription(false);
+                                } else {
+                                    setTempDescription(currentJob?.description || "");
+                                    setEditingDescription(true);
+                                }
+                            }}
+                            className="job-description-modal-edit-button"
+                        >
+                            {editingDescription ? <CheckIcon fontSize="small" /> : <EditIcon fontSize="small" />}
+                        </IconButton>
+                    )}
+                </DialogContent>
+            </Dialog>
         </Card>
     );
 }

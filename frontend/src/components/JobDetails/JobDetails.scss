@@ -11,6 +11,38 @@
   display: flex;
   flex-direction: column;
   justify-content: flex-start;
+  position: relative;
+}
+
+.job-details-loading-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(255, 255, 255, 0.9);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  border-radius: $border-radius-medium;
+
+  .loading-box {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+    padding: 2rem;
+    background: white;
+    border-radius: $border-radius-medium;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+
+    .loading-text {
+      color: $color-primary;
+      font-weight: 500;
+      font-size: 1rem;
+    }
+  }
 }
 
 .job-details-card-content {
@@ -53,6 +85,15 @@
 }
 
 .job-details-date-applied {
+  font-size: 0.98rem;
+  color: $color-tertiary;
+  font-weight: 500;
+  flex: 1;
+  text-align: left;
+  cursor: pointer;
+}
+
+.job-details-deadline {
   font-size: 0.98rem;
   color: $color-tertiary;
   font-weight: 500;
@@ -123,6 +164,18 @@
 
 .job-details-field-text {
   flex: 1;
+}
+
+.job-details-source-link {
+  flex: 1;
+  color: rgba($color-tertiary, 0.9);
+  text-decoration: none;
+  font-weight: 500;
+  
+  &:hover {
+    color: $color-primary;
+    text-decoration: underline;
+  }
 }
 
 .job-details-edit-controls {
@@ -330,6 +383,18 @@
 .job-card-actions button:hover {
   transform: translateY(-1px);
   box-shadow: 0 2px 4px 0 rgba(32, 165, 166, 0.12);
+}
+
+.job-card-actions button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: 0 1px 2px 0 rgba(32, 165, 166, 0.08);
+}
+
+.job-card-actions button:disabled:hover {
+  transform: none;
+  box-shadow: 0 1px 2px 0 rgba(32, 165, 166, 0.08);
 }
 
 .job-card-actions .archive-button {
@@ -542,4 +607,126 @@
 
 .job-card .job-details-description-section {
   margin-top: 1.8rem;
+}
+
+.description-view-button {
+  position: absolute !important;
+  top: 8px !important;
+  right: 8px !important;
+  background: rgba($color-primary, 0.08) !important;
+  color: $color-primary !important;
+  border-radius: 50% !important;
+  padding: 4px !important;
+  width: 28px !important;
+  height: 28px !important;
+  transition: all 0.2s ease !important;
+  z-index: 5 !important;
+
+  &:hover {
+    background: rgba($color-primary, 0.15) !important;
+    transform: scale(1.1) !important;
+  }
+}
+
+// Modal styles
+.job-description-modal {
+  .MuiDialog-paper {
+    border-radius: 12px !important;
+    max-height: 85vh !important;
+    height: 85vh !important;
+  }
+}
+
+.job-description-modal-paper {
+  border-radius: 12px !important;
+  max-height: 85vh !important;
+  height: 85vh !important;
+}
+
+.job-description-modal-title {
+  font-weight: 600 !important;
+  color: $color-primary !important;
+  border-bottom: 1px solid #e0e0e0 !important;
+  padding-bottom: 16px !important;
+  position: relative !important;
+  padding-right: 60px !important;
+}
+
+.job-description-modal-close-button {
+  position: absolute !important;
+  right: 8px !important;
+  top: 8px !important;
+  color: #666 !important;
+
+  &:hover {
+    color: $color-primary !important;
+    background-color: rgba($color-primary, 0.1) !important;
+  }
+}
+
+.job-description-modal-content {
+  padding: 24px !important;
+  position: relative !important;
+  min-height: 60vh !important;
+  height: 60vh !important;
+  overflow-y: hidden !important;
+}
+
+.job-description-modal-textarea {
+  width: 100% !important;
+  height: 100% !important;
+  min-height: 60vh !important;
+  font-size: 1rem !important;
+  line-height: 1.6 !important;
+  font-family: inherit !important;
+  color: #333 !important;
+  background: #fff !important;
+  border: 2px solid $color-primary !important;
+  border-radius: 8px !important;
+  resize: none !important;
+  padding: 16px !important;
+  outline: none !important;
+  box-sizing: border-box !important;
+  overflow-y: auto !important;
+}
+
+.job-description-modal-viewer {
+  width: 100% !important;
+  height: 100% !important;
+  min-height: 60vh !important;
+  font-size: 1rem !important;
+  line-height: 1.6 !important;
+  color: #333 !important;
+  white-space: pre-wrap !important;
+  font-family: inherit !important;
+  padding: 16px !important;
+  margin: 0 !important;
+  border: 2px solid $color-primary !important;
+  border-radius: 8px !important;
+  box-sizing: border-box !important;
+  overflow-y: auto !important;
+  background: #fff !important;
+}
+
+.job-description-modal-edit-button {
+  position: absolute !important;
+  bottom: 32px !important;
+  right: 32px !important;
+  background: $color-primary !important;
+  color: #fff !important;
+  border: none !important;
+  border-radius: 50% !important;
+  padding: 8px !important;
+  cursor: pointer !important;
+  box-shadow: 0 2px 8px 0 rgba($color-primary, 0.3) !important;
+  transition: all 0.2s ease !important;
+  z-index: 10 !important;
+  width: 40px !important;
+  height: 40px !important;
+
+  &:hover {
+    transform: translateY(-1px) !important;
+    box-shadow: 0 4px 12px 0 rgba($color-primary, 0.4) !important;
+    background: color.adjust($color-primary, $lightness: -10%) !important;
+  }
 }

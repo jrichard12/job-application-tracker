@@ -124,7 +124,7 @@ function CreateAppModal({ isOpen, handleClose, handleCreateApp }: CreateAppModal
                         <Box sx={{ gridColumn: '1 / -1' }}>
                             <TextField
                                 fullWidth
-                                label="Source URL"
+                                label="Source"
                                 name="source"
                                 value={newJobApp.source}
                                 onChange={handleInputChange}

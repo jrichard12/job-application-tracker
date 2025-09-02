@@ -171,11 +171,7 @@ const getJobs = async (userId: string, tokenPayload: any, event: any) => {
     const result = await docClient.send(new QueryCommand(params));
     console.log('Query successful, found', result.Items?.length || 0, 'jobs');
     
-    // Remove PK and SK from the response items to clean up the data
-    const jobs = result.Items?.map(item => {
-      const { PK, SK, ...jobData } = item;
-      return jobData;
-    }) || [];
+    const jobs = result.Items || [];
 
     console.log('=== GetJobs END (SUCCESS) ===');
     return createResponse(200, jobs, event);

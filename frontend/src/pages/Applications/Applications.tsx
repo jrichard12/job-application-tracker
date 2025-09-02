@@ -2,7 +2,7 @@ import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
 import SyncIcon from '@mui/icons-material/Sync';
 import ViewListIcon from '@mui/icons-material/ViewList';
 import ViewModuleIcon from '@mui/icons-material/ViewModule';
-import { IconButton, Paper, Tooltip, Typography } from "@mui/material";
+import { CircularProgress, IconButton, Paper, Tooltip, Typography } from "@mui/material";
 import { useEffect, useState } from "react";
 import SnackbarAlert from '../../components/SnackbarAlert/SnackbarAlert';
 import { getDemoUserJobs } from '../../services/demoUserService';
@@ -26,6 +26,7 @@ function Applications({ userInfo, updateUser }: ApplicationsProps) {
     const [createModalOpen, setCreateModalOpen] = useState<boolean>(false);
     const [jobs, setJobs] = useState<JobApp[]>([]);
     const [isListView, setIsListView] = useState<boolean>(false);
+    const [refreshLoading, setRefreshLoading] = useState<boolean>(false);
 
     const { user, demoMode } = useAuth();
     const jobHandlerUrl = import.meta.env.VITE_JOB_HANDLER_URL;
@@ -58,31 +59,46 @@ function Applications({ userInfo, updateUser }: ApplicationsProps) {
         console.log(jobApp);
         if (!jobApp) {
             console.error("No job app defined.");
+            showSnackbar('No job application data provided', 'error');
             return;
         }
+
+        if (!demoMode && !user?.authToken) {
+            showSnackbar('Authentication required to create job', 'error');
+            return;
+        }
+
+        if (!demoMode && !user?.id) {
+            showSnackbar('User ID not available', 'error');
+            return;
+        }
+
         if (demoMode) {
             updateUser({
                 ...userInfo, jobApps: [...userInfo?.jobApps || [], jobApp]
             } as UserInfo);
             setCurrentJobDetails(jobApp);
             setCreateModalOpen(false);
+            showSnackbar('Job application created', 'success');
             return;
         }
+
         try {
             const response = await fetch(jobHandlerUrl, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
-                    "Authorization": `Bearer ${user?.authToken}`
+                    "Authorization": `Bearer ${user!.authToken}`
                 },
                 body: JSON.stringify({
-                    userId: user?.id,
+                    userId: user!.id,
                     job: jobApp
                 })
             });
 
-            if (response.status !== 200) {
-                throw new Error("Failed to create job application.");
+            if (!response.ok) {
+                const errorData = await response.json().catch(() => ({}));
+                throw new Error(errorData.message || `Failed to create job (${response.status})`);
             }
 
             const data = await response.json();
@@ -92,36 +108,58 @@ function Applications({ userInfo, updateUser }: ApplicationsProps) {
             } as UserInfo);
             setCurrentJobDetails(data);
             setCreateModalOpen(false);
+            showSnackbar('Job application created successfully', 'success');
         } catch (error) {
             console.error("Error creating job application:", error);
+            showSnackbar(error instanceof Error ? error.message : 'Failed to create job application', 'error');
             setCreateModalOpen(false);
         }
     };
 
     async function handleRefreshJobs(event: React.MouseEvent<HTMLButtonElement, MouseEvent>): Promise<void> {
         event.preventDefault();
-        if (!userInfo) return;
+        if (!userInfo) {
+            showSnackbar('No user information available', 'error');
+            return;
+        }
+
+        if (!user?.authToken) {
+            showSnackbar('Authentication required to refresh jobs', 'error');
+            return;
+        }
+
+        if (!user?.id) {
+            showSnackbar('User ID not available', 'error');
+            return;
+        }
+
+        setRefreshLoading(true);
 
         if (demoMode) {
+            // Add a small delay to show the spinner for demo mode
+            await new Promise(resolve => setTimeout(resolve, 800));
             const loaded = getDemoUserJobs();
             updateUser({ ...userInfo, jobApps: loaded });
             const activeJobs = loaded.filter(job => !job.isArchived);
             setJobs([...activeJobs]);
             setCurrentJobDetails(undefined);
             showSnackbar('Demo data reset', 'success');
+            setRefreshLoading(false);
             return;
         }
 
         try {
-            const response = await fetch(`${jobHandlerUrl}?userId=${user?.id}`, {
+            const response = await fetch(`${jobHandlerUrl}?userId=${user.id}`, {
                 method: "GET",
                 headers: {
                     "Content-Type": "application/json",
-                    "Authorization": `Bearer ${user?.authToken}`
+                    "Authorization": `Bearer ${user.authToken}`
                 }
             });
-            if (response.status !== 200) {
-                throw new Error("Failed to fetch job applications.");
+            
+            if (!response.ok) {
+                const errorData = await response.json().catch(() => ({}));
+                throw new Error(errorData.message || `Failed to fetch jobs (${response.status})`);
             }
             const jobsData: JobApp[] = await response.json();
             const activeJobs = jobsData.filter(job => !job.isArchived);
@@ -132,6 +170,8 @@ function Applications({ userInfo, updateUser }: ApplicationsProps) {
         } catch (error) {
             console.error("Error refreshing job applications:", error);
             showSnackbar('Failed to refresh jobs', 'error');
+        } finally {
+            setRefreshLoading(false);
         }
     }
 
@@ -176,6 +216,7 @@ function Applications({ userInfo, updateUser }: ApplicationsProps) {
                                     className={`refresh-btn`}
                                     onClick={handleRefreshJobs}
                                     size="small"
+                                    disabled={refreshLoading}
                                 >
                                     <SyncIcon />
                                 </IconButton>
@@ -190,6 +231,16 @@ function Applications({ userInfo, updateUser }: ApplicationsProps) {
                     </div>
                 </div>
                 <div className={`job-apps-content ${isListView ? 'list-view' : ''}`}>
+                    {refreshLoading && (
+                        <div className="refresh-loading-overlay">
+                            <div className="loading-box">
+                                <CircularProgress color="primary" />
+                                <Typography variant="h6" component="div" className="loading-text">
+                                    Refreshing jobs...
+                                </Typography>
+                            </div>
+                        </div>
+                    )}
                     {isListView ? (
                         <JobAppsListView jobs={jobs} />
                     ) : (
