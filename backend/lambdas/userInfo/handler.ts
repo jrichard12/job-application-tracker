@@ -4,6 +4,7 @@ import {
   GetCommand,
   PutCommand,
   QueryCommand,
+  UpdateCommand,
 } from "@aws-sdk/lib-dynamodb";
 import { getCorsHeaders, verifyTokenLocally } from "../utils/shared-utils";
 
@@ -34,7 +35,7 @@ const getUserInfo = async (body: any, tokenPayload: any, corsHeaders: any, event
   }
   const PK = `USER#${userId.trim()}`;
   const SK = "PROFILE";
-  console.log('DynamoDB keys - PK:', PK, 'SK:', SK);
+
   // Try to get user from DynamoDB
   console.log('Attempting to get user from DynamoDB...');
   const getUserResult = await docClient.send(
@@ -80,12 +81,14 @@ const getUserInfo = async (body: any, tokenPayload: any, corsHeaders: any, event
   const jobApps =
     result.Items?.filter((i) => i.SK.startsWith("JOB#")) || [];
   console.log('Found', jobApps.length, 'job applications for user');
+
   const frontendUser = {
     id: userId,
     email: email,
     sendNotifications: sendNotifications,
     jobApps: jobApps,
   };
+
   const successResponse = {
     statusCode: 200,
     headers: {
@@ -100,11 +103,8 @@ const getUserInfo = async (body: any, tokenPayload: any, corsHeaders: any, event
 
 const updateUserInfo = async (body: any, tokenPayload: any, corsHeaders: any, event: any) => {
   console.log('=== UpdateUserInfo START ===');
-  console.log('Raw request body:', body);
   const { userId, ...updateData } = body;
-  console.log('Extracted userId:', userId);
-  console.log('Extracted updateData:', updateData);
-  
+
   // Verify that the token's sub matches the requested userId
   if (tokenPayload.sub !== userId) {
     console.error('User ID mismatch.');
@@ -114,6 +114,7 @@ const updateUserInfo = async (body: any, tokenPayload: any, corsHeaders: any, ev
       body: JSON.stringify({ message: 'Forbidden: User ID mismatch' }),
     };
   }
+
   if (!userId) {
     console.error('Missing userId in request');
     return {
@@ -122,46 +123,39 @@ const updateUserInfo = async (body: any, tokenPayload: any, corsHeaders: any, ev
       body: JSON.stringify({ message: "Missing userId" }),
     };
   }
+
   const PK = `USER#${userId.trim()}`;
   const SK = "PROFILE";
-  console.log('DynamoDB keys - PK:', PK, 'SK:', SK);
 
   // Update user profile
   console.log('Updating user profile in DynamoDB...');
   console.log('Update data received:', updateData);
   
-  // First, get the existing user data
-  const existingUserResult = await docClient.send(
-    new GetCommand({
-      TableName: TABLE_NAME,
-      Key: { PK, SK },
-    })
-  );
+  // Build the UpdateExpression dynamically based on the fields to update
+  const updateExpressions: string[] = [];
+  const expressionAttributeNames: Record<string, string> = {};
+  const expressionAttributeValues: Record<string, any> = {};
   
-  if (!existingUserResult.Item) {
-    console.error('User not found for update');
-    return {
-      statusCode: 404,
-      headers: corsHeaders,
-      body: JSON.stringify({ message: 'User not found' }),
-    };
-  }
+  // Add other fields to update
+  Object.keys(updateData).forEach((key, index) => {
+    const attributeName = `#attr${index}`;
+    const attributeValue = `:val${index}`;
+    
+    updateExpressions.push(`${attributeName} = ${attributeValue}`);
+    expressionAttributeNames[attributeName] = key;
+    expressionAttributeValues[attributeValue] = updateData[key];
+  });
   
-  // Merge existing data with update data
-  const updatedUser = {
-    ...existingUserResult.Item,
-    ...updateData,
-    PK,
-    SK,
-    lastUpdated: new Date().toISOString(),
-  };
-  
-  console.log('Final updated user data:', updatedUser);
+  const updateExpression = 'SET ' + updateExpressions.join(', ');
   
   await docClient.send(
-    new PutCommand({
+    new UpdateCommand({
       TableName: TABLE_NAME,
-      Item: updatedUser,
+      Key: { PK, SK },
+      UpdateExpression: updateExpression,
+      ExpressionAttributeNames: expressionAttributeNames,
+      ExpressionAttributeValues: expressionAttributeValues,
+      ReturnValues: 'UPDATED_NEW'
     })
   );
   console.log('User profile updated successfully');
@@ -217,17 +211,11 @@ export const handler = async (event: any) => {
     const method = event.requestContext?.http?.method || 'GET';
     const body = event.body ? JSON.parse(event.body) : {};
     
-    console.log('HTTP Method detected:', method);
-    console.log('Raw event body:', event.body);
-    console.log('Parsed body:', body);
-    
     switch (method) {
       case 'GET':
       case 'POST':
-        console.log(`Processing ${method} request (get user info)`);
         return await getUserInfo(body, tokenPayload, corsHeaders, event);
       case 'PUT':
-        console.log('Processing PUT request (update user info)');
         return await updateUserInfo(body, tokenPayload, corsHeaders, event);
       default:
         console.error('Unsupported method:', method);

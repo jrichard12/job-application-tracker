@@ -1,6 +1,9 @@
 import * as cdk from "aws-cdk-lib";
 import * as cognito from "aws-cdk-lib/aws-cognito";
 import * as dynamodb from "aws-cdk-lib/aws-dynamodb";
+import * as events from "aws-cdk-lib/aws-events";
+import * as targets from "aws-cdk-lib/aws-events-targets";
+import * as iam from "aws-cdk-lib/aws-iam";
 import * as lambda from "aws-cdk-lib/aws-lambda";
 import * as lambdaUrl from "aws-cdk-lib/aws-lambda";
 import { Construct } from "constructs";
@@ -12,6 +15,7 @@ export class InfrastructureStack extends cdk.Stack {
   public readonly jobAppTable: dynamodb.Table;
   public readonly userInfoHandlerLambda: lambda.Function;
   public readonly jobHandlerLambda: lambda.Function;
+  public readonly notificationSenderLambda: lambda.Function;
 
   constructor(scope: Construct, id: string, props?: cdk.StackProps) {
     super(scope, id, props);
@@ -97,7 +101,48 @@ export class InfrastructureStack extends cdk.Stack {
       authType: lambdaUrl.FunctionUrlAuthType.NONE, // Using JWT verification in function
     });
 
-    // Output values
+    // NOTIFICATION SENDER LAMBDA
+    this.notificationSenderLambda = new lambda.Function(this, "NotificationSenderLambda", {
+      runtime: lambda.Runtime.NODEJS_22_X,
+      functionName: "NotificationSenderLambda",
+      description: "Lambda function to send deadline notifications to users",
+      code: lambda.Code.fromAsset(
+        path.join(__dirname, "../../backend/dist/notificationSender")
+      ),
+      handler: "notificationSender/handler.handler",
+      environment: {
+        TABLE_NAME: this.jobAppTable.tableName,
+        SES_FROM_EMAIL: "app.tracker.25@gmail.com",
+      },
+    });
+    this.jobAppTable.grantReadData(this.notificationSenderLambda);
+
+    // SES permissions
+    this.notificationSenderLambda.addToRolePolicy(
+      new iam.PolicyStatement({
+        effect: iam.Effect.ALLOW,
+        actions: [
+          "ses:SendEmail",
+          "ses:SendRawEmail"
+        ],
+        resources: ["*"],
+      })
+    );
+
+    // SCHEDULE NOTIFICATION LAMBDA (9 AM EST)
+    const notificationRule = new events.Rule(this, 'DailyNotificationRule', {
+      description: 'Trigger notification lambda daily to check for upcoming job deadlines',
+      schedule: events.Schedule.cron({
+        minute: '0',
+        hour: '13', // 13 UTC = 9 AM EST
+        day: '*',
+        month: '*',
+        year: '*'
+      })
+    });
+    notificationRule.addTarget(new targets.LambdaFunction(this.notificationSenderLambda));
+
+    // OUTPUT
     new cdk.CfnOutput(this, "UserPoolId", {
       value: this.userPool.userPoolId,
     });
@@ -124,6 +169,14 @@ export class InfrastructureStack extends cdk.Stack {
 
     new cdk.CfnOutput(this, "JobHandlerLambdaUrl", {
       value: jobHandlerLambdaUrl.url,
+    });
+
+    new cdk.CfnOutput(this, "NotificationSenderLambdaName", {
+      value: this.notificationSenderLambda.functionName,
+    });
+
+    new cdk.CfnOutput(this, "NotificationScheduleRuleName", {
+      value: notificationRule.ruleName,
     });
   }
 }

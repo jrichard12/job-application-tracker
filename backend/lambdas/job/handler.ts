@@ -14,9 +14,7 @@ const docClient = DynamoDBDocumentClient.from(client);
 
 const TABLE_NAME = process.env.TABLE_NAME!;
 
-const addJob = async (body: any, tokenPayload: any, event: any) => {
-  console.log('=== AddJob START ===');
-  
+const addJob = async (body: any, tokenPayload: any, event: any) => { 
   const { userId, job } = body;
   if (!userId || !job) {
     console.error('Missing userId or job data. userId:', userId, 'job:', !!job);
@@ -66,7 +64,7 @@ const updateJob = async (body: any, tokenPayload: any, event: any) => {
     return createResponse(403, { message: 'Forbidden: User ID mismatch' }, event);
   }
 
-  // Always update lastUpdated
+  // Auto update lastUpdated
   job.lastUpdated = new Date().toISOString();
 
   // Build the UpdateExpression dynamically from job object, excluding PK, SK, userId, id
@@ -117,12 +115,11 @@ const updateJob = async (body: any, tokenPayload: any, event: any) => {
 };
 
 const deleteJob = async (PK: string, SK: string, tokenPayload: any, event: any) => {
-  console.log("DeleteJob recieved PK:", PK, "SK:", SK);
-  
   if (!PK || !SK) {
     console.log("Missing PK or SK for delete");
     return createResponse(400, { message: "Missing PK or SK for delete" }, event);
   }
+  console.log("DeleteJob received PK:", PK, "SK:", SK);
 
   // Extract userId from PK to verify ownership
   const userId = PK.replace('USER#', '');
@@ -145,13 +142,12 @@ const deleteJob = async (PK: string, SK: string, tokenPayload: any, event: any) 
 };
 
 const getJobs = async (userId: string, tokenPayload: any, event: any) => {
-  console.log('=== GetJobs START ===');
-  console.log('Fetching jobs for userId:', userId);
-  
   if (!userId) {
     console.error('Missing userId parameter');
     return createResponse(400, { message: "Missing userId parameter" }, event);
   }
+  console.log('Fetching jobs for userId:', userId);
+
 
   // Verify that the token's sub matches the requested userId
   if (tokenPayload.sub !== userId) {
@@ -221,7 +217,6 @@ export const handler = async (event: any) => {
     switch (method) {
       case "GET": {
         console.log('Processing GET request (fetch jobs)');
-        // Get userId from queryStringParameters
         const params = event.queryStringParameters || {};
         const { userId } = params;
         console.log('Get params - userId:', userId);
@@ -235,7 +230,6 @@ export const handler = async (event: any) => {
         return await updateJob(body, tokenPayload, event);
       case "DELETE": {
         console.log('Processing DELETE request (delete job)');
-        // Get PK and SK from queryStringParameters
         const params = event.queryStringParameters || {};
         const { PK, SK } = params;
         console.log('Delete params - PK:', PK, 'SK:', SK);
