@@ -1,10 +1,24 @@
 @use "sass:color";
 @use "../../variables" as *;
+@use "../../components/Charts/Charts" as *;
+
+// Ensure MUI components use our custom font
+.dashboard {
+  // Force MUI Typography components to use our font
+  .MuiTypography-root {
+    font-family: $font-family !important;
+  }
+  
+  // Force MUI Alert components to use our font
+  .MuiAlert-root .MuiTypography-root {
+    font-family: $font-family !important;
+  }
+}
 
 .dashboard {
   margin: 1.5rem auto;
   background: transparent;
-  max-width: 1200px;
+  max-width: 1400px;
   min-height: 70vh;
   padding: 1rem;
   display: flex;
@@ -14,7 +28,7 @@
   .dashboard-content {
     display: flex;
     flex-direction: column;
-    gap: 2rem;
+    gap: 2.5rem;
     width: 100%;
   }
 
@@ -34,6 +48,7 @@
       font-weight: 600;
       display: flex;
       align-items: center;
+      justify-content: space-between;
       height: 72px;
       box-sizing: border-box;
 
@@ -44,216 +59,257 @@
           color: $color-text-white !important;
         }
       }
-    }
-  }
 
-  .stats-section {
-    .section-title {
-      font-family: $font-family;
-      font-weight: 600;
-      color: $color-text;
-      margin-bottom: 1.5rem;
-      text-align: left;
-    }
-
-    .stats-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-      gap: $spacing-lg;
-      margin-bottom: $spacing-md;
-
-      .stat-card {
-        border-radius: $border-radius-large;
-        background: $color-background-light;
-        transition: all 0.3s ease;
-        border: 2px solid transparent;
-
+      .settings-button {
+        background: transparent !important;
+        color: rgba(255, 255, 255, 0.7) !important;
+        border-radius: 6px !important;
+        padding: 0.4rem !important;
+        transition: all 0.15s ease !important;
+        
         &:hover {
-          transform: translateY(-2px);
-          box-shadow: $shadow-heavy;
+          background: rgba(255, 255, 255, 0.25) !important;
+          color: $color-text-white !important;
+          box-shadow: $shadow-light !important;
+          transform: none !important;
         }
 
-        &--primary {
-          border-left: 6px solid $color-primary;
-
-          .stat-value {
-            color: $color-primary;
-          }
-        }
-
-        &--secondary {
-          border-left: 6px solid $color-secondary;
-
-          .stat-value {
-            color: #e67e22; // Warmer orange that complements the secondary color
-          }
-        }
-
-        &--tertiary {
-          border-left: 6px solid $color-tertiary;
-
-          .stat-value {
-            color: $color-tertiary;
-          }
-        }
-
-        &--success {
-          border-left: 6px solid $color-success;
-
-          .stat-value {
-            color: $color-success;
-          }
-        }
-
-        &--error {
-          border-left: 6px solid $color-error;
-
-          .stat-value {
-            color: $color-error;
-          }
-        }
-
-        .stat-content {
-          text-align: center;
-          padding: $spacing-xl $spacing-lg;
-
-          .stat-value {
-            font-family: $font-family;
-            font-weight: 700;
-            margin-bottom: $spacing-sm;
-          }
-
-          .stat-title {
-            font-family: $font-family;
-            color: $color-text;
-            font-weight: 500;
-            text-transform: uppercase;
-            font-size: 0.875rem;
-            letter-spacing: 0.5px;
-          }
+        .MuiSvgIcon-root {
+          font-size: 1.6rem !important;
         }
       }
     }
   }
 
-  .profile-section {
+  .demo-info-section {
+    display: flex;
     background: $color-background-light;
     border-radius: $border-radius-large;
     box-shadow: $shadow-medium;
-    padding: $spacing-xl;
+    padding: $spacing-lg;
+    
+    .demo-alert {
+      flex: 1;
+      justify-content: center;
+      border-radius: $border-radius-medium;
+      
+      .demo-title {
+        font-weight: 600;
+        margin-bottom: $spacing-sm;
+        color: $color-primary;
+      }
+      
+      .demo-description {
+        margin-bottom: $spacing-lg;
+        color: $color-text-light;
+      }
+      
+      .reset-demo-button {
+        background: $gradient-primary;
+        color: $color-white;
+        border-radius: $border-radius-small;
+        padding: $spacing-sm $spacing-lg;
+        font-weight: 500;
+        
+        &:hover {
+          box-shadow: $shadow-primary;
+          transform: translateY(-1px);
+        }
+      }
+    }
+  }
 
+  .modern-stats-section {
     .section-title {
       font-family: $font-family;
       font-weight: 600;
       color: $color-text;
-      margin-bottom: $spacing-xl;
-      text-align: left;
-      border-bottom: 2px solid $color-background;
-      padding-bottom: $spacing-sm;
+      margin-bottom: 2rem;
+      text-align: center;
+      position: relative;
+      
+      &::after {
+        content: '';
+        position: absolute;
+        bottom: -10px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 60px;
+        height: 4px;
+        background: $gradient-primary;
+        border-radius: 2px;
+      }
     }
 
-    .profile-content {
-      display: flex;
-      flex-direction: column;
+    .charts-section {
+      margin-top: 3rem;
+      
+      .section-title {
+        margin-bottom: 2rem;
+      }
+    }
+  }
+
+  // Section title styling (applies to all sections)
+  .section-title {
+    font-family: $font-family;
+    font-weight: 600;
+    color: $color-text;
+    margin-bottom: 2rem;
+    text-align: center;
+    position: relative;
+    
+    &::after {
+      content: '';
+      position: absolute;
+      bottom: -8px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 60px;
+      height: 4px;
+      background: $gradient-primary;
+      border-radius: 2px;
+    }
+  }
+
+  // New overview section with 2-column layout
+  .overview-section {
+    .overview-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: $spacing-lg;
+      align-items: stretch;
+
+      // Ensure both cards have the same height
+      > div {
+        height: 100%;
+        
+        .insight-card,
+        .upcoming-dates-card {
+          height: 100%;
+          min-height: 480px;
+        }
+      }
+
+      @media (max-width: 768px) {
+        grid-template-columns: 1fr;
+        gap: $spacing-md;
+        
+        > div {
+          .insight-card,
+          .upcoming-dates-card {
+            min-height: 420px;
+          }
+        }
+      }
+
+      @media (max-width: 480px) {
+        > div {
+          .insight-card,
+          .upcoming-dates-card {
+            min-height: 370px;
+          }
+        }
+      }
+    }
+  }
+
+  // Combined stats section (full width)
+  .stats-section {
+    .combined-stats-card {
+      width: 100%;
+    }
+  }
+
+  // Charts section with single-column layout
+  .charts-section {
+    .charts-grid {
+      display: grid;
+      grid-template-columns: 1fr;
       gap: $spacing-lg;
 
-      .user-info {
-        display: flex;
-        align-items: flex-center;
+      // All items are full width with constrained widths
+      > div {
+        width: 100%;
+        max-width: 100%;
+        overflow: hidden;
+      }
+
+      .chart-card--full-width {
+        grid-column: 1 / -1;
+        width: 100%;
+        max-width: 100%;
+        box-sizing: border-box;
+      }
+
+      @media (max-width: 1200px) {
         gap: $spacing-md;
-        padding: $spacing-md;
-        background: $color-light-gray; // Using predefined light gray
-        border-radius: $border-radius-medium;
-        border-left: 4px solid $color-primary;
-
-        .info-label {
-          font-family: $font-family;
-          font-weight: 600;
-          color: $color-text;
-          min-width: 90px;
-          text-align: left;
-        }
-
-        .info-value {
-          font-family: $font-family;
-          color: $color-text;
-          background: $color-background-light;
-          padding: $spacing-sm $spacing-md;
-          border-radius: $border-radius-small;
-          border: 1px solid $color-border;
+        
+        > div {
+          min-width: 0; // Allow flexbox shrinking
         }
       }
 
-      .notification-settings {
-        padding: $spacing-md;
-        background: $color-light-gray; // Using predefined light gray
-        border-radius: $border-radius-medium;
-        border-left: 4px solid $color-secondary;
-
-        .settings-title {
-          font-family: $font-family;
-          font-weight: 600;
-          color: $color-text;
-          margin-bottom: $spacing-md;
-          text-align: left;
-        }
-
-        .notification-control {
-          display: flex;
-          justify-content: flex-start;
-
-          .MuiFormControlLabel-label {
-            font-family: $font-family;
-            color: $color-text;
-            font-size: 1rem;
-            text-align: left;
-          }
-
-          .notification-checkbox {
-            &.Mui-checked {
-              color: $color-primary;
-            }
-          }
-        }
+      @media (max-width: 768px) {
+        gap: $spacing-md;
       }
+    }
+  }
+}
 
-      .save-section {
-        display: flex;
-        justify-content: center;
-        padding-top: $spacing-md;
+  // Responsive design
+@media (max-width: 1200px) {
+  .dashboard {
+    max-width: 100%;
+    margin: $spacing-lg auto;
+    padding: $spacing-md;
 
-        .save-button {
-          background: $gradient-primary;
-          color: $color-text-white;
-          font-family: $font-family;
-          font-weight: 600;
-          border-radius: $border-radius-medium;
-          padding: 0.75rem $spacing-xl;
-          box-shadow: $shadow-gradient;
-          transition: all 0.3s ease;
-          text-transform: none;
-          font-size: 1.1rem;
+    .dashboard-content {
+      gap: $spacing-xl;
+    }
 
-          &:hover {
-            background: $gradient-header;
-            box-shadow: 0 6px 20px rgba($color-primary, 0.4);
-            transform: translateY(-2px);
-          }
+    .overview-section {
+      .overview-grid {
+        gap: $spacing-md;
+      }
+    }
 
-          &:active {
-            transform: translateY(0);
-          }
+    .charts-section {
+      .charts-grid {
+        > div {
+          // Ensure chart containers don't exceed viewport
+          max-width: calc(100vw - 4rem);
+          overflow-x: hidden;
         }
       }
     }
   }
 }
 
-// Responsive design
+@media (max-width: 1024px) {
+  .dashboard {
+    max-width: 100%;
+    margin: $spacing-lg;
+    padding: $spacing-md;
+
+    .charts-section {
+      .charts-grid {
+        > div {
+          max-width: calc(100vw - 3rem);
+        }
+      }
+    }
+  }
+}
+
 @media (max-width: 768px) {
   .dashboard {
     margin: $spacing-md;
     padding: $spacing-sm;
+
+    .dashboard-content {
+      gap: $spacing-xl;
+    }
 
     .dashboard-header {
       .header-toolbar {
@@ -263,48 +319,17 @@
         .page-title {
           font-size: 1.5rem;
         }
-      }
-    }
 
-    .stats-section {
-      .stats-grid {
-        grid-template-columns: 1fr;
-        gap: $spacing-md;
-
-        .stat-card {
-          .stat-content {
-            padding: $spacing-lg $spacing-md;
-
-            .stat-value {
-              font-size: 2rem;
-            }
-          }
+        .settings-button {
+          padding: $spacing-sm !important;
         }
       }
     }
 
-    .profile-section {
-      padding: $spacing-lg;
-
-      .profile-content {
-        .user-info {
-          flex-direction: column;
-          align-items: flex-start;
-          gap: $spacing-sm;
-
-          .info-label {
-            min-width: auto;
-          }
-
-          .info-value {
-            width: 100%;
-            box-sizing: border-box;
-          }
-        }
-
-        .notification-settings {
-          padding: $spacing-md;
-        }
+    .modern-stats-section {
+      .section-title {
+        font-size: 1.25rem;
+        margin-bottom: 1.5rem;
       }
     }
   }
@@ -319,21 +344,21 @@
         .page-title {
           font-size: 1.25rem;
         }
+
+        .settings-button {
+          padding: $spacing-xs !important;
+        }
       }
     }
 
-    .stats-section {
-      .stats-grid {
-        .stat-card {
-          .stat-content {
-            .stat-value {
-              font-size: 1.75rem;
-            }
-
-            .stat-title {
-              font-size: 0.75rem;
-            }
-          }
+    .modern-stats-section {
+      .section-title {
+        font-size: 1.1rem;
+        margin-bottom: 1rem;
+        
+        &::after {
+          width: 40px;
+          height: 3px;
         }
       }
     }

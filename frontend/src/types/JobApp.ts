@@ -11,7 +11,8 @@ export interface JobApp {
   description?: string;
   skills?: string[];
   dateApplied?: Date | null;
-  interviewed?: boolean;
+  interviewDate?: Date | null;
+  rejectedDate?: Date | null;
   deadline?: Date | null;
   lastUpdated?: Date | null;
   jobStatus: JobAppStatus;

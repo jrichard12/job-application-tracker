@@ -33,13 +33,13 @@ function JobAppList({ jobDetailsHandler, jobs, currentJob }: JobAppListProps) {
                                         {isActive && <div className="job-app-active-indicator left" />}
                                         <Card>
                                             <CardContent>
-                                                <Typography variant="h6" className="job-title">
+                                                <Typography variant="h6" className="job-title" sx={{ fontFamily: 'Noto Sans Mono, sans-serif' }}>
                                                     {job.jobTitle}
                                                 </Typography>
-                                                <Typography>
+                                                <Typography sx={{ fontFamily: 'Noto Sans Mono, sans-serif' }}>
                                                     {job.location}
                                                 </Typography>
-                                                <Typography>
+                                                <Typography sx={{ fontFamily: 'Noto Sans Mono, sans-serif' }}>
                                                     {job.salary}
                                                 </Typography>
                                                 {job.jobStatus && (
@@ -50,6 +50,7 @@ function JobAppList({ jobDetailsHandler, jobs, currentJob }: JobAppListProps) {
                                                             className="job-status-chip"
                                                             sx={{
                                                                 background: jobStatusColors[job.jobStatus] || '#bdbdbd',
+                                                                fontFamily: 'Noto Sans Mono, sans-serif',
                                                             }}
                                                         />
                                                     </div>

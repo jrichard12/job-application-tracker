@@ -8,6 +8,25 @@
   box-shadow: $shadow-primary;
 }
 
+.toolbar-container {
+  padding: 0 !important;
+  min-height: 72px !important;
+}
+
+.toolbar-content {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 0 $spacing-xxl;
+}
+
+.logo-section {
+  display: flex;
+  align-items: center;
+}
+
 .app-title {
   margin-right: 1rem !important;
   font-family: $font-family !important;
@@ -61,6 +80,12 @@
   padding-bottom: 0.5rem;
   font-weight: 600;
   letter-spacing: 0.1rem;
+}
+
+.demo-banner-content {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 0 $spacing-xxl;
 }
 
 .app-bar .nav-button.MuiButton-text {

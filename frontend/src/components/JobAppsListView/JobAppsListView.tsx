@@ -1,6 +1,7 @@
 import { Chip, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Typography } from "@mui/material";
 import type { JobApp } from "../../types/JobApp";
 import { jobStatusColors } from "../../types/JobApp";
+import { truncateUrl } from "../../utils/urlUtils";
 import "./JobAppsListView.scss";
 
 type JobAppsListViewProps = {
@@ -18,6 +19,10 @@ function JobAppsListView({ jobs }: JobAppsListViewProps) {
         return salary;
     };
 
+    const hasResponse = (status: string) => {
+        return status !== 'Applied' && status !== 'Interested';
+    };
+
     return (
         <div className="job-apps-list-view">
             <TableContainer component={Paper} className="job-apps-table-container">
@@ -28,18 +33,17 @@ function JobAppsListView({ jobs }: JobAppsListViewProps) {
                             <TableCell className="table-header-cell">Company</TableCell>
                             <TableCell className="table-header-cell">Location</TableCell>
                             <TableCell className="table-header-cell">Salary</TableCell>
-                            <TableCell className="table-header-cell">Status</TableCell>
                             <TableCell className="table-header-cell">Date Applied</TableCell>
-                            <TableCell className="table-header-cell">Deadline</TableCell>
-                            <TableCell className="table-header-cell">Last Updated</TableCell>
+                            <TableCell className="table-header-cell">Response</TableCell>
+                            <TableCell className="table-header-cell">Status</TableCell>
                             <TableCell className="table-header-cell">Source</TableCell>
                         </TableRow>
                     </TableHead>
                     <TableBody>
                         {jobs.length === 0 ? (
                             <TableRow>
-                                <TableCell colSpan={9} className="empty-state-cell">
-                                    <Typography className="empty-state-message">
+                                <TableCell colSpan={8} className="empty-state-cell">
+                                    <Typography className="empty-state-message" sx={{ fontFamily: 'Noto Sans Mono, sans-serif' }}>
                                         No job applications found
                                     </Typography>
                                 </TableCell>
@@ -48,23 +52,42 @@ function JobAppsListView({ jobs }: JobAppsListViewProps) {
                             jobs.map((job, index) => (
                                 <TableRow key={job.id || index} className="job-app-table-row">
                                     <TableCell className="table-cell job-title-cell">
-                                        <Typography className="job-title-text">
+                                        <Typography className="job-title-text" sx={{ fontFamily: 'Noto Sans Mono, sans-serif' }}>
                                             {job.jobTitle}
                                         </Typography>
                                     </TableCell>
                                     <TableCell className="table-cell">
-                                        <Typography className="company-text">
+                                        <Typography className="company-text" sx={{ fontFamily: 'Noto Sans Mono, sans-serif' }}>
                                             {job.company}
                                         </Typography>
                                     </TableCell>
                                     <TableCell className="table-cell">
-                                        <Typography className="location-text">
+                                        <Typography className="location-text" sx={{ fontFamily: 'Noto Sans Mono, sans-serif' }}>
                                             {job.location || "N/A"}
                                         </Typography>
                                     </TableCell>
                                     <TableCell className="table-cell">
-                                        <Typography className="salary-text">
+                                        <Typography className="salary-text" sx={{ fontFamily: 'Noto Sans Mono, sans-serif' }}>
                                             {formatSalary(job.salary)}
+                                        </Typography>
+                                    </TableCell>
+                                    <TableCell className="table-cell">
+                                        <Typography className="date-text" sx={{ fontFamily: 'Noto Sans Mono, sans-serif' }}>
+                                            {formatDate(job.dateApplied)}
+                                        </Typography>
+                                    </TableCell>
+                                    <TableCell className="table-cell response-cell">
+                                        <Typography 
+                                            className="response-indicator" 
+                                            sx={{ 
+                                                fontFamily: 'Noto Sans Mono, sans-serif',
+                                                fontSize: '1.2rem',
+                                                fontWeight: 'bold',
+                                                color: hasResponse(job.jobStatus) ? '#27ae60' : '#e74c3c',
+                                                textAlign: 'center'
+                                            }}
+                                        >
+                                            {hasResponse(job.jobStatus) ? '✓' : '✗'}
                                         </Typography>
                                     </TableCell>
                                     <TableCell className="table-cell">
@@ -77,24 +100,10 @@ function JobAppsListView({ jobs }: JobAppsListViewProps) {
                                                 color: '#fff',
                                                 fontWeight: 500,
                                                 fontSize: '0.75rem',
-                                                minWidth: '80px'
+                                                minWidth: '80px',
+                                                fontFamily: 'Noto Sans Mono, sans-serif',
                                             }}
                                         />
-                                    </TableCell>
-                                    <TableCell className="table-cell">
-                                        <Typography className="date-text">
-                                            {formatDate(job.dateApplied)}
-                                        </Typography>
-                                    </TableCell>
-                                    <TableCell className="table-cell">
-                                        <Typography className="deadline-text">
-                                            {formatDate(job.deadline)}
-                                        </Typography>
-                                    </TableCell>
-                                    <TableCell className="table-cell">
-                                        <Typography className="date-text">
-                                            {formatDate(job.lastUpdated)}
-                                        </Typography>
                                     </TableCell>
                                     <TableCell className="table-cell">
                                         {job.source && (job.source.startsWith('http://') || job.source.startsWith('https://')) ? (
@@ -104,11 +113,13 @@ function JobAppsListView({ jobs }: JobAppsListViewProps) {
                                                 target="_blank" 
                                                 rel="noopener noreferrer" 
                                                 className="source-link"
+                                                sx={{ fontFamily: 'Noto Sans Mono, sans-serif' }}
+                                                title={job.source}
                                             >
-                                                {job.source}
+                                                {truncateUrl(job.source, 40)}
                                             </Typography>
                                         ) : (
-                                            <Typography className="source-text">
+                                            <Typography className="source-text" sx={{ fontFamily: 'Noto Sans Mono, sans-serif' }}>
                                                 {job.source}
                                             </Typography>
                                         )}

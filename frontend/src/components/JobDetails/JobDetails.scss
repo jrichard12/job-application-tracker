@@ -1,6 +1,19 @@
 @use "sass:color";
 @use '../../variables' as *;
 
+// Ensure MUI components use our custom font
+.job-details-card {
+  // Force MUI Typography components to use our font
+  .MuiTypography-root {
+    font-family: $font-family !important;
+  }
+  
+  // Force MUI Chip components to use our font
+  .MuiChip-root {
+    font-family: $font-family !important;
+  }
+}
+
 .job-details-card {
   width: 100%;
   background: $color-background-light;
@@ -93,7 +106,8 @@
   cursor: pointer;
 }
 
-.job-details-deadline {
+.job-details-deadline,
+.job-details-dynamic-date {
   font-size: 0.98rem;
   color: $color-tertiary;
   font-weight: 500;

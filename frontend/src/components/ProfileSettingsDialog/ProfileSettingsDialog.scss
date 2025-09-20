@@ -1,0 +1,128 @@
+@use "sass:color";
+@use '../../variables' as *;
+
+// Scoped dialog styling to match CreateAppModal
+.profile-settings-dialog {
+    .MuiDialog-paper {
+        border-radius: $border-radius-xlarge;
+        box-shadow: 0 4px 32px 0 rgba($color-primary, 0.13);
+        background: $color-background;
+    }
+
+    .MuiDialogTitle-root {
+        font-family: $font-family !important;
+        font-weight: 700;
+        color: $color-primary;
+        letter-spacing: 0.5px;
+        padding-bottom: 0.2em;
+        text-align: center;
+    }
+
+    .MuiDialogContent-root {
+        padding-top: 0.5em;
+        padding-bottom: 1.5em;
+    }
+
+    .MuiDialogActions-root {
+        padding: $spacing-md $spacing-lg;
+        gap: $spacing-md;
+    }
+
+    // Typography styling for content
+    .MuiTypography-root {
+        font-family: $font-family !important;
+    }
+
+    .MuiTypography-h6 {
+        font-family: $font-family !important;
+        font-weight: 600 !important;
+        color: $color-text !important;
+    }
+
+    .MuiTypography-body1 {
+        font-family: $font-family !important;
+        color: $color-text !important;
+    }
+
+    .MuiTypography-body2 {
+        font-family: $font-family !important;
+        color: $color-tertiary !important;
+    }
+
+    // FormControlLabel styling
+    .MuiFormControlLabel-label {
+        font-family: $font-family !important;
+        color: $color-text !important;
+    }
+
+    // Checkbox styling
+    .MuiCheckbox-root {
+        &.Mui-checked {
+            color: $color-primary !important;
+        }
+    }
+
+    // All button variants styling
+    .MuiButton-root {
+        text-transform: none;
+        font-family: $font-family !important;
+        font-size: 1rem;
+        letter-spacing: 0.2px;
+        border-radius: 6px;
+        font-weight: 600;
+    }
+
+    .MuiButton-contained {
+        background: $color-primary !important;
+        color: $color-background !important;
+        box-shadow: 0 2px 8px 0 rgba($color-primary, 0.1);
+        &:hover,
+        &:focus {
+            background: #5a2d8b !important; // Darker purple for hover state
+            box-shadow: 0 4px 16px 0 rgba($color-primary, 0.18);
+        }
+    }
+
+    .MuiButton-outlined {
+        border-color: $color-primary !important;
+        color: $color-primary !important;
+        &:hover,
+        &:focus {
+            background: rgba($color-primary, 0.08) !important;
+            border-color: #5a2d8b !important;
+            color: #5a2d8b !important;
+        }
+    }
+
+    .MuiButton-text {
+        color: $color-tertiary !important;
+        &:hover,
+        &:focus {
+            background: rgba($color-tertiary, 0.08) !important;
+            color: $color-primary !important;
+        }
+    }
+}
+
+// Responsive design
+@media (max-width: 600px) {
+    .profile-settings-dialog {
+        .MuiDialog-paper {
+            margin: $spacing-md !important;
+            width: calc(100% - #{$spacing-xl}) !important;
+        }
+
+        .MuiDialogTitle-root {
+            font-size: 1.1rem !important;
+        }
+
+        .MuiDialogActions-root {
+            flex-direction: column-reverse;
+            
+            .MuiButton-root {
+                width: 100%;
+                margin: 0 !important;
+            }
+        }
+    }
+}

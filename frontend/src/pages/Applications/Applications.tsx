@@ -4,6 +4,7 @@ import ViewListIcon from '@mui/icons-material/ViewList';
 import ViewModuleIcon from '@mui/icons-material/ViewModule';
 import { CircularProgress, IconButton, Paper, Tooltip, Typography } from "@mui/material";
 import { useEffect, useState } from "react";
+import { useSearchParams } from "react-router-dom";
 import SnackbarAlert from '../../components/SnackbarAlert/SnackbarAlert';
 import { getDemoUserJobs } from '../../services/demoUserService';
 import CreateAppModal from "../../components/CreateAppModal/CreateAppModal";
@@ -22,6 +23,7 @@ interface ApplicationsProps {
 
 
 function Applications({ userInfo, updateUser }: ApplicationsProps) {
+    const [searchParams, setSearchParams] = useSearchParams();
     const [currentJobDetails, setCurrentJobDetails] = useState<JobApp>();
     const [createModalOpen, setCreateModalOpen] = useState<boolean>(false);
     const [jobs, setJobs] = useState<JobApp[]>([]);
@@ -49,10 +51,33 @@ function Applications({ userInfo, updateUser }: ApplicationsProps) {
     useEffect(() => {
         const activeJobs: JobApp[] = userInfo?.jobApps?.filter(job => !job.isArchived) || [];
         setJobs([...activeJobs]);
-    }, [userInfo]);
+        
+        // Clear selection if the currently selected job is no longer available (archived/deleted)
+        if (currentJobDetails && (!userInfo?.jobApps?.find(job => job.id === currentJobDetails.id) || 
+            userInfo.jobApps.find(job => job.id === currentJobDetails.id)?.isArchived)) {
+            setCurrentJobDetails(undefined);
+            setSearchParams({});
+        }
+    }, [userInfo, currentJobDetails, setSearchParams]);
+
+    // Handle jobId URL parameter for direct navigation from dashboard
+    useEffect(() => {
+        const jobId = searchParams.get('jobId');
+        if (jobId && userInfo?.jobApps) {
+            const targetJob = userInfo.jobApps.find(job => job.id === jobId && !job.isArchived);
+            if (targetJob) {
+                setCurrentJobDetails(targetJob);
+            } else {
+                // Job not found or archived, clear the invalid URL parameter
+                setSearchParams({});
+            }
+        }
+    }, [searchParams, userInfo, setSearchParams]);
 
     const handleShowDetails = (job: JobApp) => {
         setCurrentJobDetails(job);
+        // Update URL parameter to keep it in sync with the selected job
+        setSearchParams({ jobId: job.id });
     };
 
     const createApp = async (jobApp: JobApp | null) => {
@@ -143,6 +168,8 @@ function Applications({ userInfo, updateUser }: ApplicationsProps) {
             const activeJobs = loaded.filter(job => !job.isArchived);
             setJobs([...activeJobs]);
             setCurrentJobDetails(undefined);
+            // Clear URL parameters when refreshing
+            setSearchParams({});
             showSnackbar('Demo data reset', 'success');
             setRefreshLoading(false);
             return;
@@ -165,6 +192,8 @@ function Applications({ userInfo, updateUser }: ApplicationsProps) {
             const activeJobs = jobsData.filter(job => !job.isArchived);
             setJobs([...activeJobs]);
             setCurrentJobDetails(undefined);
+            // Clear URL parameters when refreshing
+            setSearchParams({});
             updateUser({ ...userInfo, jobApps: jobsData });
             showSnackbar('Jobs refreshed', 'success');
         } catch (error) {
@@ -235,7 +264,7 @@ function Applications({ userInfo, updateUser }: ApplicationsProps) {
                         <div className="refresh-loading-overlay">
                             <div className="loading-box">
                                 <CircularProgress color="primary" />
-                                <Typography variant="h6" component="div" className="loading-text">
+                                <Typography variant="h6" component="div" className="loading-text" sx={{ fontFamily: 'Noto Sans Mono, sans-serif' }}>
                                     Refreshing jobs...
                                 </Typography>
                             </div>

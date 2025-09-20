@@ -1,0 +1,235 @@
+@use "sass:color";
+@use "../../variables" as *;
+
+.chart-card {
+  border-radius: $border-radius-xlarge !important;
+  background: $color-background-light;
+  transition: all 0.3s ease;
+  border: 2px solid transparent;
+  position: relative;
+  overflow: hidden;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+  
+  // Ensure child elements also respect the border radius
+  .MuiPaper-root {
+    border-radius: $border-radius-xlarge !important;
+  }
+  
+  &:hover {
+    transform: translateY(-4px);
+    box-shadow: $shadow-heavy;
+  }
+
+  .chart-content {
+    padding: $spacing-xl;
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+  }
+
+  .chart-title {
+    font-family: $font-family;
+    font-weight: 600;
+    color: $color-text;
+    margin-bottom: $spacing-lg;
+    text-align: center;
+    position: relative;
+    
+    &::after {
+      content: '';
+      position: absolute;
+      bottom: -8px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 40px;
+      height: 3px;
+      background: $gradient-primary;
+      border-radius: 2px;
+      opacity: 0.6;
+    }
+  }
+
+  .chart-container {
+    position: relative;
+    width: 100%;
+    max-width: 100%;
+    overflow: hidden;
+    
+    canvas {
+      border-radius: $border-radius-medium;
+      max-width: 100% !important;
+      height: auto !important;
+    }
+  }
+}
+
+// Stats grid layout
+.modern-stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: $spacing-lg;
+  margin-bottom: $spacing-xl;
+}
+
+// Specific card height matching for the 2-column grid
+.charts-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: $spacing-lg;
+  margin-bottom: $spacing-lg;
+
+  // First two cards should have matching heights
+  > div:nth-child(1), > div:nth-child(2) {
+    .chart-card, .insight-card {
+      height: 100%;
+      min-height: 450px;
+    }
+  }
+
+  .chart-card--full-width {
+    grid-column: 1 / -1;
+  }
+
+  .chart-card--donut {
+    display: flex;
+    flex-direction: column;
+    min-height: 450px;
+    
+    .chart-content {
+      display: flex;
+      flex-direction: column;
+      flex: 1;
+      justify-content: space-between;
+    }
+    
+    .chart-container {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+  }
+
+  // Items 3+ go full width
+  > div:nth-child(n+3) {
+    grid-column: 1 / -1;
+  }
+}
+
+// Ensure donut chart card matches insight card height
+.donut-chart-card {
+  min-height: 450px;
+  display: flex;
+  flex-direction: column;
+  
+  .chart-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+  }
+}
+
+// Animation classes
+.fade-in-up {
+  opacity: 0;
+  transform: translateY(30px);
+  animation: fadeInUp 0.8s ease-out forwards;
+}
+
+.fade-in-up--delay-1 {
+  animation-delay: 0.2s;
+}
+
+.fade-in-up--delay-2 {
+  animation-delay: 0.4s;
+}
+
+.fade-in-up--delay-3 {
+  animation-delay: 0.6s;
+}
+
+.fade-in-up--delay-4 {
+  animation-delay: 0.8s;
+}
+
+.fade-in-up--delay-5 {
+  animation-delay: 1.0s;
+}
+
+@keyframes fadeInUp {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+// Responsive design
+@media (max-width: 1200px) {
+  .chart-card {
+    .chart-content {
+      padding: $spacing-lg;
+    }
+
+    .chart-container {
+      max-width: calc(100vw - 6rem);
+      overflow-x: hidden;
+    }
+  }
+}
+
+@media (max-width: 1024px) {
+  .charts-grid {
+    grid-template-columns: 1fr;
+    
+    .chart-card--full-width {
+      grid-column: 1;
+    }
+  }
+
+  .chart-card {
+    .chart-container {
+      max-width: calc(100vw - 4rem);
+    }
+  }
+}
+
+@media (max-width: 768px) {
+  .modern-stats-grid {
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: $spacing-md;
+  }
+
+  .charts-grid {
+    gap: $spacing-md;
+  }
+
+  .chart-card {
+    .chart-content {
+      padding: $spacing-lg $spacing-md;
+    }
+
+    .chart-title {
+      font-size: 1.1rem;
+      margin-bottom: $spacing-md;
+    }
+  }
+}
+
+@media (max-width: 480px) {
+  .modern-stats-grid {
+    grid-template-columns: 1fr;
+    gap: $spacing-sm;
+  }
+
+  .chart-card {
+    .chart-content {
+      padding: $spacing-md;
+    }
+
+    .chart-title {
+      font-size: 1rem;
+    }
+  }
+}

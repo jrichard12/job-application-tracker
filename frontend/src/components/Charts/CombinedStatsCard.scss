@@ -1,0 +1,265 @@
+@use "sass:color";
+@use "sass:math";
+@use "../../variables" as *;
+
+.combined-stats-card {
+  border-radius: $border-radius-xlarge !important;
+  background: $color-background-light;
+  transition: all 0.3s ease;
+  border: 2px solid transparent;
+  width: 100%;
+  max-width: 100%;
+  overflow: hidden;
+  
+  // Ensure child elements also respect the border radius
+  .MuiPaper-root {
+    border-radius: $border-radius-xlarge !important;
+  }
+  
+  &:hover {
+    transform: translateY(-4px);
+    box-shadow: $shadow-heavy;
+  }
+
+  .combined-stats-content {
+    padding: $spacing-lg;
+    width: 100%;
+    box-sizing: border-box;
+  }
+
+  .combined-stats-title {
+    font-family: $font-family;
+    font-weight: 600;
+    color: $color-text;
+    margin-bottom: $spacing-lg;
+    text-align: center;
+    position: relative;
+    
+    &::after {
+      content: '';
+      position: absolute;
+      bottom: -8px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 40px;
+      height: 3px;
+      background: $gradient-primary;
+      border-radius: 2px;
+    }
+  }
+
+  .stats-grid {
+    gap: $spacing-md;
+    justify-content: space-around;
+  }
+
+  .stat-item {
+    padding: $spacing-md;
+    border-radius: $border-radius-small;
+    background: rgba($color-primary, 0.02);
+    border: 1px solid rgba($color-primary, 0.1);
+    transition: all 0.3s ease;
+    text-align: center;
+    
+    &:hover {
+      transform: translateY(-1px);
+      box-shadow: $shadow-light;
+    }
+
+    .stat-header {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      margin-bottom: $spacing-sm;
+    }
+
+    .stat-icon {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: $spacing-xs;
+      transition: all 0.3s ease;
+      
+      svg {
+        font-size: 16px;
+      }
+
+      &--primary {
+        background: rgba($color-primary, 0.1);
+        color: $color-primary;
+      }
+
+      &--secondary {
+        background: rgba($color-secondary, 0.1);
+        color: $color-secondary;
+      }
+
+      &--tertiary {
+        background: rgba($color-tertiary, 0.1);
+        color: $color-tertiary;
+      }
+
+      &--success {
+        background: rgba($color-success, 0.1);
+        color: $color-success;
+      }
+
+      &--error {
+        background: rgba($color-error, 0.1);
+        color: $color-error;
+      }
+    }
+
+    .stat-value {
+      font-family: $font-family;
+      font-weight: 700;
+      color: $color-text;
+      margin-bottom: $spacing-xs;
+      line-height: 1;
+      font-size: 1.5rem;
+    }
+
+    .stat-title {
+      font-weight: 600;
+      color: $color-text;
+      margin-bottom: $spacing-xs;
+      font-size: 0.8rem;
+    }
+
+    .stat-subtitle {
+      color: $color-text-light;
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    // Color variants
+    &--primary {
+      border-color: rgba($color-primary, 0.2);
+      
+      .stat-value {
+        color: $color-primary;
+      }
+    }
+
+    &--secondary {
+      border-color: rgba($color-secondary, 0.2);
+      
+      .stat-value {
+        color: $color-secondary;
+      }
+    }
+
+    &--tertiary {
+      border-color: rgba($color-tertiary, 0.2);
+      
+      .stat-value {
+        color: $color-tertiary;
+      }
+    }
+
+    &--success {
+      border-color: rgba($color-success, 0.2);
+      
+      .stat-value {
+        color: $color-success;
+      }
+    }
+
+    &--error {
+      border-color: rgba($color-error, 0.2);
+      
+      .stat-value {
+        color: $color-error;
+      }
+    }
+  }
+}
+
+// Responsive design
+@media (max-width: 1200px) {
+  .combined-stats-card {
+    .combined-stats-content {
+      padding: $spacing-md;
+    }
+
+    .stats-grid {
+      gap: $spacing-sm;
+    }
+
+    .stat-item {
+      padding: $spacing-sm;
+
+      .stat-icon {
+        width: 28px;
+        height: 28px;
+        
+        svg {
+          font-size: 14px;
+        }
+      }
+
+      .stat-value {
+        font-size: 1.25rem;
+      }
+
+      .stat-title {
+        font-size: 0.75rem;
+      }
+
+      .stat-subtitle {
+        font-size: 0.65rem;
+      }
+    }
+  }
+}
+
+@media (max-width: 768px) {
+  .combined-stats-card {
+    .combined-stats-content {
+      padding: $spacing-md;
+    }
+
+    .stat-item {
+      padding: $spacing-sm;
+
+      .stat-icon {
+        width: 28px;
+        height: 28px;
+        
+        svg {
+          font-size: 14px;
+        }
+      }
+
+      .stat-value {
+        font-size: 1.25rem;
+      }
+
+      .stat-title {
+        font-size: 0.75rem;
+      }
+    }
+  }
+}
+
+@media (max-width: 480px) {
+  .combined-stats-card {
+    .stats-grid {
+      gap: $spacing-xs;
+    }
+
+    .stat-item {
+      .stat-header {
+        margin-bottom: $spacing-xs;
+      }
+
+      .stat-value {
+        font-size: 1.1rem;
+      }
+    }
+  }
+}

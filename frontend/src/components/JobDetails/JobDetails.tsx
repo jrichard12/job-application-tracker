@@ -12,6 +12,7 @@ import { useAuth } from "../../services/authService";
 import type { JobApp } from "../../types/JobApp";
 import { jobAppStatusOptions, jobStatusColors } from "../../types/JobApp";
 import type { UserInfo } from "../../types/UserInfo";
+import { truncateUrl } from "../../utils/urlUtils";
 import SnackbarAlert from '../SnackbarAlert/SnackbarAlert';
 import "./JobDetails.scss";
 
@@ -31,7 +32,7 @@ function JobDetails({ job, updateUser, userInfo }: JobDetailsProps) {
     const [tempSkills, setTempSkills] = useState<string[]>([]);
     const [editingDescription, setEditingDescription] = useState(false);
     const [tempDescription, setTempDescription] = useState<string>("");
-    const [editingDeadline, setEditingDeadline] = useState(false);
+    const [editingDynamicDate, setEditingDynamicDate] = useState(false);
     const [loading, setLoading] = useState(false);
     const [descriptionModalOpen, setDescriptionModalOpen] = useState(false);
 
@@ -57,6 +58,9 @@ function JobDetails({ job, updateUser, userInfo }: JobDetailsProps) {
     const [currentJob, setCurrentJob] = useState<JobApp | null>(job ? {
         ...job,
         deadline: parseDate(job.deadline),
+        dateApplied: parseDate(job.dateApplied),
+        interviewDate: parseDate(job.interviewDate),
+        rejectedDate: parseDate(job.rejectedDate),
         lastUpdated: parseDate(job.lastUpdated),
     } : null);
 
@@ -85,10 +89,56 @@ function JobDetails({ job, updateUser, userInfo }: JobDetailsProps) {
         setCurrentJob(job ? {
             ...job,
             deadline: parseDate(job.deadline),
+            dateApplied: parseDate(job.dateApplied),
+            interviewDate: parseDate(job.interviewDate),
+            rejectedDate: parseDate(job.rejectedDate),
             lastUpdated: parseDate(job.lastUpdated),
         } : null);
-        setEditingDeadline(false);
+        setEditingDynamicDate(false);
     }, [job])
+
+    // Helper function to get date info based on job status
+    const getDynamicDateInfo = (job: JobApp) => {
+        switch (job.jobStatus) {
+            case 'Interested':
+                return {
+                    label: 'Deadline',
+                    date: job.deadline,
+                    field: 'deadline' as const,
+                    tooltip: 'Click to edit deadline'
+                };
+            case 'Applied':
+                return {
+                    label: 'Date Applied',
+                    date: job.dateApplied,
+                    field: 'dateApplied' as const,
+                    tooltip: 'Click to edit date applied'
+                };
+            case 'Interviewed':
+            case 'Offered':
+            case 'Accepted':
+                return {
+                    label: 'Interview Date',
+                    date: job.interviewDate,
+                    field: 'interviewDate' as const,
+                    tooltip: 'Click to edit interview date'
+                };
+            case 'Rejected':
+                return {
+                    label: 'Rejected Date',
+                    date: job.rejectedDate,
+                    field: 'rejectedDate' as const,
+                    tooltip: 'Click to edit rejected date'
+                };
+            default:
+                return {
+                    label: 'Deadline',
+                    date: job.deadline,
+                    field: 'deadline' as const,
+                    tooltip: 'Click to edit deadline'
+                };
+        }
+    };
 
     // Revert description if not saved
     useEffect(() => {
@@ -149,6 +199,9 @@ function JobDetails({ job, updateUser, userInfo }: JobDetailsProps) {
         const jobDataForAPI = {
             ...job,
             deadline: job.deadline instanceof Date ? job.deadline.toISOString() : job.deadline,
+            dateApplied: job.dateApplied instanceof Date ? job.dateApplied.toISOString() : job.dateApplied,
+            interviewDate: job.interviewDate instanceof Date ? job.interviewDate.toISOString() : job.interviewDate,
+            rejectedDate: job.rejectedDate instanceof Date ? job.rejectedDate.toISOString() : job.rejectedDate,
             lastUpdated: new Date().toISOString() // Always update the lastUpdated timestamp
         };
 
@@ -299,7 +352,7 @@ function JobDetails({ job, updateUser, userInfo }: JobDetailsProps) {
                 <div className="job-details-loading-overlay">
                     <div className="loading-box">
                         <CircularProgress color="primary" />
-                        <Typography variant="h6" component="div" className="loading-text">
+                        <Typography variant="h6" component="div" className="loading-text" sx={{ fontFamily: 'Noto Sans Mono, sans-serif' }}>
                             Processing...
                         </Typography>
                     </div>
@@ -311,26 +364,37 @@ function JobDetails({ job, updateUser, userInfo }: JobDetailsProps) {
                         <div className="job-card-content">
                             <div className="job-details-header">
                                 <div className="job-details-title-row">
-                                    <Typography variant="h4" className="job-details-title">
+                                    <Typography variant="h4" className="job-details-title" sx={{ fontFamily: 'Noto Sans Mono, sans-serif' }}>
                                         {currentJob.jobTitle}
                                     </Typography>
                                 </div>
                                 <div className="job-details-info-row">
-                                    <Tooltip title={currentJob.isArchived ? "" : "Click to edit deadline"} arrow>
-                                        <span className="job-details-deadline"
-                                            onClick={currentJob.isArchived ? undefined : () => setEditingDeadline(true)}
+                                    <Tooltip title={currentJob.isArchived ? "" : getDynamicDateInfo(currentJob).tooltip} arrow>
+                                        <span className="job-details-dynamic-date"
+                                            onClick={currentJob.isArchived ? undefined : () => setEditingDynamicDate(true)}
                                         >
-                                            Deadline: {editingDeadline ? (
+                                            {(() => {
+                                                const dateInfo = getDynamicDateInfo(currentJob);
+                                                return `${dateInfo.label}: ${editingDynamicDate ? (
+                                                    ''
+                                                ) : (
+                                                    dateInfo.date && !isNaN(dateInfo.date.getTime()) ? dateInfo.date.toLocaleDateString() : 'No date set'
+                                                )}`;
+                                            })()}
+                                            {editingDynamicDate && (
                                                 <input
                                                     type="date"
-                                                    value={currentJob.deadline && !isNaN(currentJob.deadline.getTime()) ? currentJob.deadline.toISOString().split('T')[0] : ''}
+                                                    value={(() => {
+                                                        const dateInfo = getDynamicDateInfo(currentJob);
+                                                        return dateInfo.date && !isNaN(dateInfo.date.getTime()) ? dateInfo.date.toISOString().split('T')[0] : '';
+                                                    })()}
                                                     onChange={(e) => {
-                                                        // Create a Date object at noon local time to avoid timezone issues
                                                         const date = parseDate(e.target.value);
-                                                        setCurrentJob({ ...currentJob, deadline: date });
-                                                        setEditingDeadline(false);
+                                                        const dateInfo = getDynamicDateInfo(currentJob);
+                                                        setCurrentJob({ ...currentJob, [dateInfo.field]: date });
+                                                        setEditingDynamicDate(false);
                                                     }}
-                                                    onBlur={() => setEditingDeadline(false)}
+                                                    onBlur={() => setEditingDynamicDate(false)}
                                                     autoFocus
                                                     style={{
                                                         fontSize: '0.98rem',
@@ -338,11 +402,10 @@ function JobDetails({ job, updateUser, userInfo }: JobDetailsProps) {
                                                         border: '1px solid #ccc',
                                                         borderRadius: '4px',
                                                         padding: '2px 6px',
-                                                        background: 'white'
+                                                        background: 'white',
+                                                        marginLeft: '8px'
                                                     }}
                                                 />
-                                            ) : (
-                                                currentJob.deadline && !isNaN(currentJob.deadline.getTime()) ? currentJob.deadline.toLocaleDateString() : 'No deadline set'
                                             )}
                                         </span>
                                     </Tooltip>
@@ -356,6 +419,7 @@ function JobDetails({ job, updateUser, userInfo }: JobDetailsProps) {
                                                     backgroundColor: currentJob.jobStatus ? jobStatusColors[currentJob.jobStatus] : '#e0f7fa',
                                                     color: '#fff',
                                                     fontWeight: 500,
+                                                    fontFamily: 'Noto Sans Mono, sans-serif',
                                                     minWidth: '120px',
                                                     paddingRight: '28px'
                                                 }}
@@ -379,7 +443,46 @@ function JobDetails({ job, updateUser, userInfo }: JobDetailsProps) {
                                                     key={option}
                                                     selected={option === currentJob.jobStatus}
                                                     onClick={() => {
-                                                        setCurrentJob({ ...currentJob, jobStatus: option });
+                                                        const updatedJob = { ...currentJob, jobStatus: option };
+                                                        
+                                                        // Auto-set dates when status changes forward
+                                                        const now = new Date();
+                                                        switch (option) {
+                                                            case 'Applied':
+                                                                if (!updatedJob.dateApplied) {
+                                                                    updatedJob.dateApplied = now;
+                                                                }
+                                                                // Reset future dates if moving back to Applied
+                                                                if (['Interviewed', 'Offered', 'Accepted', 'Rejected'].includes(currentJob.jobStatus)) {
+                                                                    updatedJob.interviewDate = null;
+                                                                    updatedJob.rejectedDate = null;
+                                                                }
+                                                                break;
+                                                            case 'Interviewed':
+                                                                if (!updatedJob.interviewDate) {
+                                                                    updatedJob.interviewDate = now;
+                                                                }
+                                                                // Reset future dates if moving back to Interviewed
+                                                                if (['Offered', 'Accepted', 'Rejected'].includes(currentJob.jobStatus)) {
+                                                                    updatedJob.rejectedDate = null;
+                                                                }
+                                                                break;
+                                                            case 'Interested':
+                                                                // Reset all future dates if moving back to Interested
+                                                                if (['Applied', 'Interviewed', 'Offered', 'Accepted', 'Rejected'].includes(currentJob.jobStatus)) {
+                                                                    updatedJob.dateApplied = null;
+                                                                    updatedJob.interviewDate = null;
+                                                                    updatedJob.rejectedDate = null;
+                                                                }
+                                                                break;
+                                                            case 'Rejected':
+                                                                if (!updatedJob.rejectedDate) {
+                                                                    updatedJob.rejectedDate = now;
+                                                                }
+                                                                break;
+                                                        }
+                                                        
+                                                        setCurrentJob(updatedJob);
                                                         setStatusMenuAnchor(null);
                                                     }}
                                                     className="job-details-menu-item"
@@ -417,6 +520,12 @@ function JobDetails({ job, updateUser, userInfo }: JobDetailsProps) {
                                                 value={tempFieldValue}
                                                 autoFocus
                                                 onChange={e => setTempFieldValue(e.target.value)}
+                                                onKeyDown={e => {
+                                                    if (e.key === 'Enter') {
+                                                        setCurrentJob({ ...currentJob, company: tempFieldValue });
+                                                        setEditingField(null);
+                                                    }
+                                                }}
                                                 className="job-details-edit-input"
                                             />
                                             <IconButton size="small" className="job-details-save-button" aria-label="Save company" onClick={() => { setCurrentJob({ ...currentJob, company: tempFieldValue }); setEditingField(null); }}>
@@ -431,7 +540,7 @@ function JobDetails({ job, updateUser, userInfo }: JobDetailsProps) {
                                             <span className="job-details-field-text">{currentJob.company || 'No company provided'}</span>
                                             {!currentJob.isArchived &&
                                                 <div className="job-details-edit-controls">
-                                                    <IconButton size="small" className="job-details-icon-button--edit" aria-label="Edit company" onClick={() => { setEditingField('company'); setTempFieldValue(currentJob.company || ""); }}>
+                                                    <IconButton size="small" className="job-details-icon-button--edit" aria-label="Edit company" onClick={() => { setEditingField('company'); setTempFieldValue(currentJob.company || ""); setEditingSkills(false); }}>
                                                         <EditIcon fontSize="small" />
                                                     </IconButton>
                                                 </div>
@@ -450,6 +559,12 @@ function JobDetails({ job, updateUser, userInfo }: JobDetailsProps) {
                                                 value={tempFieldValue}
                                                 autoFocus
                                                 onChange={e => setTempFieldValue(e.target.value)}
+                                                onKeyDown={e => {
+                                                    if (e.key === 'Enter') {
+                                                        setCurrentJob({ ...currentJob, source: tempFieldValue });
+                                                        setEditingField(null);
+                                                    }
+                                                }}
                                                 className="job-details-edit-input"
                                             />
                                             <IconButton size="small" className="job-details-save-button" aria-label="Save source" onClick={() => { setCurrentJob({ ...currentJob, source: tempFieldValue }); setEditingField(null); }}>
@@ -468,15 +583,17 @@ function JobDetails({ job, updateUser, userInfo }: JobDetailsProps) {
                                                     target="_blank" 
                                                     rel="noopener noreferrer" 
                                                     className="job-details-source-link"
+                                                    sx={{ fontFamily: 'Noto Sans Mono, sans-serif' }}
+                                                    title={currentJob.source}
                                                 >
-                                                    {currentJob.source}
+                                                    {truncateUrl(currentJob.source, 60)}
                                                 </Typography>
                                             ) : (
                                                 <span className="job-details-field-text">{currentJob.source || 'No source provided'}</span>
                                             )}
                                             {!currentJob.isArchived &&
                                                 <div className="job-details-edit-controls">
-                                                    <IconButton size="small" className="job-details-icon-button--edit" aria-label="Edit source" onClick={() => { setEditingField('source'); setTempFieldValue(currentJob.source || ""); }}>
+                                                    <IconButton size="small" className="job-details-icon-button--edit" aria-label="Edit source" onClick={() => { setEditingField('source'); setTempFieldValue(currentJob.source || ""); setEditingSkills(false); }}>
                                                         <EditIcon fontSize="small" />
                                                     </IconButton>
                                                 </div>
@@ -494,8 +611,14 @@ function JobDetails({ job, updateUser, userInfo }: JobDetailsProps) {
                                                 type="text"
                                                 value={tempFieldValue}
                                                 autoFocus
-                                                className="job-details-input"
+                                                className="job-details-edit-input"
                                                 onChange={e => setTempFieldValue(e.target.value)}
+                                                onKeyDown={e => {
+                                                    if (e.key === 'Enter') {
+                                                        setCurrentJob({ ...currentJob, location: tempFieldValue });
+                                                        setEditingField(null);
+                                                    }
+                                                }}
                                             />
                                             <IconButton size="small" className="job-details-icon-button--save" aria-label="Save location" onClick={() => { setCurrentJob({ ...currentJob, location: tempFieldValue }); setEditingField(null); }}>
                                                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="green" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12" /></svg>
@@ -509,7 +632,7 @@ function JobDetails({ job, updateUser, userInfo }: JobDetailsProps) {
                                             <span className="job-details-field-content">{currentJob.location || 'No location provided'}</span>
                                             {!currentJob.isArchived &&
                                                 <div className="job-details-edit-container">
-                                                    <IconButton size="small" className="job-details-icon-button--edit" aria-label="Edit location" onClick={() => { setEditingField('location'); setTempFieldValue(currentJob.location || ""); }}>
+                                                    <IconButton size="small" className="job-details-icon-button--edit" aria-label="Edit location" onClick={() => { setEditingField('location'); setTempFieldValue(currentJob.location || ""); setEditingSkills(false); }}>
                                                         <EditIcon fontSize="small" />
                                                     </IconButton>
                                                 </div>
@@ -527,8 +650,14 @@ function JobDetails({ job, updateUser, userInfo }: JobDetailsProps) {
                                                 type="text"
                                                 value={tempFieldValue}
                                                 autoFocus
-                                                className="job-details-input"
+                                                className="job-details-edit-input"
                                                 onChange={e => setTempFieldValue(e.target.value)}
+                                                onKeyDown={e => {
+                                                    if (e.key === 'Enter') {
+                                                        setCurrentJob({ ...currentJob, salary: tempFieldValue });
+                                                        setEditingField(null);
+                                                    }
+                                                }}
                                             />
                                             <IconButton size="small" className="job-details-icon-button--save" aria-label="Save salary" onClick={() => { setCurrentJob({ ...currentJob, salary: tempFieldValue }); setEditingField(null); }}>
                                                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="green" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12" /></svg>
@@ -542,7 +671,7 @@ function JobDetails({ job, updateUser, userInfo }: JobDetailsProps) {
                                             <span className="job-details-field-content">{currentJob.salary || 'No salary provided'}</span>
                                             {!currentJob.isArchived &&
                                                 <div className="job-details-edit-container">
-                                                    <IconButton size="small" className="job-details-icon-button--edit" aria-label="Edit salary" onClick={() => { setEditingField('salary'); setTempFieldValue(currentJob.salary || ""); }}>
+                                                    <IconButton size="small" className="job-details-icon-button--edit" aria-label="Edit salary" onClick={() => { setEditingField('salary'); setTempFieldValue(currentJob.salary || ""); setEditingSkills(false); }}>
                                                         <EditIcon fontSize="small" />
                                                     </IconButton>
                                                 </div>
@@ -603,6 +732,7 @@ function JobDetails({ job, updateUser, userInfo }: JobDetailsProps) {
                                                         background: '#42047e',
                                                         color: '#fff',
                                                         margin: 0,
+                                                        fontFamily: 'Noto Sans Mono, sans-serif',
                                                         '& .MuiChip-deleteIcon': {
                                                             color: '#ff4444',
                                                             '&:hover': {
@@ -627,6 +757,7 @@ function JobDetails({ job, updateUser, userInfo }: JobDetailsProps) {
                                             <IconButton size="small" className="job-details-icon-button--edit" aria-label="Edit skills" onClick={() => {
                                                 setEditingSkills(true);
                                                 setTempSkills(currentJob.skills || []);
+                                                setEditingField(null);
                                             }}>
                                                 <EditIcon fontSize="small" />
                                             </IconButton>

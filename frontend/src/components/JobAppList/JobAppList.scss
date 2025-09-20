@@ -1,6 +1,19 @@
 @use "sass:color";
 @use '../../variables' as *;
 
+// Ensure MUI components use our custom font
+.job-app-list {
+  // Force MUI Typography components to use our font
+  .MuiTypography-root {
+    font-family: $font-family !important;
+  }
+  
+  // Force MUI Chip components to use our font
+  .MuiChip-root {
+    font-family: $font-family !important;
+  }
+}
+
 .job-app-list {
   .MuiList-root {
     padding-top: 0;

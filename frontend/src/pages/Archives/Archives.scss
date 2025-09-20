@@ -6,7 +6,7 @@
   background: transparent;
   border-radius: 0;
   box-shadow: none;
-  max-width: 1200px;
+  max-width: 1400px;
   min-height: 70vh;
   padding: $spacing-md;
   display: flex;
@@ -103,19 +103,42 @@
       }
 
       .job-app-list {
-        width: 36vw;
+        width: 35%;
         background: transparent;
         border-radius: 0;
         box-shadow: none;
         padding: 0;
-        min-height: 50vh;
-        max-height: none;
+        min-height: 600px;
+        max-height: 600px;
         display: flex;
         flex-direction: column;
         justify-content: flex-start;
         overflow-y: auto;
         scrollbar-width: thin;
-        scrollbar-color: $color-primary $color-background;
+        scrollbar-color: rgba($color-background, 0.6) transparent;
+
+        // Custom scrollbar styling for webkit browsers
+        &::-webkit-scrollbar {
+          width: 4px;
+        }
+
+        &::-webkit-scrollbar-track {
+          background: transparent;
+        }
+
+        &::-webkit-scrollbar-thumb {
+          background: rgba($color-background, 0.3);
+          border-radius: 2px;
+          
+          &:hover {
+            background: rgba($color-background, 0.5);
+          }
+        }
+
+        // Hide scrollbar when not needed
+        &::-webkit-scrollbar-thumb:window-inactive {
+          background: transparent;
+        }
 
         // Empty state
         .empty-list-message {
@@ -134,11 +157,11 @@
           border-radius: 8px;
           margin-bottom: 0.4rem;
           position: relative;
-        overflow: visible;
-        // Ensure no accent stripe or right-side highlight
-        &::after {
-          display: none !important;
-        }
+          overflow: visible;
+          // Ensure no accent stripe or right-side highlight
+          &::after {
+            display: none !important;
+          }
 
           &:hover {
             background: transparent !important;
@@ -157,17 +180,46 @@
       }
 
       .job-app-details {
-        width: 54vw;
+        width: 60%;
         background: transparent;
         border-radius: 0;
         box-shadow: none;
         padding: 0;
-        min-height: 50vh;
+        height: 600px;
+        max-height: 600px;
         display: flex;
         flex-direction: column;
         justify-content: flex-start;
         border-left: 1.5px solid rgba($color-tertiary, 0.13);
-        padding-left: 1.5rem;
+        padding-left: 0.75rem;
+        overflow-y: auto;
+        position: sticky;
+        top: 0;
+
+        // Subtle scrollbar styling to match job list
+        scrollbar-width: thin;
+        scrollbar-color: rgba($color-background, 0.6) transparent;
+
+        &::-webkit-scrollbar {
+          width: 4px;
+        }
+
+        &::-webkit-scrollbar-track {
+          background: transparent;
+        }
+
+        &::-webkit-scrollbar-thumb {
+          background: rgba($color-background, 0.3);
+          border-radius: 2px;
+          
+          &:hover {
+            background: rgba($color-background, 0.5);
+          }
+        }
+
+        &::-webkit-scrollbar-thumb:window-inactive {
+          background: transparent;
+        }
       }
     }
   }

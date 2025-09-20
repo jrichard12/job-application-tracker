@@ -1,7 +1,15 @@
-import { Box, Button, Card, CardContent, Checkbox, FormControlLabel, Paper, Typography } from "@mui/material";
-import { useEffect, useState } from "react";
+import { Button, Paper, Typography, Alert, IconButton, Tooltip } from "@mui/material";
+import { Settings } from "@mui/icons-material";
+import { useState } from "react";
 import SnackbarAlert from '../../components/SnackbarAlert/SnackbarAlert';
+import ProfileSettingsDialog from '../../components/ProfileSettingsDialog/ProfileSettingsDialog';
+import ResponseRateBarChart from '../../components/Charts/ResponseRateBarChart';
+import ApplicationTrendLineChart from '../../components/Charts/ApplicationTrendLineChart';
+import InsightCard from '../../components/Charts/InsightCard';
+import CombinedStatsCard from '../../components/Charts/CombinedStatsCard';
+import UpcomingDatesCard from '../../components/Charts/UpcomingDatesCard';
 import { useAuth } from "../../services/authService";
+import { getDemoUserJobs } from "../../services/demoUserService";
 import type { UserInfo } from "../../types/UserInfo";
 import "./Dashboard.scss";
 
@@ -11,38 +19,24 @@ interface DashboardProps {
 }
 
 export function Dashboard({ userInfo, updateUser }: DashboardProps) {
-    const [notifications, setNotifications] = useState<boolean>(false);
-    const [hasChanges, setHasChanges] = useState<boolean>(false);
+    const [settingsDialogOpen, setSettingsDialogOpen] = useState<boolean>(false);
     const { demoMode, user } = useAuth();
 
-    useEffect(() => {
-        if (userInfo) {
-            setNotifications(userInfo.sendNotifications || false);
-        }
-    }, [userInfo]);
-
-    const handleNotificationChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-        const newValue = event.target.checked;
-        setNotifications(newValue);
-        setHasChanges(newValue !== (userInfo?.sendNotifications || false));
-    };
-
-    const handleSaveChanges = async () => {        
+    const handleSaveChanges = async (newNotifications: boolean) => {
         if (!userInfo) return;
 
         if (demoMode) {
             updateUser({
                 ...userInfo,
-                sendNotifications: notifications
+                sendNotifications: newNotifications
             });
-            setHasChanges(false);
             showSnackbar('Notification preferences updated', 'success');
             return;
         }
 
         try {
             const userInfoHandlerUrl = import.meta.env.VITE_USER_INFO_URL;
-            
+
             if (!user?.authToken) {
                 console.error("No auth token found");
                 return;
@@ -56,7 +50,7 @@ export function Dashboard({ userInfo, updateUser }: DashboardProps) {
                 },
                 body: JSON.stringify({
                     userId: userInfo.id,
-                    sendNotifications: notifications
+                    sendNotifications: newNotifications
                 })
             });
 
@@ -71,14 +65,25 @@ export function Dashboard({ userInfo, updateUser }: DashboardProps) {
 
             updateUser({
                 ...userInfo,
-                sendNotifications: notifications
+                sendNotifications: newNotifications
             });
-            setHasChanges(false);
-            showSnackbar('Notification preferences updated', 'success');
+            showSnackbar('Notification preferences updated successfully', 'success');
         } catch (error) {
             console.error("Error saving user preferences:", error);
             showSnackbar('Failed to update notification preferences', 'error');
+            throw error;
         }
+    };
+
+    const handleResetData = () => {
+        if (!userInfo) return;
+
+        const loadedJobApps = getDemoUserJobs();
+        updateUser({
+            ...userInfo,
+            jobApps: loadedJobApps
+        });
+        showSnackbar('Demo data reset successfully', 'success');
     };
 
     const [snackbar, setSnackbar] = useState<{ open: boolean; message: string; severity: 'success' | 'error' | 'info' | 'warning' }>({
@@ -96,34 +101,11 @@ export function Dashboard({ userInfo, updateUser }: DashboardProps) {
         setSnackbar(prev => ({ ...prev, open: false }));
     }
 
-    // Stats
-    const stats = userInfo?.stats || {
-        totalJobsApplied: userInfo?.jobApps?.filter(job => job.dateApplied !== null).length || 0,
-        totalInterviews: userInfo?.jobApps?.filter(job => job.jobStatus === 'Interviewed' || job.jobStatus === 'Offered').length || 0,
-        totalRejections: userInfo?.jobApps?.filter(job => job.jobStatus === 'Rejected').length || 0,
-        totalOffers: userInfo?.jobApps?.filter(job => job.jobStatus === 'Offered' || job.jobStatus === 'Accepted').length || 0,
-        responseRate: 0,
-        avgResponseTime: 0
-    };
-
-    // Calculated stats
-    const appliedJobs = stats.totalJobsApplied;
-    const respondedJobs = stats.totalInterviews + stats.totalRejections + stats.totalOffers;
-    const responseRate = appliedJobs > 0 ? Math.round((respondedJobs / appliedJobs) * 100) : 0;
-
-    const statCards = [
-        { title: "Total Applications", value: stats.totalJobsApplied, color: "primary" },
-        { title: "Interviews", value: stats.totalInterviews, color: "secondary" },
-        { title: "Offers", value: stats.totalOffers, color: "success" },
-        { title: "Rejections", value: stats.totalRejections, color: "error" },
-        { title: "Response Rate", value: `${responseRate}%`, color: "tertiary" }
-    ];
-
     if (!userInfo) {
         return (
             <div className="dashboard">
                 <Paper className="dashboard-container" elevation={24}>
-                    <Typography variant="h5" className="dashboard-title">
+                    <Typography variant="h5" className="dashboard-title" sx={{ fontFamily: 'Noto Sans Mono, sans-serif' }}>
                         Loading Dashboard...
                     </Typography>
                 </Paper>
@@ -136,80 +118,90 @@ export function Dashboard({ userInfo, updateUser }: DashboardProps) {
             <div className="dashboard-content">
                 <Paper className="dashboard-header" elevation={24}>
                     <div className="header-toolbar">
-                        <Typography variant="h4" fontFamily={"var(--font-family)"} fontWeight="bold" className="page-title">
+                        <Typography variant="h4" className="page-title" sx={{ fontFamily: 'Noto Sans Mono, sans-serif', fontWeight: 'bold' }}>
                             Dashboard
                         </Typography>
+                        <Tooltip title="Profile Settings" arrow>
+                            <IconButton
+                                onClick={() => setSettingsDialogOpen(true)}
+                                className="settings-button"
+                                aria-label="Open Settings"
+                            >
+                                <Settings />
+                            </IconButton>
+                        </Tooltip>
                     </div>
                 </Paper>
 
-                <div className="stats-section">
-                    <Typography variant="h5" className="section-title">
-                        Your Statistics
+                {demoMode && (
+                    <Paper className="demo-info-section" elevation={3}>
+                        <Alert severity="info" className="demo-alert" icon={false}>
+                            <Typography variant="h6" className="demo-title" sx={{ fontFamily: 'Noto Sans Mono, sans-serif' }}>
+                                Demo Mode Active
+                            </Typography>
+                            <Typography variant="body2" className="demo-description" sx={{ fontFamily: 'Noto Sans Mono, sans-serif' }}>
+                                You are currently logged in as a demo user. Explore the application features,
+                                but any changes you make will not persist on logout.
+                            </Typography>
+                            <Typography variant="body2" className="demo-description" sx={{ fontFamily: 'Noto Sans Mono, sans-serif' }}>
+                                Clicking the button below will revert any changes you have made and reset the demo data back to its original state.
+                            </Typography>
+                            <Button
+                                variant="contained"
+                                color="primary"
+                                onClick={handleResetData}
+                                className="reset-demo-button"
+                                size="small"
+                            >
+                                Reset Demo Data
+                            </Button>
+                        </Alert>
+                    </Paper>
+                )}
+
+                <div className="overview-section">
+                    <Typography variant="h5" className="section-title" sx={{ fontFamily: 'Noto Sans Mono, sans-serif' }}>
+                        General Overview
                     </Typography>
-                    <div className="stats-grid">
-                        {statCards.map((stat, index) => (
-                            <Card key={index} className={`stat-card stat-card--${stat.color}`} elevation={3}>
-                                <CardContent className="stat-content">
-                                    <Typography variant="h3" className="stat-value">
-                                        {stat.value}
-                                    </Typography>
-                                    <Typography variant="body1" className="stat-title">
-                                        {stat.title}
-                                    </Typography>
-                                </CardContent>
-                            </Card>
-                        ))}
+                    
+                    <div className="overview-grid">
+                        <div className="fade-in-up fade-in-up--delay-1">
+                            <InsightCard userInfo={userInfo} />
+                        </div>
+                        
+                        <div className="fade-in-up fade-in-up--delay-2">
+                            <UpcomingDatesCard userInfo={userInfo} />
+                        </div>
                     </div>
                 </div>
 
-                <Paper className="profile-section" elevation={3}>
-                    <Typography variant="h5" className="section-title">
-                        Profile Settings
+                <div className="charts-section">
+                    <Typography variant="h5" className="section-title" sx={{ fontFamily: 'Noto Sans Mono, sans-serif' }}>
+                        Analytics & Insights
                     </Typography>
-
-                    <div className="profile-content">
-                        <div className="user-info">
-                            <Typography variant="h6" className="info-label">
-                                Email:
-                            </Typography>
-                            <Typography variant="body1" className="info-value">
-                                {userInfo.email}
-                            </Typography>
+                    
+                    <div className="charts-grid">
+                        <div className="fade-in-up fade-in-up--delay-3 chart-card--full-width">
+                            <CombinedStatsCard userInfo={userInfo} />
                         </div>
-
-                        <div className="notification-settings">
-                            <Typography variant="h6" className="settings-title">
-                                Notification Preferences
-                            </Typography>
-                            <FormControlLabel
-                                control={
-                                    <Checkbox
-                                        checked={notifications}
-                                        onChange={handleNotificationChange}
-                                        className="notification-checkbox"
-                                    />
-                                }
-                                label="Receive email notifications about application updates"
-                                className="notification-control"
-                            />
+                        
+                        <div className="fade-in-up fade-in-up--delay-4 chart-card--full-width">
+                            <ApplicationTrendLineChart userInfo={userInfo} />
                         </div>
-
-                        {hasChanges && (
-                            <Box className="save-section">
-                                <Button
-                                    variant="contained"
-                                    onClick={handleSaveChanges}
-                                    className="save-button"
-                                    size="large"
-                                >
-                                    Save Changes
-                                </Button>
-                            </Box>
-                        )}
+                        
+                        <div className="fade-in-up fade-in-up--delay-5 chart-card--full-width">
+                            <ResponseRateBarChart userInfo={userInfo} />
+                        </div>
                     </div>
-                </Paper>
+                </div>
             </div>
-                <SnackbarAlert open={snackbar.open} message={snackbar.message} severity={snackbar.severity} onClose={handleSnackbarClose} />
+            <ProfileSettingsDialog
+                open={settingsDialogOpen}
+                onClose={() => setSettingsDialogOpen(false)}
+                userInfo={userInfo}
+                onSave={handleSaveChanges}
+            />
+            <SnackbarAlert open={snackbar.open} message={snackbar.message} severity={snackbar.severity} onClose={handleSnackbarClose} />
         </div>
     );
 }

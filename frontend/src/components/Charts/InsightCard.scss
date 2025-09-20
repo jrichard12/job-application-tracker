@@ -1,0 +1,230 @@
+@use "sass:color";
+@use "../../variables" as *;
+
+.insight-card {
+  border-radius: $border-radius-xlarge !important;
+  background: $color-background-light;
+  transition: all 0.3s ease;
+  border: 2px solid transparent;
+  height: 100%;
+  min-height: 480px;
+  display: flex;
+  flex-direction: column;
+  
+  // Ensure child elements also respect the border radius
+  .MuiPaper-root {
+    border-radius: $border-radius-xlarge !important;
+  }
+  
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: $shadow-heavy;
+  }
+
+  .insight-content {
+    padding: $spacing-xl;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .insight-title {
+    font-family: $font-family;
+    font-weight: 600;
+    color: $color-text;
+    margin-bottom: $spacing-lg;
+    text-align: center;
+    position: relative;
+    
+    &::after {
+      content: '';
+      position: absolute;
+      bottom: -8px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 40px;
+      height: 3px;
+      background: $gradient-primary;
+      border-radius: 2px;
+    }
+  }
+
+  .performance-overview {
+    display: flex;
+    justify-content: center;
+    margin-bottom: $spacing-xl;
+
+    .performance-score {
+      text-align: center;
+
+      .score-value {
+        font-family: $font-family;
+        font-weight: 700;
+        margin-bottom: $spacing-sm;
+        
+        &--good {
+          color: #27ae60;
+        }
+        
+        &--average {
+          color: #6c757d;
+        }
+        
+        &--poor {
+          color: #e74c3c;
+        }
+      }
+
+      .score-trend {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: $spacing-xs;
+
+        &--good {
+          color: #27ae60;
+        }
+        
+        &--average {
+          color: #6c757d;
+        }
+        
+        &--poor {
+          color: #e74c3c;
+        }
+
+        .trend-label {
+          font-weight: 500;
+          font-size: 0.875rem;
+        }
+      }
+    }
+  }
+
+  .insights-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: $spacing-lg;
+    margin-bottom: $spacing-xl;
+
+    .insight-item {
+      text-align: center;
+      padding: $spacing-md;
+      border-radius: $border-radius-medium;
+      background: rgba($color-primary, 0.02);
+      border: 1px solid rgba($color-primary, 0.1);
+
+      .insight-label {
+        color: $color-text-light;
+        font-weight: 500;
+        margin-bottom: $spacing-xs;
+        font-size: 0.8rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+      }
+
+      .insight-value-row {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: $spacing-sm;
+
+        .insight-value {
+          font-family: $font-family;
+          font-weight: 600;
+          color: $color-primary;
+        }
+
+        .status-chip {
+          font-size: 0.7rem;
+          height: 20px;
+          font-weight: 500;
+
+          &.status-chip--good {
+            background: rgba($color-success, 0.1);
+            color: $color-success;
+            border: 1px solid rgba($color-success, 0.3);
+          }
+
+          &.status-chip--average {
+            background: rgba($color-warning, 0.1);
+            color: $color-warning;
+            border: 1px solid rgba($color-warning, 0.3);
+          }
+
+          &.status-chip--low {
+            background: rgba($color-error, 0.1);
+            color: $color-error;
+            border: 1px solid rgba($color-error, 0.3);
+          }
+        }
+      }
+    }
+  }
+
+  .recommendations {
+    background: linear-gradient(135deg, rgba($color-primary, 0.05) 0%, rgba($color-secondary, 0.05) 100%);
+    padding: $spacing-lg;
+    border-radius: $border-radius-medium;
+    border-left: 4px solid $color-primary;
+
+    .recommendations-title {
+      font-weight: 600;
+      color: $color-primary;
+      margin-bottom: $spacing-sm;
+      display: flex;
+      align-items: center;
+      gap: $spacing-xs;
+    }
+
+    .recommendation-text {
+      color: $color-text;
+      line-height: 1.5;
+      font-size: 0.875rem;
+    }
+  }
+}
+
+// Responsive design
+@media (max-width: 768px) {
+  .insight-card {
+    .insight-content {
+      padding: $spacing-lg $spacing-md;
+    }
+
+    .insights-grid {
+      grid-template-columns: 1fr;
+      gap: $spacing-md;
+
+      .insight-item {
+        padding: $spacing-sm;
+      }
+    }
+
+    .recommendations {
+      padding: $spacing-md;
+    }
+  }
+}
+
+// Responsive height matching
+@media (max-width: 768px) {
+  .insight-card {
+    min-height: 400px;
+  }
+}
+
+@media (max-width: 480px) {
+  .insight-card {
+    min-height: 350px;
+    
+    .insights-grid {
+      .insight-item {
+        .insight-value-row {
+          flex-direction: column;
+          gap: $spacing-xs;
+        }
+      }
+    }
+  }
+}

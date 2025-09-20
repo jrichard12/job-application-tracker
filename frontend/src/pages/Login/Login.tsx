@@ -34,6 +34,7 @@ function Login({ userInfo, updateUser }: LoginProps) {
     const handleNewPasswordRequired = (user: CognitoUser) => {
         setCognitoUser(user);
         setNewPasswordRequired(true);
+        setLoading(false); // Stop the loading spinner when password reset is required
     }
 
     const handleSubmitNewPassword = async (e: React.FormEvent) => {
@@ -130,15 +131,15 @@ function Login({ userInfo, updateUser }: LoginProps) {
         setLoading(true);
         setDemoMode(true);
         try {
-            const result = await loginUser(username, password, handleNewPasswordRequired, true);
+            const result = await loginUser("", "", handleNewPasswordRequired, true);
             console.log("Login successful:", result);
             const authToken = result.authToken;
             const id = result.userId;
             const loadedJobApps: JobApp[] = getDemoUserJobs();
-            setUser({ username, authToken, id });
+            setUser({ username: 'demo@example.com', authToken, id });
             updateUser({
                 id: id,
-                email: username,
+                email: 'demo@example.com',
                 jobApps: loadedJobApps
             } as UserInfo);
             console.log("Demo user login activated");
@@ -251,10 +252,10 @@ function Login({ userInfo, updateUser }: LoginProps) {
                             </form>
                         </CardContent>
                     </Card>
-                    <div>
+                    <div style={{ textAlign: 'center' }}>
                         <a
                             href="#"
-                            style={{ color: '#432371', textDecoration: 'underline', cursor: 'pointer', fontWeight: 500 }}
+                            style={{ color: '#432371', textDecoration: 'underline', cursor: 'pointer', fontWeight: 500, fontSize: '0.9rem' }}
                             onClick={(e) => { e.preventDefault(); handleDemoLogin(); }}
                         >
                             Login as demo user

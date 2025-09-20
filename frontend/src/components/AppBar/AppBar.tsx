@@ -11,7 +11,7 @@ import "./AppBar.scss";
 
 function CustomAppBar() {
   const { user, setUser, demoMode, setDemoMode } = useAuth();
-  const pages = ['Home', 'Dashboard', 'Applications', 'Archives'];
+  const pages = ['Dashboard', 'Applications', 'Archives'];
 
   const handleLogout = async () => {
     if (demoMode) {
@@ -36,55 +36,61 @@ function CustomAppBar() {
 
   return (
     <AppBar className="app-bar" position="static">
-      <Toolbar>
-        <WorkIcon sx={{ mr: 1 }} />
-        <Typography
-          variant="h6"
-          component="a"
-          href="/"
-          className="app-title"
-        >
-          App Tracker
-        </Typography>
-
-        <Box sx={{ flexGrow: 1, display: 'flex' }}>
-          {pages.map((page) => (
-            <Button
-              key={page}
+      <Toolbar className="toolbar-container">
+        <Box className="toolbar-content">
+          <Box className="logo-section">
+            <WorkIcon sx={{ mr: 1 }} />
+            <Typography
+              variant="h6"
               component={Link}
-              to={page === 'Home' ? '/' : `/${page.toLowerCase()}`}
-              className="nav-button"
+              to="/"
+              className="app-title"
             >
-              {page}
-            </Button>
-          ))}
-        </Box>
+              App Tracker
+            </Typography>
+          </Box>
 
-        <Box>
-          {user ? (
-            <Button
-              color="inherit"
-              onClick={handleLogout}
-              className="auth-button"
-            >
-              LOGOUT
-            </Button>
-          ) : (
-            <Button
-              color="inherit"
-              component={Link}
-              to="/login"
-              className="auth-button"
-            >
-              LOGIN
-            </Button>
-          )}
+          <Box sx={{ flexGrow: 1, display: 'flex' }}>
+            {pages.map((page) => (
+              <Button
+                key={page}
+                component={Link}
+                to={page === 'Home' ? '/' : `/${page.toLowerCase()}`}
+                className="nav-button"
+              >
+                {page}
+              </Button>
+            ))}
+          </Box>
+
+          <Box>
+            {user ? (
+              <Button
+                color="inherit"
+                onClick={handleLogout}
+                className="auth-button"
+              >
+                LOGOUT
+              </Button>
+            ) : (
+              <Button
+                color="inherit"
+                component={Link}
+                to="/login"
+                className="auth-button"
+              >
+                LOGIN
+              </Button>
+            )}
+          </Box>
         </Box>
       </Toolbar>
 
       {demoMode && (
         <Box className="demo-banner">
-          Demo Mode Active
+          <Box className="demo-banner-content">
+            Demo Mode Active
+          </Box>
         </Box>
       )}
     </AppBar>

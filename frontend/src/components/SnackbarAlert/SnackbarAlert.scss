@@ -25,9 +25,17 @@
 
 /* Ensure the MUI Alert's icon and close button match the color */
 .snackbar-alert .MuiAlert-icon {
-  color: rgba(255,255,255,0.95);
+  color: rgba(255,255,255,0.95) !important;
+}
+
+.snackbar-alert .MuiAlert-icon svg {
+  color: rgba(255,255,255,0.95) !important;
 }
 
 .snackbar-alert--warning .MuiAlert-icon {
-  color: rgba(0,0,0,0.9);
+  color: rgba(0,0,0,0.9) !important;
+}
+
+.snackbar-alert--warning .MuiAlert-icon svg {
+  color: rgba(0,0,0,0.9) !important;
 }
