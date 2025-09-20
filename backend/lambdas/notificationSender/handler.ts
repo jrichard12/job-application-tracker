@@ -8,6 +8,7 @@ const sesClient = new SESClient({});
 
 const TABLE_NAME = process.env.TABLE_NAME!;
 const SES_FROM_EMAIL = process.env.SES_FROM_EMAIL!;
+const SES_FROM_NAME = 'App Tracker';
 
 interface User {
   PK: string;
@@ -184,7 +185,7 @@ async function sendDeadlineNotification(userEmail: string, urgentJobs: Job[]): P
   const textBody = generateEmailText(urgentJobs);
 
   const params: SendEmailCommandInput = {
-    Source: SES_FROM_EMAIL,
+    Source: `"${SES_FROM_NAME}" <${SES_FROM_EMAIL}>`,
     Destination: {
       ToAddresses: [userEmail]
     },
