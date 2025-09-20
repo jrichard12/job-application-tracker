@@ -15,6 +15,7 @@ export class HostingStack extends cdk.Stack {
 
     // HOSTING BUCKET
     this.hostingBucket = new s3.Bucket(this, "HostingBucket", {
+      bucketName: "my-app-tracker",
       websiteIndexDocument: "index.html",
       websiteErrorDocument: "index.html", // helpful for SPAs
       removalPolicy: cdk.RemovalPolicy.DESTROY, // only for dev/demo!
