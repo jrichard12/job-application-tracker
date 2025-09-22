@@ -1,6 +1,6 @@
 import { ExtensionAuthService } from './authService';
 import { JobApp } from '../types/JobApp';
-import { JOB_HANDLER_URL } from '../config/api';
+import { EXTENSION_CONFIG } from '../config/config';
 
 export class JobService {
   /**
@@ -18,7 +18,7 @@ export class JobService {
 
       console.log('Saving job application:', jobToSave);
 
-      const response = await ExtensionAuthService.makeAuthenticatedRequest(JOB_HANDLER_URL, {
+      const response = await ExtensionAuthService.makeAuthenticatedRequest(EXTENSION_CONFIG.JOB_HANDLER_URL, {
         method: 'POST',
         body: JSON.stringify({
           userId: userId,

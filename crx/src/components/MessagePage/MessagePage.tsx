@@ -55,7 +55,6 @@ const MessagePage: React.FC<MessagePageProps> = ({
       
       <div className="action-section">
         {actions && actions.length > 0 ? (
-          // New multiple actions pattern
           actions.map((action, index) => (
             <button 
               key={index}
@@ -66,7 +65,6 @@ const MessagePage: React.FC<MessagePageProps> = ({
             </button>
           ))
         ) : onBack ? (
-          // Legacy single button pattern
           <button 
             className="back-button"
             onClick={onBack}

@@ -1,18 +1,20 @@
-// Configuration for the Chrome Extension
+const JOB_HANDLER_URL = import.meta.env.VITE_JOB_HANDLER_URL as string;
+const USER_INFO_URL = import.meta.env.VITE_USER_INFO_URL as string;
+const WEB_APP_URL =
+  import.meta.env.DEV
+    ? 'http://localhost:5174' // local dev server
+    : import.meta.env.VITE_WEB_APP_URL as string; 
+
 export const EXTENSION_CONFIG = {
-  // Web app URL - update this to match your frontend URL
-  WEB_APP_URL: 'http://localhost:5174',
-  
-  // Login page path
-  LOGIN_PATH: '/login',
-  
-  // Full login URL
+  WEB_APP_URL,
+  JOB_HANDLER_URL,
+  USER_INFO_URL,
+
   get LOGIN_URL() {
-    return `${this.WEB_APP_URL}${this.LOGIN_PATH}`;
+    return `${WEB_APP_URL}/login`;
   },
-  
-  // Storage keys
+
   STORAGE_KEYS: {
-    AUTH_TOKENS: 'auth_tokens',
+    AUTH_TOKENS: "auth_tokens",
   } as const,
 } as const;

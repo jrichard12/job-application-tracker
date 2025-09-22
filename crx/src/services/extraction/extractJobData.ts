@@ -64,8 +64,13 @@ function extractSkillsFromText(description: string): string[] {
 
   const skills: string[] = [];
   const skillPatterns = [
-    // Common programming languages
-    /\b(JavaScript|TypeScript|Python|Java|C\+\+|C#|PHP|Ruby|Rust|Kotlin|Swift|Go(?![a-z])|C(?![#\+a-z])|R(?![a-z]))\b/gi,
+    // Programming languages - specific patterns first to avoid conflicts
+    /\bC\+\+\b/gi,         // C++ first
+    /C#/gi,                // C# 
+    /\b(JavaScript|TypeScript|Python|Java|PHP|Ruby|Rust|Kotlin|Swift)\b/gi,
+    /\bGo\b(?![a-z])/gi,   // Go but not "Google" etc
+    /\bC\b(?![#\+a-z])/gi, // Standalone C
+    /\bR\b(?![a-z])/gi,    // Standalone R
     // Frameworks and libraries
     /\b(React|Angular|Vue|Node\.js|Express|Django|Flask|Spring|Laravel|Rails|Next\.js|\.NET)\b/gi,
     // UI

@@ -1,4 +1,4 @@
-import { ChromeStorageService, type AuthTokens } from '../services/storageService';
+import { ExtensionAuthService, type AuthTokens } from '../services/authService';
 
 console.log('[Background Script] Initializing...');
 
@@ -20,7 +20,7 @@ chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
 
   if (message.action === 'clearAuthTokens') {
     console.log('[Background Script] Processing clearAuthTokens request');
-    ChromeStorageService.clearTokens()
+    ExtensionAuthService.logout()
       .then(() => {
         console.log('[Background Script] Tokens cleared successfully');
         sendResponse({ success: true });
@@ -33,11 +33,11 @@ chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
   }
 
   if (message.action === 'getAuthTokens') {
-    ChromeStorageService.getTokens()
-      .then((tokens) => {
-        sendResponse({ success: true, tokens });
+    ExtensionAuthService.getCurrentUser()
+      .then((user) => {
+        sendResponse({ success: true, tokens: user });
       })
-      .catch((error) => {
+      .catch((error: any) => {
         console.error('[Background Script] Error getting tokens:', error);
         sendResponse({ success: false, error: error.message });
       });
@@ -57,7 +57,7 @@ async function handleStoreTokens(tokensData: any) {
       expiresAt: tokensData.expiresAt || (Date.now() + (24 * 60 * 60 * 1000)) // Default to 24 hours if not provided
     };
 
-    await ChromeStorageService.storeTokens(tokens);
+    await ExtensionAuthService.saveAuthTokens(tokens);
     console.log('[Background Script] Tokens stored successfully');
   } catch (error) {
     console.error('[Background Script] Error in handleStoreTokens:', error);
@@ -68,7 +68,7 @@ async function handleStoreTokens(tokensData: any) {
 // Handle extension startup - check if we have stored tokens
 chrome.runtime.onStartup.addListener(async () => {
   console.log('[Background Script] Extension startup');
-  const isAuth = await ChromeStorageService.isAuthenticated();
+  const isAuth = await ExtensionAuthService.isAuthenticated();
   console.log('[Background Script] User authenticated:', isAuth);
 });
 
@@ -77,4 +77,4 @@ chrome.runtime.onInstalled.addListener(async () => {
   console.log('[Background Script] Extension installed/updated');
 });
 
-export {}; // Make this a module
+export {}; 

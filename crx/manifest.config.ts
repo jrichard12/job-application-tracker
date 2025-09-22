@@ -20,10 +20,17 @@ export default defineManifest({
     'activeTab',
     'storage',
     'tabs',
+    'scripting',
+  ],
+  host_permissions: [
+    'https://54jh2lxi3vnrpucnknrulamjbm0pgzyi.lambda-url.us-east-1.on.aws/*',
+    'https://yf3ppew2sks7zzoravfdkeshxu0bygyz.lambda-url.us-east-1.on.aws/*',
+    'http://my-app-tracker.s3-website-us-east-1.amazonaws.com/*',
+    'http://localhost:*/*',
   ],
   content_scripts: [{
     js: ['src/content/main.ts'],
-    matches: ['https://*/*', 'http://localhost:*/*', 'http://127.0.0.1:*/*'],
+    matches: ['https://*/*', 'http://localhost:*/*', 'http://127.0.0.1:*/*', 'http://my-app-tracker.s3-website-us-east-1.amazonaws.com/*'],
   }],
   side_panel: {
     default_path: 'src/sidepanel/index.html',

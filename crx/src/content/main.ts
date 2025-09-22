@@ -1,12 +1,20 @@
 import { triggerJobExtraction, isExtractionSupported, getJobSiteName } from '../utils/extractionUtils'
 
-// This is where any scripts should go. 
 console.log('[Content Script] Loaded on:', window.location.href);
+console.log('[Content Script] Origin:', window.location.origin);
+console.log('[Content Script] Hostname:', window.location.hostname);
+
+// Add a marker to the page so we can verify the content script is loaded
+if (typeof window !== 'undefined') {
+  (window as any).__JOB_TRACKER_EXTENSION_LOADED__ = true;
+  console.log('[Content Script] Extension marker set');
+}
 
 // Listen for auth tokens from web app
 document.addEventListener('auth-tokens-updated', async (event: any) => {
   console.log('[Content Script] Received auth tokens from web app:', event.detail);
   console.log('[Content Script] Current URL:', window.location.href);
+  console.log('[Content Script] Event detail:', event.detail);
   
   try {
     // Send tokens to background script or handle directly
@@ -14,11 +22,11 @@ document.addEventListener('auth-tokens-updated', async (event: any) => {
     chrome.runtime.sendMessage({
       action: 'storeAuthTokens',
       tokens: event.detail
-    }, () => {
+    }, (response) => {
       if (chrome.runtime.lastError) {
         console.error('[Content Script] Error sending tokens to background:', chrome.runtime.lastError);
       } else {
-        console.log('[Content Script] Tokens sent to background script successfully');
+        console.log('[Content Script] Tokens sent to background script successfully, response:', response);
       }
     });
   } catch (error) {
@@ -48,6 +56,13 @@ document.addEventListener('auth-tokens-cleared', async () => {
 // Listen for messages from popup
 chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
   console.log('[Content Script] Received message:', message);
+  
+  // Handle ping to check if content script is available
+  if (message.action === 'ping') {
+    console.log('[Content Script] Ping received, responding...');
+    sendResponse({ success: true, available: true });
+    return true;
+  }
   
   if (message.action === 'extractJobData') {
     try {
@@ -106,5 +121,3 @@ chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
   // Return true to indicate we will send a response asynchronously
   return true;
 });
-
-// scripts end here.

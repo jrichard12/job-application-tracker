@@ -6,6 +6,8 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
+    "build:prod": "set VITE_ENV=production && tsc -b && vite build",
+    "build:dev": "set VITE_ENV=development && tsc -b && vite build",
     "preview": "vite preview"
   },
   "dependencies": {

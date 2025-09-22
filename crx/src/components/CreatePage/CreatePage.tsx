@@ -1,8 +1,9 @@
-import { Box, Button, Chip, Dialog, DialogActions, DialogContent, DialogTitle, FormControl, InputLabel, MenuItem, Select, TextField, CircularProgress, Alert } from "@mui/material";
-import { useState, useEffect } from "react";
+import { Alert, Box, Button, Chip, CircularProgress, Dialog, DialogActions, DialogContent, DialogTitle, FormControl, InputLabel, MenuItem, Select, TextField } from "@mui/material";
+import { useEffect, useState } from "react";
 import { v4 as uuidv4 } from 'uuid';
+import { ExtensionAuthService } from "../../services/authService";
+import { JobService } from "../../services/jobService";
 import { jobAppStatusOptions, type JobApp } from "../../types/JobApp";
-import { JobService, ExtensionAuthService } from "../../services";
 import "./CreatePage.scss";
 
 type CreatePageProps = {
@@ -20,7 +21,6 @@ function CreatePage({ isOpen, handleClose, handleCreateApp, initialData }: Creat
         jobTitle: '',
         jobStatus: 'Interested',
         isArchived: false,
-        // Merge in any initial data provided
         ...initialData
     } as JobApp);
 
@@ -36,10 +36,8 @@ function CreatePage({ isOpen, handleClose, handleCreateApp, initialData }: Creat
         if (isOpen) {
             const jobApp = getInitialJobApp();
             setNewJobApp(jobApp);
-            // If initial data has skills, populate the skill input field
             const skillsString = jobApp.skills?.join(', ') || '';
             setSkillInput(skillsString);
-            // Clear any previous errors
             setError(null);
         }
     }, [isOpen, initialData]);
@@ -124,14 +122,12 @@ function CreatePage({ isOpen, handleClose, handleCreateApp, initialData }: Creat
     };
 
     const handleEditSkills = () => {
-        // Convert current skills array to comma-separated string for editing
         const skillsString = newJobApp.skills?.join(', ') || '';
         setSkillInput(skillsString);
         setIsEditingSkills(true);
     };
 
     const handleSaveSkills = () => {
-        // Convert comma-separated string back to array
         const skillsArray = skillInput.trim() 
             ? skillInput.split(',').map(skill => skill.trim()).filter(skill => skill !== '')
             : [];
@@ -297,7 +293,7 @@ function CreatePage({ isOpen, handleClose, handleCreateApp, initialData }: Creat
                             type="date"
                             value={newJobApp.deadline ? new Date(newJobApp.deadline).toISOString().split('T')[0] : ''}
                             onChange={handleInputChange}
-                            InputLabelProps={{ shrink: true }}
+                            slotProps={{ inputLabel: { shrink: true } }}
                         />
                         <TextField
                             fullWidth
@@ -306,7 +302,7 @@ function CreatePage({ isOpen, handleClose, handleCreateApp, initialData }: Creat
                             type="date"
                             value={newJobApp.dateApplied ? new Date(newJobApp.dateApplied).toISOString().split('T')[0] : ''}
                             onChange={handleInputChange}
-                            InputLabelProps={{ shrink: true }}
+                            slotProps={{ inputLabel: { shrink: true } }}
                         />
                         <Box sx={{ gridColumn: '1 / -1' }}>
                             <FormControl fullWidth>

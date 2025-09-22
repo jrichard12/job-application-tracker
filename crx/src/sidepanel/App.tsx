@@ -105,6 +105,41 @@ export default function App() {
       if (!tab.id) {
         throw new Error('No active tab found');
       }
+
+      // Check if content script is available by trying to ping it
+      console.log('🎯 Checking if content script is available...');
+      try {
+        await chrome.tabs.sendMessage(tab.id, { action: 'ping' });
+        console.log('🎯 Content script is available');
+      } catch (pingError) {
+        console.error('🎯 Content script not available:', pingError);
+        
+        // Try to inject the content script manually
+        console.log('🎯 Attempting to inject content script manually...');
+        try {
+          await chrome.scripting.executeScript({
+            target: { tabId: tab.id },
+            files: ['content/main.js']
+          });
+          
+          // Wait a moment for the script to initialize
+          await new Promise(resolve => setTimeout(resolve, 500));
+          
+          // Try to ping again
+          await chrome.tabs.sendMessage(tab.id, { action: 'ping' });
+          console.log('🎯 Content script manually injected and available');
+        } catch (injectionError) {
+          console.error('🎯 Failed to inject content script:', injectionError);
+          setMessageData({
+            type: 'error',
+            title: 'Extension Not Ready',
+            message: 'The extension content script is not loaded on this page. Please refresh the page after logging in and try again. If the problem persists, this website may not be supported for job extraction.'
+          });
+          setShowMessage(true);
+          setIsLoading(false);
+          return;
+        }
+      }
       
       // First check if extraction is supported
       console.log('🎯 Checking extraction support via content script...');

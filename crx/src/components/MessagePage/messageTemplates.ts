@@ -52,7 +52,7 @@ export const MessageTemplates = {
   LOGIN_REQUIRED: {
     type: 'warning' as MessageType,
     title: 'Login Required',
-    message: 'Please log in to access the Job Application Tracker features.\n\n• Click "Go to Login" to open the web app\n• Log in with your credentials\n• Return here and click "Refresh" to continue',
+    message: 'Please log in to access the App Tracker features.\n\n• Click "Go to Login" to open the web app\n• Log in with your credentials\n• Return here and click "Refresh" to continue',
   },
 
   AUTH_EXPIRED: {

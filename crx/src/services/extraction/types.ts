@@ -7,7 +7,7 @@ export interface ExtractionRule {
 
 export interface ExtractionRuleSet {
   domain: string;
-  displayName: string; // Human-readable name for the job site
+  displayName: string; 
   urlPattern?: RegExp; // Optional regex pattern for more specific URL matching
   rules: ExtractionRule[];
 }

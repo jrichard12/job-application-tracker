@@ -118,20 +118,20 @@
     }
   }
   
-  // Style the placeholder text
+  // Placeholder text
   .MuiInputBase-input::placeholder {
     color: rgba($color-primary, 0.6) !important;
     opacity: 1;
   }
   
-  // Also target the placeholder for multiline inputs
+  // Placeholder for multiline inputs
   .MuiInputBase-inputMultiline::placeholder {
     color: rgba($color-primary, 0.6) !important;
     opacity: 1;
   }
 }
 
-// Style the Select component
+// Select component
 .MuiSelect-root {
   .MuiOutlinedInput-notchedOutline {
     border-color: rgba($color-primary, 0.7) !important;
