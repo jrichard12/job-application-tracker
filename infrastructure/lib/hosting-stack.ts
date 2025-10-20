@@ -17,11 +17,11 @@ export class HostingStack extends cdk.Stack {
     this.hostingBucket = new s3.Bucket(this, "HostingBucket", {
       bucketName: "my-app-tracker",
       websiteIndexDocument: "index.html",
-      websiteErrorDocument: "index.html", // helpful for SPAs
-      removalPolicy: cdk.RemovalPolicy.DESTROY, // only for dev/demo!
-      autoDeleteObjects: true, // only for dev/demo!
+      websiteErrorDocument: "index.html", 
+      removalPolicy: cdk.RemovalPolicy.DESTROY, 
+      autoDeleteObjects: true,
       blockPublicAccess: s3.BlockPublicAccess.BLOCK_ACLS_ONLY,
-      publicReadAccess: true, // allow public bucket policy
+      publicReadAccess: true,
     });
 
     this.hostingBucketDeployment = new s3deploy.BucketDeployment(
