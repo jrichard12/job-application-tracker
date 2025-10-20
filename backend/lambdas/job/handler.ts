@@ -17,13 +17,11 @@ const TABLE_NAME = process.env.TABLE_NAME!;
 const addJob = async (body: any, tokenPayload: any, event: any) => { 
   const { userId, job } = body;
   if (!userId || !job) {
-    console.error('Missing userId or job data. userId:', userId, 'job:', !!job);
     return createResponse(400, { message: "Missing userId or job data" }, event);
   }
 
   // Verify that the token's sub matches the requested userId
   if (tokenPayload.sub !== userId) {
-    console.error('User ID mismatch. Token sub:', tokenPayload.sub, 'Requested userId:', userId);
     return createResponse(403, { message: 'Forbidden: User ID mismatch' }, event);
   }
 
@@ -151,7 +149,6 @@ const getJobs = async (userId: string, tokenPayload: any, event: any) => {
 
   // Verify that the token's sub matches the requested userId
   if (tokenPayload.sub !== userId) {
-    console.error('User ID mismatch. Token sub:', tokenPayload.sub, 'Requested userId:', userId);
     return createResponse(403, { message: 'Forbidden: User ID mismatch' }, event);
   }
 

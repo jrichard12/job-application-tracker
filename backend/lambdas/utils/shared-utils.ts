@@ -17,9 +17,11 @@ const verifier = CognitoJwtVerifier.create({
 export const getCorsHeaders = (event: any) => {
   const origin = event.headers?.origin;
 
-  // Only allow specific localhost ports
+  // Allow specific localhost ports and production domain
   let allowOrigin = null;
-  if (origin === 'http://localhost:5173' || origin === 'http://localhost:5174') {
+  if (origin === 'http://localhost:5173' || 
+      origin === 'http://localhost:5174' ||
+      origin === 'http://my-app-tracker.s3-website-us-east-1.amazonaws.com') {
     allowOrigin = origin;
   }
 

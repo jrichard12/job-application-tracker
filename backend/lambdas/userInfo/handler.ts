@@ -13,9 +13,10 @@ const docClient = DynamoDBDocumentClient.from(client);
 
 const TABLE_NAME = process.env.TABLE_NAME!;
 
-const getUserInfo = async (body: any, tokenPayload: any, corsHeaders: any, event: any) => {
+const getUser = async (tokenPayload: any, corsHeaders: any, event: any) => {
   console.log('=== GetUserInfo START ===');
-  const { userId, email } = body;
+  const userId = event.queryStringParameters?.userId;
+  
   // Verify that the token's sub matches the requested userId
   if (tokenPayload.sub !== userId) {
     console.error('User ID mismatch.');
@@ -25,14 +26,16 @@ const getUserInfo = async (body: any, tokenPayload: any, corsHeaders: any, event
       body: JSON.stringify({ message: 'Forbidden: User ID mismatch' }),
     };
   }
+  
   if (!userId) {
-    console.error('Missing userId in request');
+    console.error('Missing userId in query parameters');
     return {
       statusCode: 400,
       headers: corsHeaders,
-      body: JSON.stringify({ message: "Missing userId" }),
+      body: JSON.stringify({ message: "Missing userId query parameter" }),
     };
   }
+  
   const PK = `USER#${userId.trim()}`;
   const SK = "PROFILE";
 
@@ -45,48 +48,25 @@ const getUserInfo = async (body: any, tokenPayload: any, corsHeaders: any, event
     })
   );
   
-  let sendNotifications = false;
-  
-  // If user not found, create it
+  // Return user profile if found, otherwise return null
   if (!getUserResult.Item) {
-    console.log('Creating new user in DynamoDB...');
-    let user = {
-      PK,
-      SK,
-      email,
-      sendNotifications: false,
-      createdAt: new Date().toISOString(),
+    console.log('User not found in DynamoDB');
+    const response = {
+      statusCode: 200,
+      headers: {
+        ...corsHeaders,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(null),
     };
-    await docClient.send(
-      new PutCommand({
-        TableName: TABLE_NAME,
-        Item: user,
-      })
-    );
-    console.log('New user created successfully');
-    sendNotifications = false;
-  } else {
-    // User exists, get their current sendNotifications preference
-    sendNotifications = getUserResult.Item.sendNotifications || false;
+    console.log('=== GetUserInfo END ===');
+    return response;
   }
-  // Try and get job applications for the user
-  console.log('Querying for user job applications...');
-  const result = await docClient.send(
-    new QueryCommand({
-      TableName: TABLE_NAME,
-      KeyConditionExpression: "PK = :PK",
-      ExpressionAttributeValues: { ":PK": PK },
-    })
-  );
-  const jobApps =
-    result.Items?.filter((i) => i.SK.startsWith("JOB#")) || [];
-  console.log('Found', jobApps.length, 'job applications for user');
 
   const frontendUser = {
     id: userId,
-    email: email,
-    sendNotifications: sendNotifications,
-    jobApps: jobApps,
+    email: getUserResult.Item.email,
+    sendNotifications: getUserResult.Item.sendNotifications || false,
   };
 
   const successResponse = {
@@ -101,7 +81,98 @@ const getUserInfo = async (body: any, tokenPayload: any, corsHeaders: any, event
   return successResponse;
 };
 
-const updateUserInfo = async (body: any, tokenPayload: any, corsHeaders: any, event: any) => {
+const createUser = async (body: any, tokenPayload: any, corsHeaders: any, event: any) => {
+  console.log('=== CreateUser START ===');
+  const { userId, email } = body;
+  
+  // Verify that the token's sub matches the requested userId
+  if (tokenPayload.sub !== userId) {
+    console.error('User ID mismatch.');
+    return {
+      statusCode: 403,
+      headers: corsHeaders,
+      body: JSON.stringify({ message: 'Forbidden: User ID mismatch' }),
+    };
+  }
+  
+  if (!userId || !email) {
+    console.error('Missing userId or email in request');
+    return {
+      statusCode: 400,
+      headers: corsHeaders,
+      body: JSON.stringify({ message: "Missing userId or email" }),
+    };
+  }
+  
+  const PK = `USER#${userId.trim()}`;
+  const SK = "PROFILE";
+
+  // Check if user already exists
+  console.log('Checking if user already exists...');
+  const getUserResult = await docClient.send(
+    new GetCommand({
+      TableName: TABLE_NAME,
+      Key: { PK, SK },
+    })
+  );
+  
+  if (getUserResult.Item) {
+    console.log('User already exists');
+    const frontendUser = {
+      id: userId,
+      email: getUserResult.Item.email,
+      sendNotifications: getUserResult.Item.sendNotifications || false,
+    };
+    
+    const response = {
+      statusCode: 200,
+      headers: {
+        ...corsHeaders,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(frontendUser),
+    };
+    console.log('=== CreateUser END ===');
+    return response;
+  }
+
+  // Create new user
+  console.log('Creating new user in DynamoDB...');
+  const user = {
+    PK,
+    SK,
+    email,
+    sendNotifications: false,
+    createdAt: new Date().toISOString(),
+  };
+  
+  await docClient.send(
+    new PutCommand({
+      TableName: TABLE_NAME,
+      Item: user,
+    })
+  );
+  console.log('New user created successfully');
+
+  const frontendUser = {
+    id: userId,
+    email: email,
+    sendNotifications: false,
+  };
+
+  const successResponse = {
+    statusCode: 201,
+    headers: {
+      ...corsHeaders,
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify(frontendUser),
+  };
+  console.log('=== CreateUser END ===');
+  return successResponse;
+};
+
+const updateUser = async (body: any, tokenPayload: any, corsHeaders: any, event: any) => {
   console.log('=== UpdateUserInfo START ===');
   const { userId, ...updateData } = body;
 
@@ -213,10 +284,11 @@ export const handler = async (event: any) => {
     
     switch (method) {
       case 'GET':
+        return await getUser(tokenPayload, corsHeaders, event);
       case 'POST':
-        return await getUserInfo(body, tokenPayload, corsHeaders, event);
+        return await createUser(body, tokenPayload, corsHeaders, event);
       case 'PUT':
-        return await updateUserInfo(body, tokenPayload, corsHeaders, event);
+        return await updateUser(body, tokenPayload, corsHeaders, event);
       default:
         console.error('Unsupported method:', method);
         return {
