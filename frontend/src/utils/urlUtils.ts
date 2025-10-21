@@ -1,9 +1,4 @@
-/**
- * Truncates a URL for display purposes while preserving its functionality
- * @param url - The URL to truncate
- * @param maxLength - Maximum length for the displayed text (default: 50)
- * @returns The truncated URL text for display
- */
+// Truncates a URL for display purposes while preserving its functionality
 export function truncateUrl(url: string, maxLength: number = 50): string {
     if (!url || url.length <= maxLength) {
         return url;

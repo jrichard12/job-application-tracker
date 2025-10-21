@@ -29,6 +29,7 @@ function Applications({ userInfo, updateUser }: ApplicationsProps) {
     const [jobs, setJobs] = useState<JobApp[]>([]);
     const [isListView, setIsListView] = useState<boolean>(false);
     const [refreshLoading, setRefreshLoading] = useState<boolean>(false);
+    const [initialLoadComplete, setInitialLoadComplete] = useState<boolean>(false);
 
     const { user, demoMode } = useAuth();
     const jobHandlerUrl = import.meta.env.VITE_JOB_HANDLER_URL;
@@ -47,6 +48,58 @@ function Applications({ userInfo, updateUser }: ApplicationsProps) {
         if (reason === 'clickaway') return;
         setSnackbar(prev => ({ ...prev, open: false }));
     }
+
+    // Initial data fetch on mount (only if jobs aren't already loaded)
+    useEffect(() => {
+        const fetchInitialJobs = async () => {
+            // Skip if already loaded from backend
+            if (initialLoadComplete || userInfo?.jobsLoaded) {
+                setInitialLoadComplete(true);
+                return;
+            }
+
+            if (!user?.id || !user?.authToken) {
+                return;
+            }
+
+            setRefreshLoading(true);
+
+            if (demoMode) {
+                const loaded = getDemoUserJobs();
+                updateUser({ ...userInfo, jobApps: loaded, jobsLoaded: true } as UserInfo);
+                setRefreshLoading(false);
+                setInitialLoadComplete(true);
+                return;
+            }
+
+            try {
+                const response = await fetch(`${jobHandlerUrl}?userId=${user.id}`, {
+                    method: "GET",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "Authorization": `Bearer ${user.authToken}`
+                    }
+                });
+
+                if (!response.ok) {
+                    const errorData = await response.json().catch(() => ({}));
+                    throw new Error(errorData.message || `Failed to fetch jobs (${response.status})`);
+                }
+                
+                const jobsData: JobApp[] = await response.json();
+                updateUser({ ...userInfo, jobApps: jobsData, jobsLoaded: true } as UserInfo);
+            } catch (error) {
+                console.error("Error fetching initial job applications:", error);
+                showSnackbar('Failed to load jobs', 'error');
+            } finally {
+                setRefreshLoading(false);
+                setInitialLoadComplete(true);
+            }
+        };
+
+        fetchInitialJobs();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [user?.id, user?.authToken, demoMode, initialLoadComplete]);
 
     useEffect(() => {
         const activeJobs: JobApp[] = userInfo?.jobApps?.filter(job => !job.isArchived) || [];
@@ -164,7 +217,7 @@ function Applications({ userInfo, updateUser }: ApplicationsProps) {
             // Add a small delay to show the spinner for demo mode
             await new Promise(resolve => setTimeout(resolve, 800));
             const loaded = getDemoUserJobs();
-            updateUser({ ...userInfo, jobApps: loaded });
+            updateUser({ ...userInfo, jobApps: loaded, jobsLoaded: true });
             const activeJobs = loaded.filter(job => !job.isArchived);
             setJobs([...activeJobs]);
             setCurrentJobDetails(undefined);
@@ -194,7 +247,7 @@ function Applications({ userInfo, updateUser }: ApplicationsProps) {
             setCurrentJobDetails(undefined);
             // Clear URL parameters when refreshing
             setSearchParams({});
-            updateUser({ ...userInfo, jobApps: jobsData });
+            updateUser({ ...userInfo, jobApps: jobsData, jobsLoaded: true });
             showSnackbar('Jobs refreshed', 'success');
         } catch (error) {
             console.error("Error refreshing job applications:", error);
@@ -265,7 +318,7 @@ function Applications({ userInfo, updateUser }: ApplicationsProps) {
                             <div className="loading-box">
                                 <CircularProgress color="primary" />
                                 <Typography variant="h6" component="div" className="loading-text" sx={{ fontFamily: 'Noto Sans Mono, sans-serif' }}>
-                                    Refreshing jobs...
+                                    Loading jobs...
                                 </Typography>
                             </div>
                         </div>

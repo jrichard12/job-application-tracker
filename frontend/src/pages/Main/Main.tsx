@@ -3,7 +3,6 @@ import { useNavigate } from 'react-router-dom';
 import { Button, Container, Typography, Box, IconButton } from '@mui/material';
 import { GitHub, LinkedIn, PlayArrow, ChevronLeft, ChevronRight } from '@mui/icons-material';
 import { siReact, siTypescript, siSass, siMui, siNodedotjs } from "simple-icons";
-
 import { loginUser, useAuth } from "../../services/authService";
 import { getDemoUserJobs } from "../../services/demoUserService";
 import type { UserInfo } from "../../types/UserInfo";
@@ -93,9 +92,6 @@ function Main({ updateUser }: MainProps) {
         }
     }, [currentSlide, demoFeatures, loadedVideos]);
 
-    // Note: Removed automatic redirect to dashboard so users can visit home page via logo
-    // Logged-in users can now access the home page when clicking the AppTracker logo
-
     // Scroll animation observer
     useEffect(() => {
         const observerOptions = {
@@ -141,9 +137,6 @@ function Main({ updateUser }: MainProps) {
         try {
             setDemoMode(true);
             
-            // Navigate immediately to show loading state
-            navigate('/dashboard');
-            
             const result = await loginUser("", "", () => { }, true);
             console.log("Login successful:", result);
             const authToken = result.authToken;
@@ -153,9 +146,11 @@ function Main({ updateUser }: MainProps) {
             updateUser({
                 id: id,
                 email: 'demo@example.com',
-                jobApps: loadedJobApps
+                jobApps: loadedJobApps,
+                jobsLoaded: true
             } as UserInfo);
             console.log("Demo user login activated");
+            showSnackbar('Demo mode activated!', 'success');
         } catch (error) {
             console.error('Demo login failed:', error);
             showSnackbar('Demo login failed. Please try again.', 'error');

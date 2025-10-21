@@ -7,6 +7,7 @@ export interface UserInfo {
   sendNotifications: boolean;
   stats?: UserStats;
   jobApps?: JobApp[];
+  jobsLoaded?: boolean; // Track if jobs have been fetched from backend
 }
 
 export interface UserStats {

@@ -13,15 +13,15 @@ export class ExtensionCommunicator {
    * Send authentication tokens to Chrome extension after successful login
    */
   static async sendTokensToExtension(tokens: ExtensionAuthTokens): Promise<boolean> {
-    try {
+    try {     
       // Try to communicate with extension via custom DOM event
       const event = new CustomEvent('auth-tokens-updated', {
         detail: tokens
       });
-      
-      console.log('[ExtensionCommunicator] Dispatching auth-tokens-updated event with tokens:', tokens);
       document.dispatchEvent(event);
       
+      // Add a small delay to allow for processing
+      await new Promise(resolve => setTimeout(resolve, 100)); 
       console.log('[ExtensionCommunicator] Tokens sent to extension via DOM event');
       return true;
     } catch (error) {
@@ -44,13 +44,5 @@ export class ExtensionCommunicator {
       console.error('[ExtensionCommunicator] Error clearing extension tokens:', error);
       return false;
     }
-  }
-
-  /**
-   * Check if extension is available (this is a basic check)
-   */
-  static isExtensionAvailable(): boolean {
-    // Simple check - in a real scenario you might want to use postMessage or other methods
-    return true; // We'll assume extension might be available
   }
 }

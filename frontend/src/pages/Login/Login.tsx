@@ -119,15 +119,15 @@ function Login({ userInfo, updateUser }: LoginProps) {
 
             await getUserInfo(username, id, authToken);
             console.log(`Login successful, ${userInfo?.createdAt} with ID ${userInfo?.id} authenticated successfully. ${userInfo?.jobApps}`);
-            navigate("/applications");
+            navigate("/")
         } catch (err: any) {
             setError(err.message || "Login failed");
-        } finally {
             setLoading(false);
         }
     };
 
     const handleDemoLogin = async () => {
+        setError("");
         setLoading(true);
         setDemoMode(true);
         try {
@@ -140,13 +140,15 @@ function Login({ userInfo, updateUser }: LoginProps) {
             updateUser({
                 id: id,
                 email: 'demo@example.com',
-                jobApps: loadedJobApps
+                jobApps: loadedJobApps,
+                jobsLoaded: true
             } as UserInfo);
             console.log("Demo user login activated");
-            navigate("/applications");
+            setLoading(false);
+            navigate("/");
         } catch (err: any) {
+            console.error("Demo login error:", err);
             setError(err.message || "Demo login failed");
-        } finally {
             setLoading(false);
         }
     };
@@ -178,10 +180,8 @@ function Login({ userInfo, updateUser }: LoginProps) {
             updateUser({
                 id: data.id,
                 email: data.email,
-                sendNotifications: data.sendNotifications,
-                jobApps: data.jobApps
+                sendNotifications: data.sendNotifications
             } as UserInfo);
-            console.log("User jobs fetched successfully:", data.jobApps);
         } catch (error) {
             console.error("Error fetching user info:", error);
         }
@@ -252,11 +252,20 @@ function Login({ userInfo, updateUser }: LoginProps) {
                             </form>
                         </CardContent>
                     </Card>
-                    <div style={{ textAlign: 'center' }}>
+                    <div style={{ textAlign: 'center', marginTop: '16px' }}>
                         <a
                             href="#"
-                            style={{ color: '#432371', textDecoration: 'underline', cursor: 'pointer', fontWeight: 500, fontSize: '0.9rem' }}
-                            onClick={(e) => { e.preventDefault(); handleDemoLogin(); }}
+                            style={{ 
+                                color: '#432371', 
+                                textDecoration: 'underline', 
+                                cursor: 'pointer', 
+                                fontWeight: 500, 
+                                fontSize: '0.9rem'
+                            }}
+                            onClick={(e) => { 
+                                e.preventDefault(); 
+                                handleDemoLogin(); 
+                            }}
                         >
                             Login as demo user
                         </a>

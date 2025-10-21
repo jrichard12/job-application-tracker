@@ -4,6 +4,20 @@
   font-weight: 600;
   color: #fff !important;
   padding: 8px 14px;
+  z-index: 9999 !important;
+}
+
+/* Ensure snackbar doesn't block content when closed */
+.MuiSnackbar-root {
+  pointer-events: none !important;
+  
+  &.MuiSnackbar-anchorOriginBottomCenter {
+    pointer-events: none !important;
+  }
+  
+  .MuiAlert-root {
+    pointer-events: auto !important;
+  }
 }
 
 .snackbar-alert--success {

@@ -94,6 +94,35 @@
       width: 100%;
       padding: $spacing-lg;
       box-sizing: border-box;
+      position: relative; // Required for absolute positioned overlay
+
+      // Loading overlay for refresh action
+      .refresh-loading-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(255, 255, 255, 0.8);
+        backdrop-filter: blur(4px);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 100;
+        border-radius: $border-radius-medium;
+
+        .loading-box {
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          gap: $spacing-md;
+
+          .loading-text {
+            color: $color-primary;
+            font-weight: 600;
+          }
+        }
+      }
 
       // When showing list view, use full width
       &.list-view {

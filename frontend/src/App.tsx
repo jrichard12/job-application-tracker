@@ -10,7 +10,7 @@ import Login from "./pages/Login/Login";
 import Main from "./pages/Main/Main";
 import { type UserInfo } from "./types/UserInfo";
 
-// Internal component to handle scroll to top on route changes
+// Handles scrolling on route change
 const ScrollToTop = () => {
   const { pathname } = useLocation();
 
@@ -21,7 +21,7 @@ const ScrollToTop = () => {
   return null;
 };
 
-// Create custom MUI theme to ensure font consistency
+// Create custom MUI theme for fonts
 const theme = createTheme({
   typography: {
     fontFamily: "'Noto Sans Mono', sans-serif",
@@ -77,7 +77,7 @@ function App() {
     <ThemeProvider theme={theme}>
       <BrowserRouter>
         <ScrollToTop />
-        <CustomAppBar />
+        <CustomAppBar updateUser={handleUpdateUserInfo} />
         <Routes>
           <Route path="/" element={<Main userInfo={userInfo} updateUser={handleUpdateUserInfo} />} />
           <Route path="/login" element={<Login userInfo={userInfo} updateUser={handleUpdateUserInfo} />} />
