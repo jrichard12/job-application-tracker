@@ -37,10 +37,10 @@ function JobAppList({ jobDetailsHandler, jobs, currentJob }: JobAppListProps) {
                                                     {job.jobTitle}
                                                 </Typography>
                                                 <Typography sx={{ fontFamily: 'Noto Sans Mono, sans-serif' }}>
-                                                    {job.location}
+                                                    {job.company}
                                                 </Typography>
                                                 <Typography sx={{ fontFamily: 'Noto Sans Mono, sans-serif' }}>
-                                                    {job.salary}
+                                                    {job.location}
                                                 </Typography>
                                                 {job.jobStatus && (
                                                     <div className="job-status-container">
