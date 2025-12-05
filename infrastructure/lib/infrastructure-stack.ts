@@ -6,6 +6,8 @@ import * as targets from "aws-cdk-lib/aws-events-targets";
 import * as iam from "aws-cdk-lib/aws-iam";
 import * as lambda from "aws-cdk-lib/aws-lambda";
 import * as lambdaUrl from "aws-cdk-lib/aws-lambda";
+import * as apiGateway from "@aws-cdk/aws-apigatewayv2-alpha";
+import { HttpLambdaIntegration } from '@aws-cdk/aws-apigatewayv2-integrations-alpha';
 import { Construct } from "constructs";
 import * as path from "path";
 
@@ -16,6 +18,7 @@ export class InfrastructureStack extends cdk.Stack {
   public readonly userInfoHandlerLambda: lambda.Function;
   public readonly jobHandlerLambda: lambda.Function;
   public readonly notificationSenderLambda: lambda.Function;
+  public readonly apiGateway: apiGateway.HttpApi;
 
   constructor(scope: Construct, id: string, props?: cdk.StackProps) {
     super(scope, id, props);
@@ -52,6 +55,24 @@ export class InfrastructureStack extends cdk.Stack {
       sortKey: { name: "SK", type: dynamodb.AttributeType.STRING },
       billingMode: dynamodb.BillingMode.PAY_PER_REQUEST,
       removalPolicy: cdk.RemovalPolicy.DESTROY, 
+    });
+
+    // API GATEWAY
+    this.apiGateway = new apiGateway.HttpApi(this, "AppTrackerApiGateway", {
+      apiName: "AppTrackerApiGateway",
+      description: "API Gateway for App Tracker application",
+    });
+
+    this.apiGateway.addRoutes({
+      path: "/user",
+      methods: [apiGateway.HttpMethod.GET, apiGateway.HttpMethod.POST],
+      integration: new HttpLambdaIntegration("UserInfoIntegration", this.userInfoHandlerLambda),
+    });
+
+    this.apiGateway.addRoutes({
+      path: "/job",
+      methods: [apiGateway.HttpMethod.GET, apiGateway.HttpMethod.POST, apiGateway.HttpMethod.PUT, apiGateway.HttpMethod.DELETE],
+      integration: new HttpLambdaIntegration("JobIntegration", this.jobHandlerLambda),
     });
 
     // USER HANDLER LAMBDA
