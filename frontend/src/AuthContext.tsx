@@ -11,7 +11,7 @@ interface AuthProviderProps {
 // Helper function to send tokens to extension
 const sendTokensToExtension = async (user: User, session?: any) => {
     try {
-        if (ExtensionCommunicator.isExtensionAvailable() && user.authToken && user.id && user.username) {
+        if (user.authToken && user.id && user.username) {
             const tokens = {
                 idToken: user.authToken,
                 accessToken: session?.getAccessToken()?.getJwtToken() || user.authToken,
