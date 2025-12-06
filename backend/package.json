@@ -14,8 +14,8 @@
   },
   "scripts": {
     "build": "npm run build:all",
-    "build:all": "npm run build:userInfo && npm run build:job && npm run build:notificationSender",
-    "build:userInfo": "esbuild lambdas/userInfo/handler.ts --bundle --platform=node --target=node22 --minify --outfile=dist/userInfo/userInfo/handler.js --external:@aws-sdk/*",
+    "build:all": "npm run build:user && npm run build:job && npm run build:notificationSender",
+    "build:user": "esbuild lambdas/user/handler.ts --bundle --platform=node --target=node22 --minify --outfile=dist/user/user/handler.js --external:@aws-sdk/*",
     "build:job": "esbuild lambdas/job/handler.ts --bundle --platform=node --target=node22 --minify --outfile=dist/job/job/handler.js --external:@aws-sdk/*",
     "build:notificationSender": "esbuild lambdas/notificationSender/handler.ts --bundle --platform=node --target=node22 --minify --outfile=dist/notificationSender/notificationSender/handler.js --external:@aws-sdk/*"
   }

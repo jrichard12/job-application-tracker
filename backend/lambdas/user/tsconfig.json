@@ -3,7 +3,7 @@
     "target": "ES2022",
     "module": "CommonJS",
     "moduleResolution": "Node",
-    "outDir": "c:/job-application-tracker/job-application-tracker/backend/dist/userInfo",
+    "outDir": "c:/job-application-tracker/job-application-tracker/backend/dist/user",
     "rootDir": "..",
     "strict": true,
     "esModuleInterop": true,

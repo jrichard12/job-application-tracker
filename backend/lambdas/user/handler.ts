@@ -14,7 +14,7 @@ const docClient = DynamoDBDocumentClient.from(client);
 const TABLE_NAME = process.env.TABLE_NAME!;
 
 const getUser = async (tokenPayload: any, corsHeaders: any, event: any) => {
-  console.log('=== GetUserInfo START ===');
+  console.log('=== GetUser START ===');
   const userId = event.queryStringParameters?.userId;
   
   // Verify that the token's sub matches the requested userId
@@ -59,7 +59,7 @@ const getUser = async (tokenPayload: any, corsHeaders: any, event: any) => {
       },
       body: JSON.stringify(null),
     };
-    console.log('=== GetUserInfo END ===');
+    console.log('=== GetUser END ===');
     return response;
   }
 
@@ -77,7 +77,7 @@ const getUser = async (tokenPayload: any, corsHeaders: any, event: any) => {
     },
     body: JSON.stringify(frontendUser),
   };
-  console.log('=== GetUserInfo END ===');
+  console.log('=== GetUser END ===');
   return successResponse;
 };
 
@@ -173,7 +173,7 @@ const createUser = async (body: any, tokenPayload: any, corsHeaders: any, event:
 };
 
 const updateUser = async (body: any, tokenPayload: any, corsHeaders: any, event: any) => {
-  console.log('=== UpdateUserInfo START ===');
+  console.log('=== UpdateUser START ===');
   const { userId, ...updateData } = body;
 
   // Verify that the token's sub matches the requested userId
@@ -239,12 +239,12 @@ const updateUser = async (body: any, tokenPayload: any, corsHeaders: any, event:
     },
     body: JSON.stringify({ message: 'User profile updated successfully' }),
   };
-  console.log('=== UpdateUserInfo END ===');
+  console.log('=== UpdateUser END ===');
   return successResponse;
 };
 
 export const handler = async (event: any) => {
-  console.log('=== UserInfoHandler START ===');
+  console.log('=== UserHandler START ===');
   console.log('Raw event:', JSON.stringify(event, null, 2));
   
   const corsHeaders = getCorsHeaders(event);
@@ -298,7 +298,7 @@ export const handler = async (event: any) => {
         };
     }
   } catch (error) {
-    console.error("=== ERROR in UserInfoHandler ===");
+    console.error("=== ERROR in UserHandler ===");
     console.error("Error stack:", error instanceof Error ? error.stack : 'No stack available');
 
     return {
@@ -307,6 +307,6 @@ export const handler = async (event: any) => {
       body: JSON.stringify({ message: "Internal Server Error" }),
     };
   } finally {
-    console.log('=== UserInfoHandler END ===');
+    console.log('=== UserHandler END ===');
   }
 };
