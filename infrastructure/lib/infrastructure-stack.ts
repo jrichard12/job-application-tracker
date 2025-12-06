@@ -6,8 +6,10 @@ import * as targets from "aws-cdk-lib/aws-events-targets";
 import * as iam from "aws-cdk-lib/aws-iam";
 import * as lambda from "aws-cdk-lib/aws-lambda";
 import * as lambdaUrl from "aws-cdk-lib/aws-lambda";
-import * as apiGateway from "@aws-cdk/aws-apigatewayv2-alpha";
-import { HttpLambdaIntegration } from '@aws-cdk/aws-apigatewayv2-integrations-alpha';
+import { CorsHttpMethod, HttpApi, HttpMethod } from "aws-cdk-lib/aws-apigatewayv2";
+import { HttpLambdaIntegration } from "aws-cdk-lib/aws-apigatewayv2-integrations";
+import { HttpJwtAuthorizer } from "aws-cdk-lib/aws-apigatewayv2-authorizers";
+
 import { Construct } from "constructs";
 import * as path from "path";
 
@@ -15,10 +17,11 @@ export class InfrastructureStack extends cdk.Stack {
   public readonly userPool: cognito.UserPool;
   public readonly userPoolClient: cognito.UserPoolClient;
   public readonly jobAppTable: dynamodb.Table;
-  public readonly userInfoHandlerLambda: lambda.Function;
+  public readonly userHandlerLambda: lambda.Function;
   public readonly jobHandlerLambda: lambda.Function;
   public readonly notificationSenderLambda: lambda.Function;
-  public readonly apiGateway: apiGateway.HttpApi;
+  public readonly apiGateway: HttpApi;
+  public readonly authorizer: HttpJwtAuthorizer;
 
   constructor(scope: Construct, id: string, props?: cdk.StackProps) {
     super(scope, id, props);
@@ -54,40 +57,22 @@ export class InfrastructureStack extends cdk.Stack {
       partitionKey: { name: "PK", type: dynamodb.AttributeType.STRING },
       sortKey: { name: "SK", type: dynamodb.AttributeType.STRING },
       billingMode: dynamodb.BillingMode.PAY_PER_REQUEST,
-      removalPolicy: cdk.RemovalPolicy.DESTROY, 
-    });
-
-    // API GATEWAY
-    this.apiGateway = new apiGateway.HttpApi(this, "AppTrackerApiGateway", {
-      apiName: "AppTrackerApiGateway",
-      description: "API Gateway for App Tracker application",
-    });
-
-    this.apiGateway.addRoutes({
-      path: "/user",
-      methods: [apiGateway.HttpMethod.GET, apiGateway.HttpMethod.POST],
-      integration: new HttpLambdaIntegration("UserInfoIntegration", this.userInfoHandlerLambda),
-    });
-
-    this.apiGateway.addRoutes({
-      path: "/job",
-      methods: [apiGateway.HttpMethod.GET, apiGateway.HttpMethod.POST, apiGateway.HttpMethod.PUT, apiGateway.HttpMethod.DELETE],
-      integration: new HttpLambdaIntegration("JobIntegration", this.jobHandlerLambda),
+      removalPolicy: cdk.RemovalPolicy.DESTROY,
     });
 
     // USER HANDLER LAMBDA
-    this.userInfoHandlerLambda = new lambda.Function(
+    this.userHandlerLambda = new lambda.Function(
       this,
-      "UserInfoHandlerLambda",
+      "UserHandlerLambda",
       {
         runtime: lambda.Runtime.NODEJS_22_X,
-        functionName: "UserInfoHandlerLambda",
+        functionName: "UserHandlerLambda",
         description:
           "Lambda function to handle creating/fetching user data on login",
         code: lambda.Code.fromAsset(
-          path.join(__dirname, "../../backend/dist/userInfo")
+          path.join(__dirname, "../../backend/dist/user")
         ),
-        handler: "userInfo/handler.handler",
+        handler: "user/handler.handler",
         environment: {
           TABLE_NAME: this.jobAppTable.tableName,
           USER_POOL_ID: this.userPool.userPoolId,
@@ -95,9 +80,9 @@ export class InfrastructureStack extends cdk.Stack {
         },
       }
     );
-    this.jobAppTable.grantReadWriteData(this.userInfoHandlerLambda);
+    this.jobAppTable.grantReadWriteData(this.userHandlerLambda);
 
-    const userInfoHandlerLambdaUrl = this.userInfoHandlerLambda.addFunctionUrl({
+    const userHandlerLambdaUrl = this.userHandlerLambda.addFunctionUrl({
       authType: lambdaUrl.FunctionUrlAuthType.NONE, // Using JWT verification in function
     });
 
@@ -122,48 +107,105 @@ export class InfrastructureStack extends cdk.Stack {
       authType: lambdaUrl.FunctionUrlAuthType.NONE, // Using JWT verification in function
     });
 
-    // NOTIFICATION SENDER LAMBDA
-    this.notificationSenderLambda = new lambda.Function(this, "NotificationSenderLambda", {
-      runtime: lambda.Runtime.NODEJS_22_X,
-      functionName: "NotificationSenderLambda",
-      description: "Lambda function to send deadline notifications to users",
-      code: lambda.Code.fromAsset(
-        path.join(__dirname, "../../backend/dist/notificationSender")
-      ),
-      handler: "notificationSender/handler.handler",
-      environment: {
-        TABLE_NAME: this.jobAppTable.tableName,
-        SES_FROM_EMAIL: "app.tracker.25@gmail.com",
+    // API GATEWAY
+    this.apiGateway = new HttpApi(this, "AppTrackerApiGateway", {
+      apiName: "AppTrackerApiGateway",
+      description: "API Gateway for App Tracker application",
+      corsPreflight: {
+        allowOrigins: [
+          "http://localhost:5173",
+          "http://localhost:5174",
+          "http://my-app-tracker.s3-website-us-east-1.amazonaws.com",
+        ],
+        allowHeaders: ["Content-Type", "Authorization"],
+        allowMethods: [
+          CorsHttpMethod.GET,
+          CorsHttpMethod.POST,
+          CorsHttpMethod.PUT,
+          CorsHttpMethod.DELETE,
+        ],
       },
     });
+
+    this.authorizer = new HttpJwtAuthorizer(
+      "AppTrackerJwtAuthorizer",
+      `https://cognito-idp.${this.region}.amazonaws.com/${this.userPool.userPoolId}`,
+      {
+        jwtAudience: [this.userPoolClient.userPoolClientId],
+      }
+    );
+
+    this.apiGateway.addRoutes({
+      path: "/user",
+      methods: [HttpMethod.GET, HttpMethod.PUT, HttpMethod.POST],
+      integration: new HttpLambdaIntegration(
+        "UserIntegration",
+        this.userHandlerLambda
+      ),
+      authorizer: this.authorizer,
+    });
+
+    this.apiGateway.addRoutes({
+      path: "/job",
+      methods: [
+        HttpMethod.GET,
+        HttpMethod.POST,
+        HttpMethod.PUT,
+        HttpMethod.DELETE,
+      ],
+      integration: new HttpLambdaIntegration(
+        "JobIntegration",
+        this.jobHandlerLambda
+      ),
+      authorizer: this.authorizer,
+    });
+
+    // NOTIFICATION SENDER LAMBDA
+    this.notificationSenderLambda = new lambda.Function(
+      this,
+      "NotificationSenderLambda",
+      {
+        runtime: lambda.Runtime.NODEJS_22_X,
+        functionName: "NotificationSenderLambda",
+        description: "Lambda function to send deadline notifications to users",
+        code: lambda.Code.fromAsset(
+          path.join(__dirname, "../../backend/dist/notificationSender")
+        ),
+        handler: "notificationSender/handler.handler",
+        environment: {
+          TABLE_NAME: this.jobAppTable.tableName,
+          SES_FROM_EMAIL: "app.tracker.25@gmail.com",
+        },
+      }
+    );
     this.jobAppTable.grantReadData(this.notificationSenderLambda);
 
     // SES permissions
     this.notificationSenderLambda.addToRolePolicy(
       new iam.PolicyStatement({
         effect: iam.Effect.ALLOW,
-        actions: [
-          "ses:SendEmail",
-          "ses:SendRawEmail"
-        ],
+        actions: ["ses:SendEmail", "ses:SendRawEmail"],
         resources: ["*"],
       })
     );
 
     // SCHEDULE NOTIFICATION LAMBDA (9 AM EST)
-    const notificationRule = new events.Rule(this, 'DailyNotificationRule', {
-      description: 'Trigger notification lambda daily to check for upcoming job deadlines',
+    const notificationRule = new events.Rule(this, "DailyNotificationRule", {
+      description:
+        "Trigger notification lambda daily to check for upcoming job deadlines",
       schedule: events.Schedule.cron({
-        minute: '0',
-        hour: '13', // 13 UTC = 9 AM EST
-        day: '*',
-        month: '*',
-        year: '*'
-      })
+        minute: "0",
+        hour: "13", // 13 UTC = 9 AM EST
+        day: "*",
+        month: "*",
+        year: "*",
+      }),
     });
-    notificationRule.addTarget(new targets.LambdaFunction(this.notificationSenderLambda));
+    notificationRule.addTarget(
+      new targets.LambdaFunction(this.notificationSenderLambda)
+    );
 
-    // OUTPUT
+    // OUTPUTS
     new cdk.CfnOutput(this, "UserPoolId", {
       value: this.userPool.userPoolId,
     });
@@ -176,28 +218,16 @@ export class InfrastructureStack extends cdk.Stack {
       value: this.jobAppTable.tableName,
     });
 
-    new cdk.CfnOutput(this, "UserInfoHandlerLambdaName", {
-      value: this.userInfoHandlerLambda.functionName,
-    });
-
-    new cdk.CfnOutput(this, "UserInfoHandlerLambdaUrl", {
-      value: userInfoHandlerLambdaUrl.url,
-    });
-
-    new cdk.CfnOutput(this, "JobHandlerLambdaName", {
-      value: this.jobHandlerLambda.functionName,
+    new cdk.CfnOutput(this, "UserHandlerLambdaUrl", {
+      value: userHandlerLambdaUrl.url,
     });
 
     new cdk.CfnOutput(this, "JobHandlerLambdaUrl", {
       value: jobHandlerLambdaUrl.url,
     });
 
-    new cdk.CfnOutput(this, "NotificationSenderLambdaName", {
-      value: this.notificationSenderLambda.functionName,
-    });
-
-    new cdk.CfnOutput(this, "NotificationScheduleRuleName", {
-      value: notificationRule.ruleName,
+    new cdk.CfnOutput(this, "ApiGatewayUrl", {
+      value: this.apiGateway.apiEndpoint,
     });
   }
 }
