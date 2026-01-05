@@ -11,7 +11,7 @@ export const simplyhiredRules: ExtractionRuleSet = {
     },
     {
       field: 'company',
-      selector: '[data-testid^="viewJobCompanyName"] [data-testid^="detailText"]',
+      selector: '[data-testid^="viewJobCompanyName"] a',
       attribute: 'textContent'
     },
     {

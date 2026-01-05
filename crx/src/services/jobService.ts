@@ -21,7 +21,6 @@ export class JobService {
       const response = await ExtensionAuthService.makeAuthenticatedRequest(EXTENSION_CONFIG.JOB_HANDLER_URL, {
         method: 'POST',
         body: JSON.stringify({
-          userId: userId,
           job: jobToSave
         })
       });

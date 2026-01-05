@@ -23,8 +23,7 @@ export default defineManifest({
     'scripting',
   ],
   host_permissions: [
-    'https://54jh2lxi3vnrpucnknrulamjbm0pgzyi.lambda-url.us-east-1.on.aws/*',
-    'https://yf3ppew2sks7zzoravfdkeshxu0bygyz.lambda-url.us-east-1.on.aws/*',
+    'https://ei6f81nri4.execute-api.us-east-1.amazonaws.com/*',
     'http://my-app-tracker.s3-website-us-east-1.amazonaws.com/*',
     'http://localhost:*/*',
   ],

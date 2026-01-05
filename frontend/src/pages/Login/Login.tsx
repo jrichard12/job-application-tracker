@@ -9,6 +9,7 @@ import { ExtensionCommunicator } from "../../services/extensionCommunicator";
 import type { JobApp } from "../../types/JobApp";
 import { type UserInfo } from "../../types/UserInfo";
 import "./Login.scss";
+import { getUser } from "../../services/userService";
 
 interface LoginProps {
     userInfo: UserInfo | null;
@@ -16,7 +17,7 @@ interface LoginProps {
 }
 
 
-function Login({ userInfo, updateUser }: LoginProps) {
+function Login({ updateUser }: LoginProps) {
     const [username, setUsername] = useState("");
     const [password, setPassword] = useState("");
     const [newPasswordRequired, setNewPasswordRequired] = useState(false);
@@ -27,9 +28,8 @@ function Login({ userInfo, updateUser }: LoginProps) {
     const [loading, setLoading] = useState(false);
 
     const [cognitoUser, setCognitoUser] = useState<CognitoUser | null>(null);
-    const { user, setUser, setDemoMode } = useAuth();
+    const { setUser, setDemoMode } = useAuth();
     const navigate = useNavigate();
-    const userInfoHandlerUrl = import.meta.env.VITE_USER_INFO_URL;
 
     const handleNewPasswordRequired = (user: CognitoUser) => {
         setCognitoUser(user);
@@ -79,9 +79,10 @@ function Login({ userInfo, updateUser }: LoginProps) {
                     console.log('[Login] Extension not available or error sending tokens:', error);
                 }
 
-                await getUserInfo(username, id, authToken);
-                setLoading(false);
-                navigate("/applications");
+                const data: UserInfo | null = await getUser(authToken);
+                updateUser(data || null);
+
+                navigate("/");
             },
             onFailure: (err) => {
                 setLoading(false);
@@ -96,15 +97,14 @@ function Login({ userInfo, updateUser }: LoginProps) {
         setLoading(true);
 
         try {
-            console.log("Attempting to login with username:", username);
+            // Authenticate user
             const result = await loginUser(username, password, handleNewPasswordRequired);
-            console.log("Login successful:", result);
             const authToken = result.authToken;
             const id = result.userId;
             const userData = { username, authToken, id };
             setUser(userData);
 
-            // Send tokens to extension after successful login
+            // Update extension
             try {
                 console.log('[Login] Attempting to send tokens to extension...');
                 await ExtensionCommunicator.sendTokensToExtension({
@@ -117,8 +117,11 @@ function Login({ userInfo, updateUser }: LoginProps) {
                 console.log('[Login] Extension not available or error sending tokens:', error);
             }
 
-            await getUserInfo(username, id, authToken);
-            console.log(`Login successful, ${userInfo?.createdAt} with ID ${userInfo?.id} authenticated successfully. ${userInfo?.jobApps}`);
+            // Fetch user profile/update state
+            const data: UserInfo | null = await getUser(authToken);
+            updateUser(data || null);
+
+            // Navigate to home
             navigate("/")
         } catch (err: any) {
             setError(err.message || "Login failed");
@@ -150,40 +153,6 @@ function Login({ userInfo, updateUser }: LoginProps) {
             console.error("Demo login error:", err);
             setError(err.message || "Demo login failed");
             setLoading(false);
-        }
-    };
-
-    const getUserInfo = async (username: string, id: string, authToken: string) => {
-        console.log(user);
-        if (username === "" || id === "") {
-            console.error("User is not authenticated or user ID is missing.");
-            return;
-        }
-        try {
-            const response = await fetch(userInfoHandlerUrl, {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                    "Authorization": `Bearer ${authToken}`
-                },
-                body: JSON.stringify({
-                    userId: id,
-                    email: username
-                } as any)
-            });
-
-            if (response.status !== 200) {
-                throw new Error("Failed to fetch user info");
-            }
-
-            const data = await response.json();
-            updateUser({
-                id: data.id,
-                email: data.email,
-                sendNotifications: data.sendNotifications
-            } as UserInfo);
-        } catch (error) {
-            console.error("Error fetching user info:", error);
         }
     };
 
@@ -255,16 +224,16 @@ function Login({ userInfo, updateUser }: LoginProps) {
                     <div style={{ textAlign: 'center', marginTop: '16px' }}>
                         <a
                             href="#"
-                            style={{ 
-                                color: '#432371', 
-                                textDecoration: 'underline', 
-                                cursor: 'pointer', 
-                                fontWeight: 500, 
+                            style={{
+                                color: '#432371',
+                                textDecoration: 'underline',
+                                cursor: 'pointer',
+                                fontWeight: 500,
                                 fontSize: '0.9rem'
                             }}
-                            onClick={(e) => { 
-                                e.preventDefault(); 
-                                handleDemoLogin(); 
+                            onClick={(e) => {
+                                e.preventDefault();
+                                handleDemoLogin();
                             }}
                         >
                             Login as demo user

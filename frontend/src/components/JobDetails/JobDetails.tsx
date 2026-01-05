@@ -10,6 +10,7 @@ import MenuItem from '@mui/material/MenuItem';
 import { useCallback, useEffect, useState } from "react";
 import { useAuth } from "../../services/authService";
 import type { JobApp } from "../../types/JobApp";
+import { updateJob, deleteJob } from "../../services/jobService";
 import { jobAppStatusOptions, jobStatusColors } from "../../types/JobApp";
 import type { UserInfo } from "../../types/UserInfo";
 import { truncateUrl } from "../../utils/urlUtils";
@@ -65,7 +66,6 @@ function JobDetails({ job, updateUser, userInfo }: JobDetailsProps) {
     } : null);
 
     const { demoMode, user } = useAuth();
-    const jobHandlerUrl = import.meta.env.VITE_JOB_HANDLER_URL;
 
     const [snackbar, setSnackbar] = useState<{ open: boolean; message: string; severity: 'success' | 'error' | 'info' | 'warning' }>({
         open: false,
@@ -202,21 +202,13 @@ function JobDetails({ job, updateUser, userInfo }: JobDetailsProps) {
             dateApplied: job.dateApplied instanceof Date ? job.dateApplied.toISOString() : job.dateApplied,
             interviewDate: job.interviewDate instanceof Date ? job.interviewDate.toISOString() : job.interviewDate,
             rejectedDate: job.rejectedDate instanceof Date ? job.rejectedDate.toISOString() : job.rejectedDate,
+            createdAt: job.createdAt instanceof Date ? job.createdAt.toISOString() : job.createdAt,
             lastUpdated: new Date().toISOString() // Always update the lastUpdated timestamp
         };
 
         try {
-            const response = await fetch(jobHandlerUrl, {
-                method: 'PUT',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${user?.authToken}`
-                },
-                body: JSON.stringify(jobDataForAPI),
-            });
-            const result = await response.json();
-            console.log('Update result:', result);
-            if (response.ok) {
+            const result = await updateJob(user.authToken, jobDataForAPI);
+            if (result) {
                 const updatedJob = { ...job, lastUpdated: new Date() };
                 if (updateUser && userInfo) {
                     updateUser({ ...userInfo, jobApps: userInfo.jobApps?.map(app => app.id === job.id ? updatedJob : app) });
@@ -236,7 +228,7 @@ function JobDetails({ job, updateUser, userInfo }: JobDetailsProps) {
             setLoading(false);
             return false;
         }
-    }, [currentJob, demoMode, updateUser, userInfo, jobHandlerUrl, user?.authToken]);
+    }, [currentJob, demoMode, updateUser, userInfo, user?.authToken]);
 
     const handleArchive = async () => {
         if (!currentJob) {
@@ -316,28 +308,15 @@ function JobDetails({ job, updateUser, userInfo }: JobDetailsProps) {
         }
 
         try {
-            const url = `${jobHandlerUrl}?PK=${encodeURIComponent(currentJob.PK)}&SK=${encodeURIComponent(currentJob.SK)}`;
-            const response = await fetch(url, {
-                method: 'DELETE',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${user?.authToken}`
-                }
-            });
-            const result = await response.json();
-            console.log('Delete result:', result);
-            if (response.ok) {
-                if (updateUser && userInfo) {
-                    updateUser({
-                        ...userInfo,
-                        jobApps: userInfo.jobApps?.filter(app => app.id !== currentJob.id) ?? []
-                    });
-                }
-                setCurrentJob(null);
-                showSnackbar('Job deleted', 'success');
-            } else {
-                showSnackbar('Failed to delete job', 'error');
+            await deleteJob(user.authToken, currentJob.SK);
+            if (updateUser && userInfo) {
+                updateUser({
+                    ...userInfo,
+                    jobApps: userInfo.jobApps?.filter(app => app.id !== currentJob.id) ?? []
+                });
             }
+            setCurrentJob(null);
+            showSnackbar('Job deleted', 'success');
         } catch (error) {
             console.error('Error deleting job:', error);
             showSnackbar('Error deleting job', 'error');
