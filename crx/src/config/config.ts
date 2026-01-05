@@ -1,5 +1,4 @@
-const JOB_HANDLER_URL = import.meta.env.VITE_JOB_HANDLER_URL as string;
-const USER_INFO_URL = import.meta.env.VITE_USER_INFO_URL as string;
+const API_URL = import.meta.env.VITE_API_URL as string;
 const WEB_APP_URL =
   import.meta.env.DEV
     ? 'http://localhost:5174' // local dev server
@@ -7,8 +6,15 @@ const WEB_APP_URL =
 
 export const EXTENSION_CONFIG = {
   WEB_APP_URL,
-  JOB_HANDLER_URL,
-  USER_INFO_URL,
+  API_URL,
+
+  get JOB_HANDLER_URL() {
+    return `${API_URL}/job`;
+  },
+
+  get USER_INFO_URL() {
+    return `${API_URL}/user`;
+  },
 
   get LOGIN_URL() {
     return `${WEB_APP_URL}/login`;
