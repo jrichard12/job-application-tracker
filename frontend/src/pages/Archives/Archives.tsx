@@ -11,6 +11,7 @@ import { useAuth } from "../../services/authService";
 import type { JobApp } from "../../types/JobApp";
 import { type UserInfo } from "../../types/UserInfo";
 import "./Archives.scss";
+import { getJobs } from '../../services/jobService';
 
 interface ArchivesProps {
     userInfo: UserInfo | null;
@@ -25,7 +26,6 @@ function Archives({ userInfo, updateUser }: ArchivesProps) {
     const [initialLoadComplete, setInitialLoadComplete] = useState<boolean>(false);
 
     const { user, demoMode } = useAuth();
-    const jobHandlerUrl = import.meta.env.VITE_JOB_HANDLER_URL;
 
     const [snackbar, setSnackbar] = useState<{ open: boolean; message: string; severity: 'success' | 'error' | 'info' | 'warning' }>({
         open: false,
@@ -65,21 +65,8 @@ function Archives({ userInfo, updateUser }: ArchivesProps) {
                 return;
             }
 
-            try {
-                const response = await fetch(`${jobHandlerUrl}?userId=${user.id}`, {
-                    method: "GET",
-                    headers: {
-                        "Content-Type": "application/json",
-                        "Authorization": `Bearer ${user.authToken}`
-                    }
-                });
-
-                if (!response.ok) {
-                    const errorData = await response.json().catch(() => ({}));
-                    throw new Error(errorData.message || `Failed to fetch jobs (${response.status})`);
-                }
-                
-                const jobsData: JobApp[] = await response.json();
+            try {              
+                const jobsData: JobApp[] = await getJobs(user.authToken);
                 updateUser({ ...userInfo, jobApps: jobsData, jobsLoaded: true } as UserInfo);
             } catch (error) {
                 console.error("Error fetching initial job applications:", error);

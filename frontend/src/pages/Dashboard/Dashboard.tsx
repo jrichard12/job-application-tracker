@@ -10,6 +10,7 @@ import CombinedStatsCard from '../../components/Charts/CombinedStatsCard';
 import UpcomingDatesCard from '../../components/Charts/UpcomingDatesCard';
 import { useAuth } from "../../services/authService";
 import { getDemoUserJobs } from "../../services/demoUserService";
+import { updateUser as updateUserService } from "../../services/userService";
 import type { UserInfo } from "../../types/UserInfo";
 import "./Dashboard.scss";
 
@@ -35,33 +36,14 @@ export function Dashboard({ userInfo, updateUser }: DashboardProps) {
         }
 
         try {
-            const userInfoHandlerUrl = import.meta.env.VITE_USER_INFO_URL;
-
             if (!user?.authToken) {
                 console.error("No auth token found");
                 return;
             }
 
-            const response = await fetch(userInfoHandlerUrl, {
-                method: "PUT",
-                headers: {
-                    "Content-Type": "application/json",
-                    "Authorization": `Bearer ${user.authToken}`
-                },
-                body: JSON.stringify({
-                    userId: userInfo.id,
-                    sendNotifications: newNotifications
-                })
+            await updateUserService(user.authToken, {
+                sendNotifications: newNotifications
             });
-
-            if (response.status !== 200) {
-                const errorText = await response.text();
-                console.error("Update failed with status:", response.status, "Error:", errorText);
-                throw new Error(`Failed to update user preferences: ${response.status} - ${errorText}`);
-            }
-
-            const responseData = await response.json();
-            console.log("Update response data:", responseData);
 
             updateUser({
                 ...userInfo,

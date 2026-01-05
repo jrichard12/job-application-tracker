@@ -15,6 +15,7 @@ import { useAuth } from "../../services/authService";
 import type { JobApp } from "../../types/JobApp";
 import { type UserInfo } from "../../types/UserInfo";
 import "./Applications.scss";
+import { createJob, getJobs } from '../../services/jobService';
 
 interface ApplicationsProps {
     userInfo: UserInfo | null;
@@ -32,7 +33,6 @@ function Applications({ userInfo, updateUser }: ApplicationsProps) {
     const [initialLoadComplete, setInitialLoadComplete] = useState<boolean>(false);
 
     const { user, demoMode } = useAuth();
-    const jobHandlerUrl = import.meta.env.VITE_JOB_HANDLER_URL;
 
     const [snackbar, setSnackbar] = useState<{ open: boolean; message: string; severity: 'success' | 'error' | 'info' | 'warning' }>({
         open: false,
@@ -73,20 +73,7 @@ function Applications({ userInfo, updateUser }: ApplicationsProps) {
             }
 
             try {
-                const response = await fetch(`${jobHandlerUrl}?userId=${user.id}`, {
-                    method: "GET",
-                    headers: {
-                        "Content-Type": "application/json",
-                        "Authorization": `Bearer ${user.authToken}`
-                    }
-                });
-
-                if (!response.ok) {
-                    const errorData = await response.json().catch(() => ({}));
-                    throw new Error(errorData.message || `Failed to fetch jobs (${response.status})`);
-                }
-                
-                const jobsData: JobApp[] = await response.json();
+                const jobsData: JobApp[] = await getJobs(user.authToken);
                 updateUser({ ...userInfo, jobApps: jobsData, jobsLoaded: true } as UserInfo);
             } catch (error) {
                 console.error("Error fetching initial job applications:", error);
@@ -162,24 +149,9 @@ function Applications({ userInfo, updateUser }: ApplicationsProps) {
         }
 
         try {
-            const response = await fetch(jobHandlerUrl, {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                    "Authorization": `Bearer ${user!.authToken}`
-                },
-                body: JSON.stringify({
-                    userId: user!.id,
-                    job: jobApp
-                })
-            });
+            if (!user?.authToken) throw new Error('No auth token available');
 
-            if (!response.ok) {
-                const errorData = await response.json().catch(() => ({}));
-                throw new Error(errorData.message || `Failed to create job (${response.status})`);
-            }
-
-            const data = await response.json();
+            const data = await createJob(user.authToken, { ...jobApp });
             console.log("Job application created:", data);
             updateUser({
                 ...userInfo, jobApps: [...userInfo?.jobApps || [], data]
@@ -229,19 +201,7 @@ function Applications({ userInfo, updateUser }: ApplicationsProps) {
         }
 
         try {
-            const response = await fetch(`${jobHandlerUrl}?userId=${user.id}`, {
-                method: "GET",
-                headers: {
-                    "Content-Type": "application/json",
-                    "Authorization": `Bearer ${user.authToken}`
-                }
-            });
-            
-            if (!response.ok) {
-                const errorData = await response.json().catch(() => ({}));
-                throw new Error(errorData.message || `Failed to fetch jobs (${response.status})`);
-            }
-            const jobsData: JobApp[] = await response.json();
+            const jobsData: JobApp[] = await getJobs(user.authToken);
             const activeJobs = jobsData.filter(job => !job.isArchived);
             setJobs([...activeJobs]);
             setCurrentJobDetails(undefined);
