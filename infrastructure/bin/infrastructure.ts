@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 import * as cdk from 'aws-cdk-lib';
 import { InfrastructureStack } from '../lib/infrastructure-stack';
-import { HostingStack } from '../lib/hosting-stack';
+import { AppTrackerHostingStack } from '../lib/app-tracker-hosting-stack';
 
 const app = new cdk.App();
 new InfrastructureStack(app, 'InfrastructureStack', {
@@ -19,4 +19,4 @@ new InfrastructureStack(app, 'InfrastructureStack', {
 
   /* For more information, see https://docs.aws.amazon.com/cdk/latest/guide/environments.html */
 });
-new HostingStack(app, 'HostingStack');
+new AppTrackerHostingStack(app, 'AppTrackerHostingStack');
