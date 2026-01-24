@@ -1,15 +1,23 @@
-import { Chip, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Typography } from "@mui/material";
+/* eslint-disable @typescript-eslint/no-explicit-any */
+
+import { Chip, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Typography, TableSortLabel } from "@mui/material";
 import type { JobApp } from "../../types/JobApp";
 import { jobStatusColors } from "../../types/JobApp";
 import { truncateUrl } from "../../utils/urlUtils";
 import "./JobAppsListView.scss";
+import { useState } from "react";
+
 
 type JobAppsListViewProps = {
     jobs: JobApp[];
-}
+};
+
 
 function JobAppsListView({ jobs }: JobAppsListViewProps) {
-    const formatDate = (date: Date | null | undefined) => {
+    const [sortBy, setSortBy] = useState<string>('dateApplied');
+    const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('desc');
+
+    const formatDate = (date: Date | string | null | undefined) => {
         if (!date) return "N/A";
         return new Date(date).toLocaleDateString();
     };
@@ -23,24 +31,136 @@ function JobAppsListView({ jobs }: JobAppsListViewProps) {
         return status !== 'Applied' && status !== 'Interested';
     };
 
+    // Sorting logic
+    const handleSort = (column: string) => {
+        if (sortBy === column) {
+            setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc');
+        } else {
+            setSortBy(column);
+            setSortDirection('asc');
+        }
+    };
+
+    const getComparator = (column: string) => {
+        return (a: JobApp, b: JobApp) => {
+            let aValue: any = a[column as keyof JobApp];
+            let bValue: any = b[column as keyof JobApp];
+
+            // Special handling for some columns
+            if (column === 'dateApplied') {
+                aValue = aValue ? new Date(aValue) : new Date(0);
+                bValue = bValue ? new Date(bValue) : new Date(0);
+            } else if (column === 'salary') {
+                // Try to parse as number, fallback to string
+                const parseSalary = (val: any) => {
+                    if (!val) return 0;
+                    const num = parseFloat(val.toString().replace(/[^\d.]/g, ''));
+                    return isNaN(num) ? 0 : num;
+                };
+                aValue = parseSalary(aValue);
+                bValue = parseSalary(bValue);
+            } else if (column === 'jobStatus') {
+                // Sort by status order
+                const statusOrder = [
+                    'Interested', 'Applied', 'Interviewed', 'Offered', 'Accepted', 'Rejected'
+                ];
+                aValue = statusOrder.indexOf(aValue);
+                bValue = statusOrder.indexOf(bValue);
+            } else if (typeof aValue === 'string' && typeof bValue === 'string') {
+                aValue = aValue.toLowerCase();
+                bValue = bValue.toLowerCase();
+            }
+
+            if (aValue < bValue) return sortDirection === 'asc' ? -1 : 1;
+            if (aValue > bValue) return sortDirection === 'asc' ? 1 : -1;
+            return 0;
+        };
+    };
+
+    const sortedJobs = [...jobs].sort(getComparator(sortBy));
+
     return (
         <div className="job-apps-list-view">
             <TableContainer component={Paper} className="job-apps-table-container">
                 <Table className="job-apps-table" stickyHeader>
                     <TableHead>
                         <TableRow className="job-apps-table-header">
-                            <TableCell className="table-header-cell">Job Title</TableCell>
-                            <TableCell className="table-header-cell">Company</TableCell>
-                            <TableCell className="table-header-cell">Location</TableCell>
-                            <TableCell className="table-header-cell">Salary</TableCell>
-                            <TableCell className="table-header-cell">Date Applied</TableCell>
-                            <TableCell className="table-header-cell">Response</TableCell>
-                            <TableCell className="table-header-cell">Status</TableCell>
-                            <TableCell className="table-header-cell">Source</TableCell>
+                            <TableCell className="table-header-cell" sortDirection={sortBy === 'jobTitle' ? sortDirection : false}>
+                                <TableSortLabel
+                                    active={sortBy === 'jobTitle'}
+                                    direction={sortBy === 'jobTitle' ? sortDirection : 'asc'}
+                                    onClick={() => handleSort('jobTitle')}
+                                >
+                                    Job Title
+                                </TableSortLabel>
+                            </TableCell>
+                            <TableCell className="table-header-cell" sortDirection={sortBy === 'company' ? sortDirection : false}>
+                                <TableSortLabel
+                                    active={sortBy === 'company'}
+                                    direction={sortBy === 'company' ? sortDirection : 'asc'}
+                                    onClick={() => handleSort('company')}
+                                >
+                                    Company
+                                </TableSortLabel>
+                            </TableCell>
+                            <TableCell className="table-header-cell" sortDirection={sortBy === 'location' ? sortDirection : false}>
+                                <TableSortLabel
+                                    active={sortBy === 'location'}
+                                    direction={sortBy === 'location' ? sortDirection : 'asc'}
+                                    onClick={() => handleSort('location')}
+                                >
+                                    Location
+                                </TableSortLabel>
+                            </TableCell>
+                            <TableCell className="table-header-cell" sortDirection={sortBy === 'salary' ? sortDirection : false}>
+                                <TableSortLabel
+                                    active={sortBy === 'salary'}
+                                    direction={sortBy === 'salary' ? sortDirection : 'asc'}
+                                    onClick={() => handleSort('salary')}
+                                >
+                                    Salary
+                                </TableSortLabel>
+                            </TableCell>
+                            <TableCell className="table-header-cell" sortDirection={sortBy === 'dateApplied' ? sortDirection : false}>
+                                <TableSortLabel
+                                    active={sortBy === 'dateApplied'}
+                                    direction={sortBy === 'dateApplied' ? sortDirection : 'asc'}
+                                    onClick={() => handleSort('dateApplied')}
+                                >
+                                    Date Applied
+                                </TableSortLabel>
+                            </TableCell>
+                            <TableCell className="table-header-cell" sortDirection={sortBy === 'response' ? sortDirection : false}>
+                                <TableSortLabel
+                                    active={sortBy === 'response'}
+                                    direction={sortBy === 'response' ? sortDirection : 'asc'}
+                                    onClick={() => handleSort('response')}
+                                >
+                                    Response
+                                </TableSortLabel>
+                            </TableCell>
+                            <TableCell className="table-header-cell" sortDirection={sortBy === 'jobStatus' ? sortDirection : false}>
+                                <TableSortLabel
+                                    active={sortBy === 'jobStatus'}
+                                    direction={sortBy === 'jobStatus' ? sortDirection : 'asc'}
+                                    onClick={() => handleSort('jobStatus')}
+                                >
+                                    Status
+                                </TableSortLabel>
+                            </TableCell>
+                            <TableCell className="table-header-cell" sortDirection={sortBy === 'source' ? sortDirection : false}>
+                                <TableSortLabel
+                                    active={sortBy === 'source'}
+                                    direction={sortBy === 'source' ? sortDirection : 'asc'}
+                                    onClick={() => handleSort('source')}
+                                >
+                                    Source
+                                </TableSortLabel>
+                            </TableCell>
                         </TableRow>
                     </TableHead>
                     <TableBody>
-                        {jobs.length === 0 ? (
+                        {sortedJobs.length === 0 ? (
                             <TableRow>
                                 <TableCell colSpan={8} className="empty-state-cell">
                                     <Typography className="empty-state-message" sx={{ fontFamily: 'Noto Sans Mono, sans-serif' }}>
@@ -49,7 +169,7 @@ function JobAppsListView({ jobs }: JobAppsListViewProps) {
                                 </TableCell>
                             </TableRow>
                         ) : (
-                            jobs.map((job, index) => (
+                            sortedJobs.map((job, index) => (
                                 <TableRow key={job.id || index} className="job-app-table-row">
                                     <TableCell className="table-cell job-title-cell">
                                         <Typography className="job-title-text" sx={{ fontFamily: 'Noto Sans Mono, sans-serif' }}>
