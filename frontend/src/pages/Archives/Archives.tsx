@@ -12,6 +12,7 @@ import type { JobApp } from "../../types/JobApp";
 import { type UserInfo } from "../../types/UserInfo";
 import "./Archives.scss";
 import { getJobs } from '../../services/jobService';
+import JobSearchBar from '../../components/JobSearchBar/JobSearchBar';
 
 interface ArchivesProps {
     userInfo: UserInfo | null;
@@ -21,6 +22,7 @@ interface ArchivesProps {
 function Archives({ userInfo, updateUser }: ArchivesProps) {
     const [currentJobDetails, setCurrentJobDetails] = useState<JobApp>();
     const [archivedJobs, setArchivedJobs] = useState<JobApp[]>([]);
+    const [filteredJobs, setFilteredJobs] = useState<JobApp[]>([]);
     const [isListView, setIsListView] = useState<boolean>(false);
     const [refreshLoading, setRefreshLoading] = useState<boolean>(false);
     const [initialLoadComplete, setInitialLoadComplete] = useState<boolean>(false);
@@ -65,7 +67,7 @@ function Archives({ userInfo, updateUser }: ArchivesProps) {
                 return;
             }
 
-            try {              
+            try {
                 const jobsData: JobApp[] = await getJobs(user.authToken);
                 updateUser({ ...userInfo, jobApps: jobsData, jobsLoaded: true } as UserInfo);
             } catch (error) {
@@ -84,11 +86,16 @@ function Archives({ userInfo, updateUser }: ArchivesProps) {
     useEffect(() => {
         const archivedJobs: JobApp[] = userInfo?.jobApps?.filter(job => job.isArchived) || [];
         setArchivedJobs([...archivedJobs]);
+        setFilteredJobs([...archivedJobs]);
     }, [userInfo]);
 
 
     const handleShowDetails = (job: JobApp) => {
         setCurrentJobDetails(job);
+    };
+
+    const handleSearchResults = (results: JobApp[]) => {
+        setFilteredJobs(results);
     };
 
     return (
@@ -101,6 +108,9 @@ function Archives({ userInfo, updateUser }: ArchivesProps) {
                         </Typography>
                     </div>
                     <div className="toolbar-actions">
+                        <div className="search-bar-row">
+                            <JobSearchBar jobs={archivedJobs} onSearchResults={handleSearchResults} />
+                        </div>
                         <div className="view-toggle-buttons">
                             <Tooltip title="Card View">
                                 <IconButton
@@ -135,10 +145,10 @@ function Archives({ userInfo, updateUser }: ArchivesProps) {
                         </div>
                     )}
                     {isListView ? (
-                        <JobAppsListView jobs={archivedJobs} />
+                        <JobAppsListView jobs={filteredJobs} />
                     ) : (
                         <>
-                            <JobAppList jobDetailsHandler={handleShowDetails} jobs={archivedJobs} currentJob={currentJobDetails ?? null} />
+                            <JobAppList jobDetailsHandler={handleShowDetails} jobs={filteredJobs} currentJob={currentJobDetails ?? null} />
                             <JobDetails job={currentJobDetails ?? null} userInfo={userInfo ?? null} updateUser={updateUser ?? null} />
                         </>
                     )}

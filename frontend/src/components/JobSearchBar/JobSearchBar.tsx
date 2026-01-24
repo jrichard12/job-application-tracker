@@ -12,19 +12,28 @@ interface JobSearchBarProps {
 const JobSearchBar: React.FC<JobSearchBarProps> = ({ jobs, onSearchResults }) => {
   const [searchTerm, setSearchTerm] = useState('');
 
-  const handleSearch = (e?: React.FormEvent) => {
-    if (e) e.preventDefault();
-    const term = searchTerm.trim().toLowerCase();
-    if (!term) {
+  const performSearch = (term: string) => {
+    const trimmedTerm = term.trim().toLowerCase();
+    if (!trimmedTerm) {
       onSearchResults(jobs);
       return;
     }
     const results = jobs.filter(job => {
       return Object.values(job).some(value =>
-        value && value.toString().toLowerCase().includes(term)
+        value && value.toString().toLowerCase().includes(trimmedTerm)
       );
     });
     onSearchResults(results);
+  };
+
+  const handleSearch = (e?: React.FormEvent) => {
+    if (e) e.preventDefault();
+    performSearch(searchTerm);
+  };
+
+  const handleInputChange = (value: string) => {
+    setSearchTerm(value);
+    performSearch(value);
   };
 
   return (
@@ -35,7 +44,7 @@ const JobSearchBar: React.FC<JobSearchBarProps> = ({ jobs, onSearchResults }) =>
         size="small"
         placeholder="Search applications..."
         value={searchTerm}
-        onChange={e => setSearchTerm(e.target.value)}
+        onChange={e => handleInputChange(e.target.value)}
         slotProps={{
           input: {
             endAdornment: (
