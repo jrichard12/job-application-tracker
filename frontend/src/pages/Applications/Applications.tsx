@@ -16,6 +16,7 @@ import type { JobApp } from "../../types/JobApp";
 import { type UserInfo } from "../../types/UserInfo";
 import "./Applications.scss";
 import { createJob, getJobs } from '../../services/jobService';
+import JobSearchBar from "../../components/JobSearchBar/JobSearchBar";
 
 interface ApplicationsProps {
     userInfo: UserInfo | null;
@@ -28,6 +29,7 @@ function Applications({ userInfo, updateUser }: ApplicationsProps) {
     const [currentJobDetails, setCurrentJobDetails] = useState<JobApp>();
     const [createModalOpen, setCreateModalOpen] = useState<boolean>(false);
     const [jobs, setJobs] = useState<JobApp[]>([]);
+    const [filteredJobs, setFilteredJobs] = useState<JobApp[]>([]);
     const [isListView, setIsListView] = useState<boolean>(false);
     const [refreshLoading, setRefreshLoading] = useState<boolean>(false);
     const [initialLoadComplete, setInitialLoadComplete] = useState<boolean>(false);
@@ -48,6 +50,10 @@ function Applications({ userInfo, updateUser }: ApplicationsProps) {
         if (reason === 'clickaway') return;
         setSnackbar(prev => ({ ...prev, open: false }));
     }
+
+    const handleSearchResults = (results: JobApp[]) => {
+        setFilteredJobs(results);
+    };
 
     // Initial data fetch on mount (only if jobs aren't already loaded)
     useEffect(() => {
@@ -91,16 +97,16 @@ function Applications({ userInfo, updateUser }: ApplicationsProps) {
     useEffect(() => {
         const activeJobs: JobApp[] = userInfo?.jobApps?.filter(job => !job.isArchived) || [];
         setJobs([...activeJobs]);
-        
+        setFilteredJobs([...activeJobs]);
+
         // Clear selection if the currently selected job is no longer available (archived/deleted)
-        if (currentJobDetails && (!userInfo?.jobApps?.find(job => job.id === currentJobDetails.id) || 
+        if (currentJobDetails && (!userInfo?.jobApps?.find(job => job.id === currentJobDetails.id) ||
             userInfo.jobApps.find(job => job.id === currentJobDetails.id)?.isArchived)) {
             setCurrentJobDetails(undefined);
             setSearchParams({});
         }
     }, [userInfo, currentJobDetails, setSearchParams]);
 
-    // Handle jobId URL parameter for direct navigation from dashboard
     useEffect(() => {
         const jobId = searchParams.get('jobId');
         if (jobId && userInfo?.jobApps) {
@@ -227,11 +233,14 @@ function Applications({ userInfo, updateUser }: ApplicationsProps) {
             <Paper className="job-apps" elevation={24}>
                 <div className="apps-tool-bar">
                     <div className="page-title">
-                        <Typography variant="h5" fontFamily={"var(--font-family)"} fontWeight="bold">
+                        <Typography variant="h4" fontFamily={"var(--font-family)"} fontWeight="bold">
                             Your Applications
                         </Typography>
                     </div>
                     <div className="toolbar-actions">
+                        <div className="search-bar-row">
+                            <JobSearchBar jobs={jobs} onSearchResults={handleSearchResults} />
+                        </div>
                         <div className="view-toggle-buttons">
                             <Tooltip title="Card View">
                                 <IconButton
@@ -271,6 +280,7 @@ function Applications({ userInfo, updateUser }: ApplicationsProps) {
                             </button>
                         </div>
                     </div>
+
                 </div>
                 <div className={`job-apps-content ${isListView ? 'list-view' : ''}`}>
                     {refreshLoading && (
@@ -284,10 +294,10 @@ function Applications({ userInfo, updateUser }: ApplicationsProps) {
                         </div>
                     )}
                     {isListView ? (
-                        <JobAppsListView jobs={jobs} />
+                        <JobAppsListView jobs={filteredJobs} />
                     ) : (
                         <>
-                            <JobAppList jobDetailsHandler={handleShowDetails} jobs={jobs} currentJob={currentJobDetails ?? null} />
+                            <JobAppList jobDetailsHandler={handleShowDetails} jobs={filteredJobs} currentJob={currentJobDetails ?? null} />
                             <JobDetails
                                 job={currentJobDetails ?? null}
                                 userInfo={userInfo ?? null}
