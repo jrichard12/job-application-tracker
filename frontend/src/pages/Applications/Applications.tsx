@@ -96,9 +96,16 @@ function Applications({ userInfo, updateUser }: ApplicationsProps) {
     }, [user?.id, user?.authToken, demoMode, initialLoadComplete]);
 
     useEffect(() => {
+
         const activeJobs: JobApp[] = userInfo?.jobApps?.filter(job => !job.isArchived) || [];
-        setJobs([...activeJobs]);
-        setFilteredJobs([...activeJobs]);
+        // Sort by dateApplied descending (newest first)
+        const sortedJobs = [...activeJobs].sort((a, b) => {
+            const aDate = a.dateApplied ? new Date(a.dateApplied).getTime() : 0;
+            const bDate = b.dateApplied ? new Date(b.dateApplied).getTime() : 0;
+            return bDate - aDate;
+        });
+        setJobs(sortedJobs);
+        setFilteredJobs(sortedJobs);
 
         // Clear selection if the currently selected job is no longer available (archived/deleted)
         if (currentJobDetails && (!userInfo?.jobApps?.find(job => job.id === currentJobDetails.id) ||
