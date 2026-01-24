@@ -1,6 +1,6 @@
 import ViewListIcon from '@mui/icons-material/ViewList';
 import ViewModuleIcon from '@mui/icons-material/ViewModule';
-import { CircularProgress, IconButton, Tooltip, Typography } from "@mui/material";
+import { Box, CircularProgress, Container, IconButton, Tooltip, Typography } from "@mui/material";
 import { useEffect, useState } from "react";
 import SnackbarAlert from '../../components/SnackbarAlert/SnackbarAlert';
 import { getDemoUserJobs } from '../../services/demoUserService';
@@ -12,6 +12,8 @@ import type { JobApp } from "../../types/JobApp";
 import { type UserInfo } from "../../types/UserInfo";
 import "./Archives.scss";
 import { getJobs } from '../../services/jobService';
+import JobSearchBar from '../../components/JobSearchBar/JobSearchBar';
+import { GitHub, LinkedIn } from '@mui/icons-material';
 
 interface ArchivesProps {
     userInfo: UserInfo | null;
@@ -21,6 +23,7 @@ interface ArchivesProps {
 function Archives({ userInfo, updateUser }: ArchivesProps) {
     const [currentJobDetails, setCurrentJobDetails] = useState<JobApp>();
     const [archivedJobs, setArchivedJobs] = useState<JobApp[]>([]);
+    const [filteredJobs, setFilteredJobs] = useState<JobApp[]>([]);
     const [isListView, setIsListView] = useState<boolean>(false);
     const [refreshLoading, setRefreshLoading] = useState<boolean>(false);
     const [initialLoadComplete, setInitialLoadComplete] = useState<boolean>(false);
@@ -65,7 +68,7 @@ function Archives({ userInfo, updateUser }: ArchivesProps) {
                 return;
             }
 
-            try {              
+            try {
                 const jobsData: JobApp[] = await getJobs(user.authToken);
                 updateUser({ ...userInfo, jobApps: jobsData, jobsLoaded: true } as UserInfo);
             } catch (error) {
@@ -84,6 +87,7 @@ function Archives({ userInfo, updateUser }: ArchivesProps) {
     useEffect(() => {
         const archivedJobs: JobApp[] = userInfo?.jobApps?.filter(job => job.isArchived) || [];
         setArchivedJobs([...archivedJobs]);
+        setFilteredJobs([...archivedJobs]);
     }, [userInfo]);
 
 
@@ -91,16 +95,23 @@ function Archives({ userInfo, updateUser }: ArchivesProps) {
         setCurrentJobDetails(job);
     };
 
+    const handleSearchResults = (results: JobApp[]) => {
+        setFilteredJobs(results);
+    };
+
     return (
         <div className="archives">
             <div className="job-apps">
                 <div className="apps-tool-bar">
                     <div className="page-title">
-                        <Typography variant="h5" fontFamily={"var(--font-family)"} fontWeight="bold">
+                        <Typography variant="h4" fontFamily={"var(--font-family)"} fontWeight="bold">
                             Archived Applications
                         </Typography>
                     </div>
                     <div className="toolbar-actions">
+                        <div className="search-bar-row">
+                            <JobSearchBar jobs={archivedJobs} onSearchResults={handleSearchResults} />
+                        </div>
                         <div className="view-toggle-buttons">
                             <Tooltip title="Card View">
                                 <IconButton
@@ -135,15 +146,47 @@ function Archives({ userInfo, updateUser }: ArchivesProps) {
                         </div>
                     )}
                     {isListView ? (
-                        <JobAppsListView jobs={archivedJobs} />
+                        <JobAppsListView jobs={filteredJobs} />
                     ) : (
                         <>
-                            <JobAppList jobDetailsHandler={handleShowDetails} jobs={archivedJobs} currentJob={currentJobDetails ?? null} />
+                            <JobAppList jobDetailsHandler={handleShowDetails} jobs={filteredJobs} currentJob={currentJobDetails ?? null} />
                             <JobDetails job={currentJobDetails ?? null} userInfo={userInfo ?? null} updateUser={updateUser ?? null} />
                         </>
                     )}
                 </div>
             </div>
+
+            {/* Footer */}
+            <footer className="footer-section">
+                <Container maxWidth="lg">
+                    <Box className="footer-content">
+                        <div className="footer-links">
+                            <IconButton
+                                component="a"
+                                href="https://www.linkedin.com/in/jessica-richard-7b601789"
+                                target="_blank"
+                                className="footer-link"
+                                aria-label="LinkedIn Profile"
+                            >
+                                <LinkedIn />
+                            </IconButton>
+                            <IconButton
+                                component="a"
+                                href="https://github.com/jrichard12/job-application-tracker"
+                                target="_blank"
+                                className="footer-link"
+                                aria-label="GitHub Repository"
+                            >
+                                <GitHub />
+                            </IconButton>
+                        </div>
+                        <Typography variant="body2" className="footer-text">
+                            Designed and Built by Jessica Richard
+                        </Typography>
+                    </Box>
+                </Container>
+            </footer>
+
             <SnackbarAlert open={snackbar.open} message={snackbar.message} severity={snackbar.severity} onClose={handleSnackbarClose} />
         </div>
     );

@@ -31,17 +31,71 @@
       box-shadow: $shadow-gradient;
       background: $gradient-primary;
       color: $color-text-white;
-      padding: 0 $spacing-xxl;
+      padding: 0 1.2rem;
       font-size: 1.2rem;
       font-weight: 600;
       display: flex;
       align-items: center;
-      justify-content: space-between;
+      justify-content: flex-start;
+      gap: 2rem;
       box-sizing: border-box;
       height: 72px;
 
+      .search-form {
+        display: flex;
+        align-items: center;
+        justify-content: flex-start;
+        flex-shrink: 0;
+
+        .search-input {
+          width: 380px;
+          background: rgba(255, 255, 255, 0.95);
+          border-radius: var(--border-radius-medium, 8px);
+          font-family: var(--font-family, 'Noto Sans Mono, sans-serif');
+          font-size: 0.95rem;
+          box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+          
+          .MuiOutlinedInput-root {
+            border-radius: var(--border-radius-medium, 8px);
+            font-family: inherit;
+            font-size: inherit;
+            background: inherit;
+            
+            .MuiOutlinedInput-input {
+              padding: 10px 12px;
+              
+              &::placeholder {
+                opacity: 0.7;
+              }
+            }
+          }
+          
+          .MuiInputAdornment-root {
+            margin-right: 0.2rem;
+          }
+        }
+
+        .search-btn {
+          color: var(--color-primary, #1976d2);
+          background: transparent;
+          border-radius: 6px;
+          transition: background 0.15s;
+          padding: 0.3rem;
+          
+          &:hover {
+            background: rgba(25, 118, 210, 0.08);
+          }
+          
+          .MuiSvgIcon-root {
+            font-size: 1.3rem;
+          }
+        }
+      }
+
       .page-title {
         color: $color-text-white;
+        white-space: nowrap;
+        flex-shrink: 0;
         
         .MuiTypography-root {
           color: $color-text-white !important;
@@ -88,6 +142,7 @@
         display: flex;
         align-items: center;
         gap: $spacing-md;
+        margin-left: auto;
 
         .view-toggle-buttons, .refresh-button-container{
           display: flex;
@@ -128,7 +183,7 @@
       flex-direction: row;
       gap: $spacing-sm;
       width: 100%;
-      padding: 0.75rem;
+      padding: 1.2rem;
       box-sizing: border-box;
       position: relative;
 
@@ -273,6 +328,41 @@
         &::-webkit-scrollbar-thumb:window-inactive {
           background: transparent;
         }
+      }
+    }
+  }
+
+  // Footer
+  .footer-section {
+    margin-top: 1rem;
+    padding: 5rem 0 0 0;
+    background: $color-background;
+
+    .footer-content {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: $spacing-lg;
+      animation: fadeInUp 0.8s ease-out;
+
+      .footer-links {
+        display: flex;
+        gap: $spacing-lg;
+
+        .footer-link {
+          color: $color-primary;
+          transition: all 0.3s ease;
+
+          &:hover {
+            color: $color-secondary;
+            transform: translateY(-2px);
+          }
+        }
+      }
+
+      .footer-text {
+        color: $color-text-light;
+        font-weight: 500;
       }
     }
   }
