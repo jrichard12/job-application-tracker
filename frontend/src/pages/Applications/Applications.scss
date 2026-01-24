@@ -331,4 +331,39 @@
       }
     }
   }
+
+  // Footer
+  .footer-section {
+    margin-top: 1rem;
+    padding: 5rem 0 0 0;
+    background: $color-background;
+
+    .footer-content {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: $spacing-lg;
+      animation: fadeInUp 0.8s ease-out;
+
+      .footer-links {
+        display: flex;
+        gap: $spacing-lg;
+
+        .footer-link {
+          color: $color-primary;
+          transition: all 0.3s ease;
+
+          &:hover {
+            color: $color-secondary;
+            transform: translateY(-2px);
+          }
+        }
+      }
+
+      .footer-text {
+        color: $color-text-light;
+        font-weight: 500;
+      }
+    }
+  }
 }

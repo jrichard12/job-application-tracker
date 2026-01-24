@@ -1,5 +1,5 @@
-import { Button, Paper, Typography, Alert, IconButton, Tooltip } from "@mui/material";
-import { Settings } from "@mui/icons-material";
+import { Button, Paper, Typography, Alert, IconButton, Tooltip, Container, Box } from "@mui/material";
+import { GitHub, LinkedIn, Settings } from "@mui/icons-material";
 import { useState } from "react";
 import SnackbarAlert from '../../components/SnackbarAlert/SnackbarAlert';
 import ProfileSettingsDialog from '../../components/ProfileSettingsDialog/ProfileSettingsDialog';
@@ -145,12 +145,12 @@ export function Dashboard({ userInfo, updateUser }: DashboardProps) {
                     <Typography variant="h5" className="section-title" sx={{ fontFamily: 'Noto Sans Mono, sans-serif' }}>
                         General Overview
                     </Typography>
-                    
+
                     <div className="overview-grid">
                         <div className="fade-in-up fade-in-up--delay-1">
                             <InsightCard userInfo={userInfo} />
                         </div>
-                        
+
                         <div className="fade-in-up fade-in-up--delay-2">
                             <UpcomingDatesCard userInfo={userInfo} />
                         </div>
@@ -161,22 +161,53 @@ export function Dashboard({ userInfo, updateUser }: DashboardProps) {
                     <Typography variant="h5" className="section-title" sx={{ fontFamily: 'Noto Sans Mono, sans-serif' }}>
                         Analytics & Insights
                     </Typography>
-                    
+
                     <div className="charts-grid">
                         <div className="fade-in-up fade-in-up--delay-3 chart-card--full-width">
                             <CombinedStatsCard userInfo={userInfo} />
                         </div>
-                        
+
                         <div className="fade-in-up fade-in-up--delay-4 chart-card--full-width">
                             <ApplicationTrendLineChart userInfo={userInfo} />
                         </div>
-                        
+
                         <div className="fade-in-up fade-in-up--delay-5 chart-card--full-width">
                             <ResponseRateBarChart userInfo={userInfo} />
                         </div>
                     </div>
                 </div>
             </div>
+
+            {/* Footer */}
+            <footer className="footer-section">
+                <Container maxWidth="lg">
+                    <Box className="footer-content">
+                        <div className="footer-links">
+                            <IconButton
+                                component="a"
+                                href="https://www.linkedin.com/in/jessica-richard-7b601789"
+                                target="_blank"
+                                className="footer-link"
+                                aria-label="LinkedIn Profile"
+                            >
+                                <LinkedIn />
+                            </IconButton>
+                            <IconButton
+                                component="a"
+                                href="https://github.com/jrichard12/job-application-tracker"
+                                target="_blank"
+                                className="footer-link"
+                                aria-label="GitHub Repository"
+                            >
+                                <GitHub />
+                            </IconButton>
+                        </div>
+                        <Typography variant="body2" className="footer-text">
+                            Designed and Built by Jessica Richard
+                        </Typography>
+                    </Box>
+                </Container>
+            </footer>
             <ProfileSettingsDialog
                 open={settingsDialogOpen}
                 onClose={() => setSettingsDialogOpen(false)}

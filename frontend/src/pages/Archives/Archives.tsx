@@ -1,6 +1,6 @@
 import ViewListIcon from '@mui/icons-material/ViewList';
 import ViewModuleIcon from '@mui/icons-material/ViewModule';
-import { CircularProgress, IconButton, Tooltip, Typography } from "@mui/material";
+import { Box, CircularProgress, Container, IconButton, Tooltip, Typography } from "@mui/material";
 import { useEffect, useState } from "react";
 import SnackbarAlert from '../../components/SnackbarAlert/SnackbarAlert';
 import { getDemoUserJobs } from '../../services/demoUserService';
@@ -13,6 +13,7 @@ import { type UserInfo } from "../../types/UserInfo";
 import "./Archives.scss";
 import { getJobs } from '../../services/jobService';
 import JobSearchBar from '../../components/JobSearchBar/JobSearchBar';
+import { GitHub, LinkedIn } from '@mui/icons-material';
 
 interface ArchivesProps {
     userInfo: UserInfo | null;
@@ -103,7 +104,7 @@ function Archives({ userInfo, updateUser }: ArchivesProps) {
             <div className="job-apps">
                 <div className="apps-tool-bar">
                     <div className="page-title">
-                        <Typography variant="h5" fontFamily={"var(--font-family)"} fontWeight="bold">
+                        <Typography variant="h4" fontFamily={"var(--font-family)"} fontWeight="bold">
                             Archived Applications
                         </Typography>
                     </div>
@@ -154,6 +155,38 @@ function Archives({ userInfo, updateUser }: ArchivesProps) {
                     )}
                 </div>
             </div>
+
+            {/* Footer */}
+            <footer className="footer-section">
+                <Container maxWidth="lg">
+                    <Box className="footer-content">
+                        <div className="footer-links">
+                            <IconButton
+                                component="a"
+                                href="https://www.linkedin.com/in/jessica-richard-7b601789"
+                                target="_blank"
+                                className="footer-link"
+                                aria-label="LinkedIn Profile"
+                            >
+                                <LinkedIn />
+                            </IconButton>
+                            <IconButton
+                                component="a"
+                                href="https://github.com/jrichard12/job-application-tracker"
+                                target="_blank"
+                                className="footer-link"
+                                aria-label="GitHub Repository"
+                            >
+                                <GitHub />
+                            </IconButton>
+                        </div>
+                        <Typography variant="body2" className="footer-text">
+                            Designed and Built by Jessica Richard
+                        </Typography>
+                    </Box>
+                </Container>
+            </footer>
+
             <SnackbarAlert open={snackbar.open} message={snackbar.message} severity={snackbar.severity} onClose={handleSnackbarClose} />
         </div>
     );

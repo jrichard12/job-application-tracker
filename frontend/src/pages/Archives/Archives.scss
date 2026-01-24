@@ -31,7 +31,7 @@
       box-shadow: $shadow-gradient;
       background: $gradient-primary;
       color: $color-text-white;
-      padding: 0 $spacing-xxl;
+      padding: 0 1.2rem;
       font-size: 1.2rem;
       font-weight: 600;
       display: flex;
@@ -92,7 +92,7 @@
       flex-direction: row;
       gap: $spacing-lg;
       width: 100%;
-      padding: $spacing-lg;
+      padding: 1.2rem;
       box-sizing: border-box;
       position: relative; // Required for absolute positioned overlay
 
@@ -249,6 +249,41 @@
         &::-webkit-scrollbar-thumb:window-inactive {
           background: transparent;
         }
+      }
+    }
+  }
+
+  // Footer
+  .footer-section {
+    margin-top: 1rem;
+    padding: 5rem 0 0 0;
+    background: $color-background;
+
+    .footer-content {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: $spacing-lg;
+      animation: fadeInUp 0.8s ease-out;
+
+      .footer-links {
+        display: flex;
+        gap: $spacing-lg;
+
+        .footer-link {
+          color: $color-primary;
+          transition: all 0.3s ease;
+
+          &:hover {
+            color: $color-secondary;
+            transform: translateY(-2px);
+          }
+        }
+      }
+
+      .footer-text {
+        color: $color-text-light;
+        font-weight: 500;
       }
     }
   }

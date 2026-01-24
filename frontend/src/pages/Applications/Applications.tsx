@@ -2,7 +2,7 @@ import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
 import SyncIcon from '@mui/icons-material/Sync';
 import ViewListIcon from '@mui/icons-material/ViewList';
 import ViewModuleIcon from '@mui/icons-material/ViewModule';
-import { CircularProgress, IconButton, Paper, Tooltip, Typography } from "@mui/material";
+import { Box, CircularProgress, Container, IconButton, Paper, Tooltip, Typography } from "@mui/material";
 import { useEffect, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import SnackbarAlert from '../../components/SnackbarAlert/SnackbarAlert';
@@ -17,6 +17,7 @@ import { type UserInfo } from "../../types/UserInfo";
 import "./Applications.scss";
 import { createJob, getJobs } from '../../services/jobService';
 import JobSearchBar from "../../components/JobSearchBar/JobSearchBar";
+import { GitHub, LinkedIn } from '@mui/icons-material';
 
 interface ApplicationsProps {
     userInfo: UserInfo | null;
@@ -307,6 +308,37 @@ function Applications({ userInfo, updateUser }: ApplicationsProps) {
                     )}
                 </div>
             </Paper>
+            
+            {/* Footer */}
+            <footer className="footer-section">
+                <Container maxWidth="lg">
+                    <Box className="footer-content">
+                        <div className="footer-links">
+                            <IconButton
+                                component="a"
+                                href="https://www.linkedin.com/in/jessica-richard-7b601789"
+                                target="_blank"
+                                className="footer-link"
+                                aria-label="LinkedIn Profile"
+                            >
+                                <LinkedIn />
+                            </IconButton>
+                            <IconButton
+                                component="a"
+                                href="https://github.com/jrichard12/job-application-tracker"
+                                target="_blank"
+                                className="footer-link"
+                                aria-label="GitHub Repository"
+                            >
+                                <GitHub />
+                            </IconButton>
+                        </div>
+                        <Typography variant="body2" className="footer-text">
+                            Designed and Built by Jessica Richard
+                        </Typography>
+                    </Box>
+                </Container>
+            </footer>
             <SnackbarAlert open={snackbar.open} message={snackbar.message} severity={snackbar.severity} onClose={handleSnackbarClose} />
         </div>
     );
