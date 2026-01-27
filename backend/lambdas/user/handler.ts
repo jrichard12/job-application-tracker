@@ -1,188 +1,78 @@
-import { DynamoDBClient } from "@aws-sdk/client-dynamodb";
 import {
-  DynamoDBDocumentClient,
-  GetCommand,
-  PutCommand,
-  UpdateCommand,
-} from "@aws-sdk/lib-dynamodb";
-
-const client = new DynamoDBClient({});
-const docClient = DynamoDBDocumentClient.from(client);
-
-const TABLE_NAME = process.env.TABLE_NAME!;
+  getUserBySub,
+  createUserItem,
+  updateUserItem,
+} from "./userRepository/userRepository";
 
 const getUser = async (sub: any) => {
   console.log("=== GetUser START ===");
-  const PK = `USER#${sub.trim()}`;
-  const SK = "PROFILE";
 
-  // Try to get user from DynamoDB
-  console.log("Attempting to get user from DynamoDB...");
-  const getUserResult = await docClient.send(
-    new GetCommand({
-      TableName: TABLE_NAME,
-      Key: { PK, SK },
-    })
-  );
+  const user = await getUserBySub(sub);
 
-  // Return user profile if found, otherwise return null
-  if (!getUserResult.Item) {
-    console.log("User not found in DynamoDB");
-    const response = {
+  if (!user) {
+    return {
       statusCode: 200,
-      headers: {
-        "Content-Type": "application/json",
-      },
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify(null),
     };
-    console.log("=== GetUser END ===");
-    return response;
   }
 
   const frontendUser = {
     id: sub,
-    email: getUserResult.Item.email,
-    sendNotifications: getUserResult.Item.sendNotifications || false,
+    email: user.email,
+    sendNotifications: user.sendNotifications || false,
   };
 
-  const successResponse = {
+  return {
     statusCode: 200,
-    headers: {
-      "Content-Type": "application/json",
-    },
+    headers: { "Content-Type": "application/json" },
     body: JSON.stringify(frontendUser),
   };
-  console.log("=== GetUser END ===");
-  return successResponse;
 };
 
-const createUser = async (
-  sub: any,
-  email: any,
-  event: any
-) => {
+const createUser = async (sub: any, email: any) => {
   console.log("=== CreateUser START ===");
 
-  const PK = `USER#${sub.trim()}`;
-  const SK = "PROFILE";
+  const existingUser = await getUserBySub(sub);
 
-  // Check if user already exists
-  console.log("Checking if user already exists...");
-  const getUserResult = await docClient.send(
-    new GetCommand({
-      TableName: TABLE_NAME,
-      Key: { PK, SK },
-    })
-  );
-
-  if (getUserResult.Item) {
-    console.log("User already exists");
-    const frontendUser = {
-      id: sub,
-      email: getUserResult.Item.email,
-      sendNotifications: getUserResult.Item.sendNotifications || false,
-    };
-
-    const response = {
+  if (existingUser) {
+    return {
       statusCode: 200,
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(frontendUser),
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        id: sub,
+        email: existingUser.email,
+        sendNotifications: existingUser.sendNotifications || false,
+      }),
     };
-    console.log("=== CreateUser END ===");
-    return response;
   }
 
-  // Create new user
-  console.log("Creating new user in DynamoDB...");
-  const user = {
-    PK,
-    SK,
-    email,
-    sendNotifications: false,
-    createdAt: new Date().toISOString(),
-  };
+  const newUser = await createUserItem(sub, email);
 
-  await docClient.send(
-    new PutCommand({
-      TableName: TABLE_NAME,
-      Item: user,
-    })
-  );
-  console.log("New user created successfully");
-
-  const frontendUser = {
-    id: sub,
-    email: email,
-    sendNotifications: false,
-  };
-
-  const successResponse = {
+  return {
     statusCode: 201,
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify(frontendUser),
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      id: sub,
+      email: newUser.email,
+      sendNotifications: false,
+    }),
   };
-  console.log("=== CreateUser END ===");
-  return successResponse;
 };
 
-const updateUser = async (
-  body: any,
-  sub: any,
-  event: any
-) => {
+
+const updateUser = async (body: any, sub: any) => {
   console.log("=== UpdateUser START ===");
-  const {...updateData } = body;
 
-  const PK = `USER#${sub.trim()}`;
-  const SK = "PROFILE";
+  await updateUserItem(sub, body);
 
-  // Update user profile
-  console.log("Updating user profile in DynamoDB...");
-  console.log("Update data received:", updateData);
-
-  // Build the UpdateExpression dynamically based on the fields to update
-  const updateExpressions: string[] = [];
-  const expressionAttributeNames: Record<string, string> = {};
-  const expressionAttributeValues: Record<string, any> = {};
-
-  // Add other fields to update
-  Object.keys(updateData).forEach((key, index) => {
-    const attributeName = `#attr${index}`;
-    const attributeValue = `:val${index}`;
-
-    updateExpressions.push(`${attributeName} = ${attributeValue}`);
-    expressionAttributeNames[attributeName] = key;
-    expressionAttributeValues[attributeValue] = updateData[key];
-  });
-
-  const updateExpression = "SET " + updateExpressions.join(", ");
-
-  await docClient.send(
-    new UpdateCommand({
-      TableName: TABLE_NAME,
-      Key: { PK, SK },
-      UpdateExpression: updateExpression,
-      ExpressionAttributeNames: expressionAttributeNames,
-      ExpressionAttributeValues: expressionAttributeValues,
-      ReturnValues: "UPDATED_NEW",
-    })
-  );
-  console.log("User profile updated successfully");
-
-  const successResponse = {
+  return {
     statusCode: 200,
-    headers: {
-      "Content-Type": "application/json",
-    },
+    headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ message: "User profile updated successfully" }),
   };
-  console.log("=== UpdateUser END ===");
-  return successResponse;
 };
+
 
 export const handler = async (event: any) => {
   console.log("=== UserHandler START ===");
@@ -203,9 +93,9 @@ export const handler = async (event: any) => {
       case "GET":
         return await getUser(sub);
       case "POST":
-        return await createUser(sub, email, event);
+        return await createUser(sub, email);
       case "PUT":
-        return await updateUser(sub, email, event);
+        return await updateUser(event.body ? JSON.parse(event.body) : {}, sub);
       default:
         console.error("Unsupported method:", method);
         return {
