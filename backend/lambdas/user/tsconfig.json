@@ -3,15 +3,23 @@
     "target": "ES2022",
     "module": "CommonJS",
     "moduleResolution": "Node",
-    "outDir": "c:/job-application-tracker/job-application-tracker/backend/dist/user",
-    "rootDir": "..",
+    "outDir": "dist",
+    "rootDir": ".",
     "strict": true,
     "esModuleInterop": true,
     "forceConsistentCasingInFileNames": true,
     "skipLibCheck": true,
-    "types": ["node", "aws-lambda"]
+    "types": [
+      "node",
+      "jest",
+      "aws-lambda"
+    ]
   },
   "include": [
     "**/*.ts"
+  ],
+  "exclude": [
+    "**/*.test.ts",
+    "**/__tests__/**"
   ]
 }

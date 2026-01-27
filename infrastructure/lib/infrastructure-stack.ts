@@ -70,9 +70,9 @@ export class InfrastructureStack extends cdk.Stack {
         description:
           "Lambda function to handle creating/fetching user data on login",
         code: lambda.Code.fromAsset(
-          path.join(__dirname, "../../backend/dist/user")
+          path.join(__dirname, "../../backend/lambdas/user/dist")
         ),
-        handler: "user/handler.handler",
+        handler: "handler.handler",
         environment: {
           TABLE_NAME: this.jobAppTable.tableName,
           USER_POOL_ID: this.userPool.userPoolId,
@@ -92,9 +92,9 @@ export class InfrastructureStack extends cdk.Stack {
       functionName: "JobHandlerLambda",
       description: "Lambda function to handle job application CRUD operations",
       code: lambda.Code.fromAsset(
-        path.join(__dirname, "../../backend/dist/job")
+        path.join(__dirname, "../../backend/lambdas/job/dist")
       ),
-      handler: "job/handler.handler",
+      handler: "handler.handler",
       environment: {
         TABLE_NAME: this.jobAppTable.tableName,
         USER_POOL_ID: this.userPool.userPoolId,
@@ -169,9 +169,9 @@ export class InfrastructureStack extends cdk.Stack {
         functionName: "NotificationSenderLambda",
         description: "Lambda function to send deadline notifications to users",
         code: lambda.Code.fromAsset(
-          path.join(__dirname, "../../backend/dist/notificationSender")
+          path.join(__dirname, "../../backend/lambdas/notificationSender/dist")
         ),
-        handler: "notificationSender/handler.handler",
+        handler: "handler.handler",
         environment: {
           TABLE_NAME: this.jobAppTable.tableName,
           SES_FROM_EMAIL: "app.tracker.25@gmail.com",
